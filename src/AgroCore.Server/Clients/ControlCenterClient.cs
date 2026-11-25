@@ -1,5 +1,8 @@
 using System;
+using AgroCore.Server.Machines;
 using AgroCore.Server.Security;
+using AgroCore.Server.Synchronization;
+using AgroCore.Shared.DTOs;
 using AgroCore.Shared.Enums;
 using AgroCore.Shared.Messages;
 using AgroCore.Shared.Models;
@@ -184,7 +187,23 @@ namespace AgroCore.Server.Clients
                 case MessageTypes.ListUsers:
                     if (Require(Permission.ManageUsers, type))
                     {
-                        connection.Send(context.Users.ListUsers());
+                        ListUsersResponse users = context.Users.ListUsers();
+                        // Máquinas conectadas ahora mismo (dato en vivo de cada explotación)
+                        foreach (FarmDto farmDto in users.Farms)
+                        {
+                            FarmRuntime runtime = context.Farms == null ? null : context.Farms.Get(farmDto.Id);
+                            if (runtime != null)
+                            {
+                                foreach (MachineRuntime machine in runtime.GetMachines())
+                                {
+                                    if (machine.Online)
+                                    {
+                                        farmDto.OnlineMachines++;
+                                    }
+                                }
+                            }
+                        }
+                        connection.Send(users);
                     }
                     break;
 

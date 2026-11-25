@@ -59,10 +59,21 @@ namespace AgroCore.Server
 
             // 2. Arrancar los hilos del servidor
             TcpServer tcpServer = new TcpServer(context, context.Config.Current.TcpPort);
-            tcpServer.Start();
-
             UdpTelemetryServer udpServer = new UdpTelemetryServer(context, context.Config.Current.UdpPort);
-            udpServer.Start();
+            try
+            {
+                tcpServer.Start();
+                udpServer.Start();
+            }
+            catch (System.Net.Sockets.SocketException)
+            {
+                Console.WriteLine();
+                Console.WriteLine("ERROR: los puertos " + context.Config.Current.TcpPort + "/" + context.Config.Current.UdpPort
+                                  + " ya están en uso. ¿Hay otro servidor AGROCORE arrancado?");
+                context.Logger.Stop();
+                Environment.ExitCode = 1;
+                return;
+            }
 
             GrowthService growth = new GrowthService(context.Farms);
             growth.Start();

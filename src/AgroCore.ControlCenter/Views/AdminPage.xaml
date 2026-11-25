@@ -1,0 +1,165 @@
+<UserControl x:Class="AgroCore.ControlCenter.Views.AdminPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="20,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="360" />
+            </Grid.ColumnDefinitions>
+
+            <!-- ================= IZQUIERDA ================= -->
+            <StackPanel>
+                <!-- Usuarios -->
+                <Border Style="{StaticResource Card}" Padding="0" Margin="0,0,0,14">
+                    <StackPanel>
+                        <DockPanel Margin="14,14,14,8">
+                            <Button DockPanel.Dock="Right" Content="ACTUALIZAR" Style="{StaticResource SmallButton}" Margin="0" Click="Refresh_Click" />
+                            <TextBlock Text="USUARIOS" Style="{StaticResource SectionText}" Margin="0" VerticalAlignment="Center" />
+                        </DockPanel>
+                        <DataGrid x:Name="UsersGrid" MaxHeight="420">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="USUARIO" Binding="{Binding Username}" Width="100" FontWeight="SemiBold" />
+                                <DataGridTextColumn Header="NOMBRE" Binding="{Binding FullName}" Width="*" />
+                                <DataGridTextColumn Header="ROL" Binding="{Binding RoleText}" Width="100" />
+                                <DataGridTextColumn Header="EXPLOTACIÓN" Binding="{Binding FarmText}" Width="*" />
+                                <DataGridTextColumn Header="ESTADO" Binding="{Binding ActiveText}" Width="80" />
+                                <DataGridTextColumn Header="ÚLTIMO ACCESO" Binding="{Binding LastLoginText}" Width="120" />
+                                <DataGridTemplateColumn Header="ACCIONES" Width="290">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <Button Content="Editar" Style="{StaticResource SmallButton}" Click="Edit_Click" />
+                                                <Button Content="Contraseña" Style="{StaticResource SmallButton}" Click="Password_Click" />
+                                                <Button Content="{Binding ToggleText}" Style="{StaticResource SmallButton}" Click="Toggle_Click" />
+                                                <Button Content="Eliminar" Style="{StaticResource SmallButton}" Foreground="#FFFF8A80" Click="Delete_Click" />
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Explotaciones -->
+                <Border Style="{StaticResource Card}" Padding="0" Margin="0,0,0,14">
+                    <StackPanel>
+                        <TextBlock Text="EXPLOTACIONES" Style="{StaticResource SectionText}" Margin="14,14,0,8" />
+                        <DataGrid x:Name="FarmsGrid">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="40" />
+                                <DataGridTextColumn Header="EXPLOTACIÓN" Binding="{Binding Name}" Width="*" FontWeight="SemiBold" />
+                                <DataGridTextColumn Header="AGRICULTOR" Binding="{Binding OwnerName}" Width="*" />
+                                <DataGridTextColumn Header="CAMPOS" Binding="{Binding FieldCount}" Width="70" />
+                                <DataGridTextColumn Header="MÁQUINAS" Binding="{Binding MachineCount}" Width="80" />
+                                <DataGridTextColumn Header="CONECTADAS" Binding="{Binding OnlineMachines}" Width="90" />
+                                <DataGridTextColumn Header="CARGADORES" Binding="{Binding ChargerCount}" Width="90" />
+                                <DataGridTemplateColumn Header="" Width="170">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <Button Content="Nueva clave de flota" Style="{StaticResource SmallButton}" Click="RegenerateKey_Click" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </StackPanel>
+                </Border>
+
+                <!-- Configuración -->
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="CONFIGURACIÓN DEL SISTEMA" Style="{StaticResource SectionText}" />
+                        <UniformGrid Columns="4">
+                            <StackPanel Margin="0,0,12,10">
+                                <Label Content="Zanahoria (minutos)" />
+                                <TextBox x:Name="CarrotBox" />
+                            </StackPanel>
+                            <StackPanel Margin="0,0,12,10">
+                                <Label Content="Maíz (minutos)" />
+                                <TextBox x:Name="CornBox" />
+                            </StackPanel>
+                            <StackPanel Margin="0,0,12,10">
+                                <Label Content="Tomate (minutos)" />
+                                <TextBox x:Name="TomatoBox" />
+                            </StackPanel>
+                            <StackPanel Margin="0,0,12,10">
+                                <Label Content="Campo libre tras cosecha (s)" />
+                                <TextBox x:Name="ResetBox" />
+                            </StackPanel>
+                            <StackPanel Margin="0,0,12,10">
+                                <Label Content="Batería baja (%)" />
+                                <TextBox x:Name="LowBatteryBox" />
+                            </StackPanel>
+                            <StackPanel Margin="0,0,12,10">
+                                <Label Content="Velocidad de carga (%/s)" />
+                                <TextBox x:Name="ChargeRateBox" />
+                            </StackPanel>
+                            <StackPanel Margin="0,0,12,10">
+                                <Label Content="Intentos de login" />
+                                <TextBox x:Name="AttemptsBox" />
+                            </StackPanel>
+                            <StackPanel Margin="0,0,12,10">
+                                <Label Content="Bloqueo (s)" />
+                                <TextBox x:Name="LockoutBox" />
+                            </StackPanel>
+                        </UniformGrid>
+                        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
+                            <Button Content="GUARDAR CONFIGURACIÓN" Click="SaveConfig_Click" />
+                            <TextBlock x:Name="ConfigResult" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="10,0,0,0" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+
+            <!-- ================= DERECHA: ALTAS ================= -->
+            <StackPanel Grid.Column="1" Margin="14,0,0,0">
+                <Border Style="{StaticResource Card}" Margin="0,0,0,14">
+                    <StackPanel>
+                        <TextBlock Text="NUEVO AGRICULTOR" Style="{StaticResource SectionText}" />
+                        <TextBlock Text="Crea el usuario y su explotación con campos, máquinas y cargadores." Style="{StaticResource MutedText}" TextWrapping="Wrap" Margin="0,0,0,10" />
+                        <Label Content="Nombre completo" />
+                        <TextBox x:Name="FarmerName" Margin="0,0,0,8" />
+                        <Label Content="Usuario" />
+                        <TextBox x:Name="FarmerUser" Margin="0,0,0,8" />
+                        <Label Content="Contraseña inicial" />
+                        <PasswordBox x:Name="FarmerPassword" Margin="0,0,0,8" />
+                        <Label Content="Nombre de la explotación" />
+                        <TextBox x:Name="FarmName" Margin="0,0,0,8" />
+                        <UniformGrid Columns="3">
+                            <StackPanel Margin="0,0,8,8"><Label Content="Campos" /><TextBox x:Name="FieldsBox" Text="6" /></StackPanel>
+                            <StackPanel Margin="0,0,8,8"><Label Content="Cargadores" /><TextBox x:Name="ChargersBox" Text="3" /></StackPanel>
+                            <StackPanel Margin="0,0,0,8"><Label Content="Sembradoras" /><TextBox x:Name="SeedersBox" Text="2" /></StackPanel>
+                            <StackPanel Margin="0,0,8,8"><Label Content="Regadoras" /><TextBox x:Name="IrrigatorsBox" Text="2" /></StackPanel>
+                            <StackPanel Margin="0,0,8,8"><Label Content="Drones" /><TextBox x:Name="SprayersBox" Text="3" /></StackPanel>
+                            <StackPanel Margin="0,0,0,8"><Label Content="Cosechadoras" /><TextBox x:Name="HarvestersBox" Text="4" /></StackPanel>
+                        </UniformGrid>
+                        <Button Content="CREAR AGRICULTOR" Margin="0,6,0,0" Height="36" Click="CreateFarmer_Click" />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource Card}">
+                    <StackPanel>
+                        <TextBlock Text="NUEVO OPERADOR / OBSERVADOR" Style="{StaticResource SectionText}" />
+                        <Label Content="Nombre completo" />
+                        <TextBox x:Name="UserName" Margin="0,0,0,8" />
+                        <Label Content="Usuario" />
+                        <TextBox x:Name="UserLogin" Margin="0,0,0,8" />
+                        <Label Content="Contraseña inicial" />
+                        <PasswordBox x:Name="UserPassword" Margin="0,0,0,8" />
+                        <Label Content="Rol" />
+                        <ComboBox x:Name="UserRoleBox" SelectedIndex="0" Margin="0,0,0,8">
+                            <ComboBoxItem Content="Operador (controla las máquinas)" />
+                            <ComboBoxItem Content="Observador (solo ver)" />
+                            <ComboBoxItem Content="Administrador" />
+                        </ComboBox>
+                        <Label Content="Explotación" />
+                        <ComboBox x:Name="UserFarmBox" Margin="0,0,0,8" />
+                        <Button Content="CREAR USUARIO" Margin="0,6,0,0" Height="36" Click="CreateUser_Click" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

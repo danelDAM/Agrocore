@@ -44,6 +44,11 @@ namespace AgroCore.ControlCenter.Views
         private MachinesPage machinesPage;
         private FieldsPage fieldsPage;
         private TasksPage tasksPage;
+        private StatisticsPage statisticsPage;
+        private ReportsPage reportsPage;
+        private LogsPage logsPage;
+        private ProfilePage profilePage;
+        private AdminPage adminPage;
 
         /// <summary>Se lanza cada vez que llega un FARM_STATE nuevo (ya en el hilo de la interfaz).</summary>
         public event Action<FarmStateMessage> StateUpdated;
@@ -115,6 +120,21 @@ namespace AgroCore.ControlCenter.Views
             machinesPage = new MachinesPage(this);
             fieldsPage = new FieldsPage(this);
             tasksPage = new TasksPage(this);
+            statisticsPage = new StatisticsPage(this);
+            reportsPage = new ReportsPage(this);
+            logsPage = new LogsPage(this);
+            profilePage = new ProfilePage(this);
+            adminPage = new AdminPage(this);
+
+            // Opciones del menú según el rol
+            NavStatistics.Visibility = Can(Permission.ViewStatistics) ? Visibility.Visible : Visibility.Collapsed;
+            NavReports.Visibility = Can(Permission.GenerateReports) ? Visibility.Visible : Visibility.Collapsed;
+            NavLogs.Visibility = Can(Permission.ViewLogs) ? Visibility.Visible : Visibility.Collapsed;
+            NavAdmin.Visibility = Can(Permission.ManageUsers) ? Visibility.Visible : Visibility.Collapsed;
+            if (!Can(Permission.ViewStatistics) && !Can(Permission.GenerateReports) && !Can(Permission.ViewLogs))
+            {
+                AnalysisHeader.Visibility = Visibility.Collapsed;
+            }
             NavDashboard.IsChecked = true;
         }
 
@@ -131,6 +151,11 @@ namespace AgroCore.ControlCenter.Views
             else if (button == NavMachines) PageHost.Content = machinesPage;
             else if (button == NavFields) PageHost.Content = fieldsPage;
             else if (button == NavTasks) PageHost.Content = tasksPage;
+            else if (button == NavStatistics) PageHost.Content = statisticsPage;
+            else if (button == NavReports) PageHost.Content = reportsPage;
+            else if (button == NavLogs) PageHost.Content = logsPage;
+            else if (button == NavProfile) PageHost.Content = profilePage;
+            else if (button == NavAdmin) PageHost.Content = adminPage;
         }
 
         /// <summary>Abre la página de máquinas con una máquina seleccionada (desde el panel).</summary>

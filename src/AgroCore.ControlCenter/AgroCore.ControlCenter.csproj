@@ -9,4 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\AgroCore.Shared\AgroCore.Shared.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="QuestPDF" Version="2024.12.3" />
+  </ItemGroup>
 </Project>

@@ -39,6 +39,15 @@
                     <RadioButton x:Name="NavMachines" Content="Máquinas" Tag="&#xE804;" Style="{StaticResource NavButton}" GroupName="Nav" Checked="Nav_Checked" />
                     <RadioButton x:Name="NavFields" Content="Campos" Tag="&#xE909;" Style="{StaticResource NavButton}" GroupName="Nav" Checked="Nav_Checked" />
                     <RadioButton x:Name="NavTasks" Content="Tareas" Tag="&#xE9D5;" Style="{StaticResource NavButton}" GroupName="Nav" Checked="Nav_Checked" />
+
+                    <TextBlock x:Name="AnalysisHeader" Text="ANÁLISIS" Style="{StaticResource SectionText}" Margin="8,18,0,6" />
+                    <RadioButton x:Name="NavStatistics" Content="Estadísticas" Tag="&#xE9D2;" Style="{StaticResource NavButton}" GroupName="Nav" Checked="Nav_Checked" />
+                    <RadioButton x:Name="NavReports" Content="Informes" Tag="&#xE8A5;" Style="{StaticResource NavButton}" GroupName="Nav" Checked="Nav_Checked" />
+                    <RadioButton x:Name="NavLogs" Content="Registro de eventos" Tag="&#xE81C;" Style="{StaticResource NavButton}" GroupName="Nav" Checked="Nav_Checked" />
+
+                    <TextBlock Text="CUENTA" Style="{StaticResource SectionText}" Margin="8,18,0,6" />
+                    <RadioButton x:Name="NavProfile" Content="Mi perfil" Tag="&#xE77B;" Style="{StaticResource NavButton}" GroupName="Nav" Checked="Nav_Checked" />
+                    <RadioButton x:Name="NavAdmin" Content="Administración" Tag="&#xE7EF;" Style="{StaticResource NavButton}" GroupName="Nav" Checked="Nav_Checked" />
                 </StackPanel>
             </DockPanel>
         </Border>
