@@ -353,7 +353,9 @@ namespace AgroCore.MachineClient.Machine
                     return;
                 }
 
-                double step = speed * TickSeconds;
+                // Simulazioaren abiadura: x10 bada, urrats honetan 10 aldiz denbora gehiago simulatzen da
+                double simSeconds = SimulationClock.Scale(TickSeconds);
+                double step = speed * simSeconds;
                 Position next;
                 if (step >= distance)
                 {
@@ -376,13 +378,13 @@ namespace AgroCore.MachineClient.Machine
                 state.SetPosition(next, heading, speed);
                 if (working)
                 {
-                    battery.ConsumeWorking(TickSeconds);
+                    battery.ConsumeWorking(simSeconds);
                 }
                 else
                 {
-                    battery.ConsumeMoving(TickSeconds);
+                    battery.ConsumeMoving(simSeconds);
                 }
-                state.UpdateTemperature(working, true, TickSeconds);
+                state.UpdateTemperature(working, true, simSeconds);
 
                 Thread.Sleep((int)(TickSeconds * 1000));
             }

@@ -77,6 +77,21 @@
 - Zerbitzaria abiaraztean TCP (5000) edo UDP (5001) ataka **erabiltzen ari badira**, errore argi bat
   idazten du kontsolan ("Beste AGROCORE zerbitzari bat martxan al dago?") eta 1 irteera-kodearekin amaitzen da.
 
+### Simulazioaren abiadura (x1, x2, x5, x10)
+
+Aginte-paneleko "FLOTAREN KONTROLA" barran **DENBORA** botoiak daude: x1 / x2 / x5 / x10.
+Denbora azkartzen dute probak egiteko (gehienez x10), eta uneko abiadura berdez nabarmentzen da
+eta egoera-barran ere agertzen da ("Denbora: x10").
+
+- WPF -> zerbitzaria: `SET_SIMULATION_SPEED` mezua (`SimulationSpeedMessage`: `FarmId`, `Speed`).
+  `GlobalCommands` baimena behar da (administratzailea, nekazaria eta operadorea).
+- Zerbitzariak `FarmRuntime.SimulationSpeed`-en gordetzen du, laboreen hazkundea azkartzen du
+  (`GrowthService`: `seconds * farm.SimulationSpeed`) eta mezu bera konektatutako makina guztiei bidaltzen die.
+  Konektatzen den makina berriak `MachineAuthResponse.SimulationSpeed`-en jasotzen du.
+- Makinan, `SimulationClock`-ek abiadura gordetzen du. Makinak 20 urrats egiten ditu segundoko beti,
+  baina urrats bakoitzean `Speed` aldiz denbora gehiago simulatzen du: mugimendua, bateria-kontsumoa,
+  karga eta tenperatura. Guneen erreserba gelaxkaz gelaxka egiten denez, talka-saihestea x10-ean ere bermatuta dago.
+
 ## Proba automatikoak (21)
 
 ```

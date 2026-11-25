@@ -119,6 +119,7 @@ namespace AgroCore.Server.Clients
             response.UdpPort = context.Config.Current.UdpPort;
             response.TelemetryIntervalMs = context.Config.Current.TelemetryIntervalMs;
             response.Battery = context.Config.Current.Battery;
+            response.SimulationSpeed = farm.SimulationSpeed;
             connection.Send(response);
 
             context.Logger.Log(EventKind.MachineAuthenticated, LogSeverity.Success,

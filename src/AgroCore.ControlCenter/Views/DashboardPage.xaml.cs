@@ -39,6 +39,7 @@ namespace AgroCore.ControlCenter.Views
             if (!main.Can(Permission.GlobalCommands))
             {
                 GlobalButtons.Visibility = Visibility.Collapsed;
+                SpeedButtons.Visibility = Visibility.Collapsed;
             }
             if (!main.Can(Permission.EmergencyStop))
             {
@@ -55,6 +56,7 @@ namespace AgroCore.ControlCenter.Views
             WaitingPanel.Visibility = Visibility.Collapsed;
             Scene.UpdateState(state);
             UpdateKpis(state.Summary);
+            ShowSpeed(state.SimulationSpeed);
             NoAlertsText.Visibility = state.Alerts.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
 
             if (selectedId != null && main.FindMachine(selectedId) == null)
@@ -185,6 +187,37 @@ namespace AgroCore.ControlCenter.Views
         private void Emergency_Click(object sender, RoutedEventArgs e)
         {
             main.SendFarmCommand(MessageTypes.EmergencyStop);
+        }
+
+        // ==================================================================
+        // SIMULAZIOAREN ABIADURA (x1, x2, x5, x10)
+        // ==================================================================
+
+        /// <summary>Abiadura-botoi bat sakatzean: abiadura berria zerbitzariari bidali (botoiaren Tag-ean dago).</summary>
+        private void Speed_Click(object sender, RoutedEventArgs e)
+        {
+            Button button = (Button)sender;
+            int speed = int.Parse((string)button.Tag);
+            main.SendSimulationSpeed(speed);
+            ShowSpeed(speed); // berehala nabarmendu; hurrengo FARM_STATE-k berretsiko du
+        }
+
+        /// <summary>Uneko abiaduraren botoia nabarmentzen du (berdea), besteak gris.</summary>
+        private void ShowSpeed(int speed)
+        {
+            Button[] buttons = { Speed1, Speed2, Speed5, Speed10 };
+            foreach (Button button in buttons)
+            {
+                bool selected = (string)button.Tag == speed.ToString();
+                if (selected)
+                {
+                    button.ClearValue(StyleProperty); // gaiaren botoi-estilo nagusia (berdea)
+                }
+                else
+                {
+                    button.Style = (Style)FindResource("GhostButton");
+                }
+            }
         }
     }
 }

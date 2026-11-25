@@ -29,6 +29,9 @@ namespace AgroCore.Server.Synchronization
         /// <summary>Larrialdiko geldialdia aktibo (RESUME_ALL arte).</summary>
         public volatile bool EmergencyActive;
 
+        /// <summary>Simulazioaren abiadura: 1 = denbora erreala, 10 = hamar aldiz azkarrago (Kontrol Zentroko botoiak).</summary>
+        public volatile int SimulationSpeed = 1;
+
         public int Id
         {
             get { return Farm.Id; }

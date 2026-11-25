@@ -248,6 +248,14 @@
                     <Button Content="GUZTIAK BERREKIN" Click="ResumeAll_Click" />
                     <Button Content="GUZTIAK BASERA" Style="{StaticResource InfoButton}" Click="ReturnAll_Click" />
                 </StackPanel>
+                <!-- Simulazioaren abiadura: denbora azkartzeko botoiak (Tag = abiadura) -->
+                <StackPanel x:Name="SpeedButtons" Orientation="Horizontal" Margin="24,0,0,0">
+                    <TextBlock Text="DENBORA" Style="{StaticResource SectionText}" VerticalAlignment="Center" Margin="0,0,10,0" />
+                    <Button x:Name="Speed1" Content="x1" Tag="1" Style="{StaticResource GhostButton}" MinWidth="46" Click="Speed_Click" />
+                    <Button x:Name="Speed2" Content="x2" Tag="2" Style="{StaticResource GhostButton}" MinWidth="46" Click="Speed_Click" />
+                    <Button x:Name="Speed5" Content="x5" Tag="5" Style="{StaticResource GhostButton}" MinWidth="46" Click="Speed_Click" />
+                    <Button x:Name="Speed10" Content="x10" Tag="10" Style="{StaticResource GhostButton}" MinWidth="46" Click="Speed_Click" />
+                </StackPanel>
             </DockPanel>
         </Border>
     </Grid>

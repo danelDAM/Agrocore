@@ -52,6 +52,7 @@ namespace AgroCore.MachineClient.Machine
             navigator = new Navigator(machineId, type, profile, state, control, battery, link, layout, auth.DroneIndex);
             executor = new TaskExecutor(machineId, type, profile, state, control, battery, navigator, link, layout, Log);
             navigator.PlaceAtSlot(parkingSpot);
+            SimulationClock.Speed = auth.SimulationSpeed;
 
             link.CommandReceived += OnCommand;
         }
@@ -80,6 +81,11 @@ namespace AgroCore.MachineClient.Machine
                 case MessageTypes.ReturnToBase:
                     Log("RETURN_TO_BASE agindua jasota");
                     control.RequestReturn();
+                    break;
+                case MessageTypes.SetSimulationSpeed:
+                    SimulationSpeedMessage speedMessage = MessageSerializer.FromJson<SimulationSpeedMessage>(json);
+                    SimulationClock.Speed = speedMessage.Speed;
+                    Log("Simulazioaren abiadura: x" + SimulationClock.Speed);
                     break;
                 case MessageTypes.TaskCancelled:
                     TaskCancelledNotice notice = MessageSerializer.FromJson<TaskCancelledNotice>(json);
@@ -224,8 +230,8 @@ namespace AgroCore.MachineClient.Machine
                 {
                     throw new LinkLostException();
                 }
-                battery.Charge(0.1);
-                state.UpdateTemperature(false, false, 0.1);
+                battery.Charge(SimulationClock.Scale(0.1));
+                state.UpdateTemperature(false, false, SimulationClock.Scale(0.1));
                 Thread.Sleep(100);
             }
             state.BatteryStatus = BatteryStatus.FullyCharged;

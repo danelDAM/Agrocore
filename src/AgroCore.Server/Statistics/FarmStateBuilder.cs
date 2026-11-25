@@ -35,6 +35,7 @@ namespace AgroCore.Server.Statistics
             state.FieldCount = farm.Layout.FieldCount;
             state.ChargerCount = farm.Layout.ChargerCount;
             state.EmergencyActive = farm.EmergencyActive;
+            state.SimulationSpeed = farm.SimulationSpeed;
             state.Crops = config.Crops;
 
             foreach (MachineRuntime machine in farm.GetMachines())

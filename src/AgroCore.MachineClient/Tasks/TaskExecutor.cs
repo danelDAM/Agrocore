@@ -98,7 +98,7 @@ namespace AgroCore.MachineClient.Tasks
                     if (load >= profile.Capacity && lane < lanes - 1)
                     {
                         state.Set(MachineStatus.Working, "tolba husten (" + profile.Capacity.ToString("0") + " kg)");
-                        Thread.Sleep(2000);
+                        Thread.Sleep(2000 / SimulationClock.Speed);
                         load = 0;
                         state.Set(MachineStatus.Working, WorkName(task.TaskType) + " " + task.FieldId);
                     }

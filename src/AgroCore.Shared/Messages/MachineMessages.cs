@@ -38,6 +38,9 @@ namespace AgroCore.Shared.Messages
         public int TelemetryIntervalMs { get; set; }
         public BatteryConfig Battery { get; set; } = new BatteryConfig();
 
+        /// <summary>Ustiategiaren uneko simulazio-abiadura (1 = denbora erreala, 10 = hamar aldiz azkarrago).</summary>
+        public int SimulationSpeed { get; set; } = 1;
+
         public MachineAuthResponse()
         {
             Type = MessageTypes.MachineAuthResponse;

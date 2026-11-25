@@ -39,6 +39,7 @@ namespace AgroCore.Shared.Messages
         public const string StopAll = "STOP_ALL";
         public const string ResumeAll = "RESUME_ALL";
         public const string ReturnAllToBase = "RETURN_ALL_TO_BASE";
+        public const string SetSimulationSpeed = "SET_SIMULATION_SPEED";
 
         // ----- Ustiategia (WPF <-> zerbitzaria, TCP) -----
         public const string SelectFarm = "SELECT_FARM";

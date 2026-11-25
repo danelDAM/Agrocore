@@ -48,7 +48,8 @@ namespace AgroCore.Server.Fields
 
                 foreach (FarmRuntime farm in farms.GetAll())
                 {
-                    farm.Tasks.Tick(seconds);
+                    // Laboreen hazkundea ere simulazioaren abiaduran doa (x10 = hamar aldiz azkarrago)
+                    farm.Tasks.Tick(seconds * farm.SimulationSpeed);
                 }
 
                 if ((now - lastSave).TotalSeconds >= 10)

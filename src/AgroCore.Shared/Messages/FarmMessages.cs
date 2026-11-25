@@ -37,6 +37,7 @@ namespace AgroCore.Shared.Messages
         public int FieldCount { get; set; }
         public int ChargerCount { get; set; }
         public bool EmergencyActive { get; set; }
+        public int SimulationSpeed { get; set; } = 1;
         public FarmSummary Summary { get; set; } = new FarmSummary();
         public List<Machine> Machines { get; set; } = new List<Machine>();
         public List<Field> Fields { get; set; } = new List<Field>();

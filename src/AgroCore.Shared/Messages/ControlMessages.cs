@@ -40,4 +40,24 @@ namespace AgroCore.Shared.Messages
             Type = type;
         }
     }
+
+    /// <summary>
+    /// Simulazioaren abiadura (denbora azkartzeko): x1, x2, x5 edo x10.
+    /// Mezu bera bi norabidetan erabiltzen da:
+    ///   WPF -> zerbitzaria: ustiategiaren abiadura aldatzeko eskaera.
+    ///   zerbitzaria -> makina: makinak bere simulazioa abiadura horretara egokitzen du.
+    /// </summary>
+    public class SimulationSpeedMessage : NetMessage
+    {
+        public const int MinSpeed = 1;
+        public const int MaxSpeed = 10;
+
+        public int FarmId { get; set; }
+        public int Speed { get; set; } = 1;
+
+        public SimulationSpeedMessage()
+        {
+            Type = MessageTypes.SetSimulationSpeed;
+        }
+    }
 }

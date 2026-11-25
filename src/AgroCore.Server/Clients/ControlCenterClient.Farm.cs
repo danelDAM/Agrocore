@@ -52,6 +52,10 @@ namespace AgroCore.Server.Clients
                     HandleFarmCommand(MessageSerializer.FromJson<FarmCommand>(json));
                     return true;
 
+                case MessageTypes.SetSimulationSpeed:
+                    HandleSimulationSpeed(MessageSerializer.FromJson<SimulationSpeedMessage>(json));
+                    return true;
+
                 case MessageTypes.CreateCropPlan:
                     HandleCropPlan(MessageSerializer.FromJson<CropPlanRequest>(json));
                     return true;
@@ -191,6 +195,55 @@ namespace AgroCore.Server.Clients
             {
                 connection.Send(OperationResult.Ok(command.Type, command.Type + " exekutatuta: " + farm.Farm.Name));
             }
+        }
+
+        /// <summary>
+        /// Simulazioaren abiadura aldatzen du (x1 - x10). Zerbitzariak ustiategian gordetzen du
+        /// (laboreen hazkundea azkartzeko) eta konektatutako makina guztiei bidaltzen die.
+        /// </summary>
+        private void HandleSimulationSpeed(SimulationSpeedMessage request)
+        {
+            if (!Require(Permission.GlobalCommands, request.Type))
+            {
+                return;
+            }
+
+            int farmId;
+            if (!ResolveFarm(request.FarmId, request.Type, out farmId))
+            {
+                return;
+            }
+            FarmRuntime farm = context.Farms.Get(farmId);
+            if (farm == null)
+            {
+                connection.Send(OperationResult.Fail(request.Type, "Ustiategia ez da existitzen"));
+                return;
+            }
+            if (request.Speed < SimulationSpeedMessage.MinSpeed || request.Speed > SimulationSpeedMessage.MaxSpeed)
+            {
+                connection.Send(OperationResult.Fail(request.Type, "Abiadura okerra: x1 eta x10 artean izan behar du"));
+                return;
+            }
+
+            farm.SimulationSpeed = request.Speed;
+
+            int count = 0;
+            foreach (MachineRuntime machine in farm.GetMachines())
+            {
+                if (machine.Online && machine.Connection != null)
+                {
+                    SimulationSpeedMessage notice = new SimulationSpeedMessage();
+                    notice.FarmId = farm.Id;
+                    notice.Speed = request.Speed;
+                    machine.Connection.TrySend(notice);
+                    count++;
+                }
+            }
+
+            context.Logger.Log(EventKind.ConfigChanged, LogSeverity.Info,
+                session.Username + " erabiltzaileak simulazioaren abiadura x" + request.Speed + " jarri du (" + count + " makina)",
+                farm.Id, null, session.Username, null, null);
+            connection.Send(OperationResult.Ok(request.Type, "Simulazioaren abiadura: x" + request.Speed));
         }
 
         // ------------------------------------------------------------------

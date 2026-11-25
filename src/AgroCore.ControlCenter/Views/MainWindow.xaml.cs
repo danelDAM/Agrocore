@@ -211,6 +211,15 @@ namespace AgroCore.ControlCenter.Views
             Send(command);
         }
 
+        /// <summary>Simulazioaren abiadura aldatzeko eskaera (x1 - x10) uneko ustiategiarentzat.</summary>
+        public void SendSimulationSpeed(int speed)
+        {
+            SimulationSpeedMessage message = new SimulationSpeedMessage();
+            message.FarmId = LastState != null ? LastState.FarmId : User.FarmId;
+            message.Speed = speed;
+            Send(message);
+        }
+
         public void ShowStatus(string text, bool ok)
         {
             StatusText.Text = DateTime.Now.ToString("HH:mm:ss") + "  " + text;
@@ -319,7 +328,8 @@ namespace AgroCore.ControlCenter.Views
             EmergencyBanner.Visibility = state.EmergencyActive ? Visibility.Visible : Visibility.Collapsed;
             StatsText.Text = "Osatutako zereginak: " + state.Summary.TasksCompleted
                              + "   ·   Saihestutako gatazkak: " + state.Summary.ConflictsAvoided
-                             + "   ·   Karga-ilara: " + state.Summary.ChargerQueue;
+                             + "   ·   Karga-ilara: " + state.Summary.ChargerQueue
+                             + "   ·   Denbora: x" + state.SimulationSpeed;
 
             SyncMachines(state);
             SyncFields(state);
