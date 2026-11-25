@@ -15,7 +15,7 @@ src/
   AgroCore.Shared/      Modelos, enums, mensajes del protocolo, plano de la explotación
   AgroCore.Server/      Servidor TCP/UDP, seguridad, coordinación, logs
   AgroCore.MachineClient/  Máquina autónoma (un proceso por máquina)
-  AgroCore.ControlCenter/  (Sprint 3) Centro de control WPF
+  AgroCore.ControlCenter/  Centro de control WPF con vista 3D
 tests/
   AgroCore.Tests/       Pruebas automáticas (xUnit)
 Documentation/          Documentación de cada sprint
@@ -41,3 +41,4 @@ dotnet run --project src/AgroCore.MachineClient -- --fleet --farm 1 --key AGRO-D
 
 Usuarios de ejemplo: ver [Documentation/Sprint1.md](Documentation/Sprint1.md).
 - [Sprint 2](Documentation/Sprint2.md): coordinación y máquinas autónomas
+- [Sprint 3](Documentation/Sprint3.md): centro de control WPF y vista 3D

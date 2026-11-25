@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>AgroCore.ControlCenter</RootNamespace>
+    <AssemblyName>AgroCore.ControlCenter</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AgroCore.Shared\AgroCore.Shared.csproj" />
+  </ItemGroup>
+</Project>

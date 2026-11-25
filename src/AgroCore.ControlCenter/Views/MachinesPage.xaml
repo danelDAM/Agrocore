@@ -1,0 +1,72 @@
+<UserControl x:Class="AgroCore.ControlCenter.Views.MachinesPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid Margin="20,16">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="300" />
+        </Grid.ColumnDefinitions>
+
+        <Border Style="{StaticResource Card}" Padding="0">
+            <DataGrid x:Name="MachinesGrid" SelectionChanged="MachinesGrid_SelectionChanged">
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="" Width="28">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Ellipse Width="10" Height="10" Fill="{Binding StatusBrush}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="MÁQUINA" Binding="{Binding Name}" Width="120" FontWeight="SemiBold" />
+                    <DataGridTextColumn Header="TIPO" Binding="{Binding TypeText}" Width="110" />
+                    <DataGridTextColumn Header="ESTADO" Binding="{Binding StatusText}" Width="130" />
+                    <DataGridTemplateColumn Header="BATERÍA" Width="120">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <ProgressBar Value="{Binding Battery, Mode=OneWay}" Maximum="100" Foreground="{Binding BatteryBrush}" Margin="0,0,40,0" />
+                                    <TextBlock Text="{Binding BatteryText}" HorizontalAlignment="Right" />
+                                </Grid>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="TAREA" Binding="{Binding TaskText}" Width="150" />
+                    <DataGridTextColumn Header="PROGRESO" Binding="{Binding ProgressText}" Width="80" />
+                    <DataGridTextColumn Header="VELOCIDAD" Binding="{Binding SpeedText}" Width="85" />
+                    <DataGridTextColumn Header="TEMP." Binding="{Binding TemperatureText}" Width="65" />
+                    <DataGridTextColumn Header="DETALLE" Binding="{Binding Note}" Width="*" MinWidth="200" />
+                    <DataGridTemplateColumn x:Name="ActionsColumn" Header="ÓRDENES" Width="250">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="START" Tag="START" Style="{StaticResource SmallButton}" Click="Command_Click" />
+                                    <Button Content="STOP" Tag="STOP" Style="{StaticResource SmallButton}" Click="Command_Click" />
+                                    <Button Content="RESUME" Tag="RESUME" Style="{StaticResource SmallButton}" Click="Command_Click" />
+                                    <Button Content="BASE" Tag="RETURN_TO_BASE" Style="{StaticResource SmallButton}" Click="Command_Click" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <!-- Ficha de la máquina -->
+        <Border Grid.Column="1" Style="{StaticResource Card}" Margin="14,0,0,0" VerticalAlignment="Top">
+            <StackPanel>
+                <TextBlock Text="FICHA TÉCNICA" Style="{StaticResource SectionText}" />
+                <TextBlock x:Name="NoSelection" Text="Seleccione una máquina de la lista" Style="{StaticResource MutedText}" />
+                <StackPanel x:Name="Details" Visibility="Collapsed">
+                    <TextBlock x:Name="DetName" FontSize="17" FontWeight="SemiBold" />
+                    <TextBlock x:Name="DetModel" Style="{StaticResource MutedText}" Margin="0,2,0,12" />
+                    <Grid x:Name="DetGrid">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="150" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>
