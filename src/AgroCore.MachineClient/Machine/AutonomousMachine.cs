@@ -12,10 +12,10 @@ using AgroCore.Shared.Networking;
 namespace AgroCore.MachineClient.Machine
 {
     /// <summary>
-    /// "Cerebro" de la máquina autónoma. Tiene dos hilos:
-    ///  - Hilo principal (Run): decide qué hacer en bucle (pedir tarea, trabajar, ir a cargar...).
-    ///  - Hilo de telemetría: cada 200 ms envía por UDP posición, batería, estado...
-    /// Además el hilo lector de ServerLink recibe las órdenes del servidor (STOP, RESUME...).
+    /// Makina autonomoaren "garuna". Bi hari ditu:
+    ///  - Hari nagusia (Run): begizta batean erabakitzen du zer egin (zeregina eskatu, lan egin, kargatzera joan...).
+    ///  - Telemetria-haria: 200 ms-ro UDP bidez posizioa, bateria, egoera... bidaltzen ditu.
+    /// Gainera, ServerLink-en irakurle-hariak zerbitzariaren aginduak jasotzen ditu (STOP, RESUME...).
     /// </summary>
     public class AutonomousMachine
     {
@@ -57,7 +57,7 @@ namespace AgroCore.MachineClient.Machine
         }
 
         // ==================================================================
-        // ÓRDENES DEL SERVIDOR (se ejecuta en el hilo lector de red)
+        // ZERBITZARIAREN AGINDUAK (sareko irakurle-harian exekutatzen da)
         // ==================================================================
 
         private void OnCommand(string type, string json)
@@ -65,32 +65,32 @@ namespace AgroCore.MachineClient.Machine
             switch (type)
             {
                 case MessageTypes.Stop:
-                    Log("Orden STOP recibida");
+                    Log("STOP agindua jasota");
                     control.Stop(false);
                     break;
                 case MessageTypes.EmergencyStop:
-                    Log("¡PARADA DE EMERGENCIA!");
+                    Log("LARRIALDIKO GELDIALDIA!");
                     control.Stop(true);
                     break;
                 case MessageTypes.Resume:
                 case MessageTypes.Start:
-                    Log("Orden " + type + " recibida");
+                    Log(type + " agindua jasota");
                     control.Resume();
                     break;
                 case MessageTypes.ReturnToBase:
-                    Log("Orden RETURN_TO_BASE recibida");
+                    Log("RETURN_TO_BASE agindua jasota");
                     control.RequestReturn();
                     break;
                 case MessageTypes.TaskCancelled:
                     TaskCancelledNotice notice = MessageSerializer.FromJson<TaskCancelledNotice>(json);
-                    Log("Tarea " + notice.TaskId + " cancelada por el servidor");
+                    Log(notice.TaskId + " zeregina zerbitzariak bertan behera utzi du");
                     control.CancelTask(notice.TaskId);
                     break;
             }
         }
 
         // ==================================================================
-        // BUCLE PRINCIPAL
+        // BEGIZTA NAGUSIA
         // ==================================================================
 
         public void Run()
@@ -100,7 +100,7 @@ namespace AgroCore.MachineClient.Machine
             telemetry.Name = "Telemetry";
             telemetry.Start();
 
-            Log("En marcha. Batería " + state.Battery.ToString("0") + "%");
+            Log("Martxan. Bateria: %" + state.Battery.ToString("0"));
 
             try
             {
@@ -108,38 +108,38 @@ namespace AgroCore.MachineClient.Machine
                 {
                     navigator.PauseIfHalted();
 
-                    // ¿Me han mandado volver a la base?
+                    // Basera itzultzeko agindu didate?
                     if (control.TakeReturnRequest())
                     {
                         ReturnToBaseAndPark();
                         continue;
                     }
 
-                    // ¿Batería baja?
+                    // Bateria baxua?
                     if (battery.IsLow())
                     {
-                        GoCharge("batería baja (" + state.Battery.ToString("0") + "%)");
+                        GoCharge("bateria baxua (%" + state.Battery.ToString("0") + ")");
                         continue;
                     }
 
-                    // Si está en la base sin hacer nada y con poca batería, aprovecha para cargar
+                    // Basean ezer egin gabe eta bateria gutxirekin badago, kargatzeko aprobetxatzen du
                     if (navigator.IsAtBase && state.Battery < 60)
                     {
-                        GoCharge("recarga preventiva (" + state.Battery.ToString("0") + "%)");
+                        GoCharge("prebentziozko karga (%" + state.Battery.ToString("0") + ")");
                         continue;
                     }
 
-                    // Pedir trabajo al servidor. En la base espera lo que haga falta;
-                    // fuera de la base espera poco y, si no hay nada, vuelve a aparcar.
+                    // Zerbitzariari lana eskatu. Basean behar adina itxaroten du;
+                    // basetik kanpo gutxi itxaroten du eta, ezer ez badago, aparkatzera itzultzen da.
                     int maxWait = navigator.IsAtBase ? 0 : 1500;
-                    state.Set(MachineStatus.WaitingForTask, "esperando tarea");
+                    state.Set(MachineStatus.WaitingForTask, "zereginaren zain");
                     TaskRequest request = new TaskRequest();
                     request.MachineId = machineId;
                     request.MaxWaitMs = maxWait;
                     TaskAssignment assignment = link.Request<TaskAssignment>(request, MessageTypes.TaskAssignment);
                     if (assignment == null)
                     {
-                        break; // conexión perdida
+                        break; // konexioa galduta
                     }
 
                     switch (assignment.Outcome)
@@ -148,10 +148,10 @@ namespace AgroCore.MachineClient.Machine
                             executor.Execute(assignment);
                             break;
                         case AssignmentOutcome.NeedsCharge:
-                            GoCharge("batería insuficiente para la siguiente tarea (" + state.Battery.ToString("0") + "%)");
+                            GoCharge("bateria ez da nahikoa hurrengo zereginerako (%" + state.Battery.ToString("0") + ")");
                             break;
                         case AssignmentOutcome.NoTask:
-                            state.Set(MachineStatus.ReturningToBase, "volviendo a aparcar");
+                            state.Set(MachineStatus.ReturningToBase, "aparkatzera itzultzen");
                             navigator.GoToSlot(parkingSpot);
                             state.Set(MachineStatus.Idle, null);
                             break;
@@ -163,38 +163,38 @@ namespace AgroCore.MachineClient.Machine
             }
             catch (LinkLostException)
             {
-                // se sale del bucle
+                // begiztatik irteten da
             }
-            Log("Conexión con el servidor cerrada. La máquina se detiene.");
+            Log("Zerbitzariarekiko konexioa itxita. Makina gelditu egiten da.");
         }
 
         // ==================================================================
-        // RETORNO A LA BASE Y CARGA
+        // BASERA ITZULERA ETA KARGA
         // ==================================================================
 
         /// <summary>
-        /// Volver a la base a cargar:
-        ///  1. Ir (físicamente) hasta su plaza en la base.
-        ///  2. Pedir un cargador: si están todos ocupados, el servidor la deja en cola (WAITING_FOR_CHARGER).
-        ///  3. Ir al cargador asignado y cargar hasta el 100%.
-        ///  4. Volver a su plaza y liberar el cargador.
+        /// Basera itzuli kargatzera:
+        ///  1. Basean duen aparkalekuraino joan (fisikoki).
+        ///  2. Kargagailu bat eskatu: denak okupatuta badaude, zerbitzariak ilaran uzten du (WAITING_FOR_CHARGER).
+        ///  3. Esleitutako kargagailura joan eta %100 arte kargatu.
+        ///  4. Bere aparkalekura itzuli eta kargagailua askatu.
         /// </summary>
         private void GoCharge(string reason)
         {
             if (battery.JustBecameLow())
             {
-                SendEvent(EventKind.LowBattery, LogSeverity.Warning, "batería baja (" + state.Battery.ToString("0") + "%)");
+                SendEvent(EventKind.LowBattery, LogSeverity.Warning, "bateria baxua (%" + state.Battery.ToString("0") + ")");
             }
-            Log("Vuelve a la base: " + reason);
-            SendEvent(EventKind.ReturnToBase, LogSeverity.Info, "vuelve a la base: " + reason);
+            Log("Basera itzultzen da: " + reason);
+            SendEvent(EventKind.ReturnToBase, LogSeverity.Info, "basera itzultzen da: " + reason);
 
             state.BatteryStatus = BatteryStatus.ReturningToBase;
-            state.Set(MachineStatus.ReturningToBase, "volviendo a la base");
+            state.Set(MachineStatus.ReturningToBase, "basera itzultzen");
             navigator.GoToSlot(parkingSpot);
 
-            // Pedir cargador (puede esperar en cola)
+            // Kargagailua eskatu (ilaran itxaron dezake)
             state.BatteryStatus = BatteryStatus.WaitingForCharger;
-            state.Set(MachineStatus.WaitingForCharger, "esperando cargador");
+            state.Set(MachineStatus.WaitingForCharger, "kargagailuaren zain");
             ChargerRequest request = new ChargerRequest();
             request.MachineId = machineId;
             ChargerResponse response = link.Request<ChargerResponse>(request, MessageTypes.ChargerResponse);
@@ -206,17 +206,17 @@ namespace AgroCore.MachineClient.Machine
             {
                 state.BatteryStatus = BatteryStatus.LowBattery;
                 state.Set(MachineStatus.Idle, null);
-                return; // espera cancelada (STOP/emergencia): el bucle principal se encarga
+                return; // itxarotea bertan behera (STOP/larrialdia): begizta nagusiak kudeatzen du
             }
 
-            // Ir al cargador
-            Log("Cargador asignado: " + response.ChargerId);
-            state.Set(MachineStatus.ReturningToBase, "hacia " + response.ChargerId);
+            // Kargagailura joan
+            Log("Esleitutako kargagailua: " + response.ChargerId);
+            state.Set(MachineStatus.ReturningToBase, response.ChargerId + " kargagailurantz");
             navigator.GoToSlot(layout.ChargerPosition(response.ChargerIndex));
 
-            // Cargar
+            // Kargatu
             state.BatteryStatus = BatteryStatus.Charging;
-            state.Set(MachineStatus.Charging, "cargando en " + response.ChargerId);
+            state.Set(MachineStatus.Charging, response.ChargerId + " kargagailuan kargatzen");
             while (state.Battery < 100)
             {
                 navigator.PauseIfHalted();
@@ -229,10 +229,10 @@ namespace AgroCore.MachineClient.Machine
                 Thread.Sleep(100);
             }
             state.BatteryStatus = BatteryStatus.FullyCharged;
-            Log("Batería al 100%");
+            Log("Bateria %100ean");
 
-            // Dejar el cargador libre
-            state.Set(MachineStatus.Idle, "cargada");
+            // Kargagailua libre utzi
+            state.Set(MachineStatus.Idle, "kargatuta");
             navigator.GoToSlot(parkingSpot);
             ChargerRelease release = new ChargerRelease();
             release.MachineId = machineId;
@@ -241,29 +241,29 @@ namespace AgroCore.MachineClient.Machine
             state.Set(MachineStatus.Idle, null);
         }
 
-        /// <summary>RETURN_TO_BASE manual: vuelve, carga si lo necesita y se queda aparcada hasta START.</summary>
+        /// <summary>Eskuzko RETURN_TO_BASE: itzuli, behar badu kargatu eta aparkatuta geratzen da START arte.</summary>
         private void ReturnToBaseAndPark()
         {
-            Log("Volviendo a la base por orden del operador");
-            state.Set(MachineStatus.ReturningToBase, "orden del operador");
+            Log("Basera itzultzen operadorearen aginduz");
+            state.Set(MachineStatus.ReturningToBase, "operadorearen agindua");
             navigator.GoToSlot(parkingSpot);
 
             if (state.Battery < 90)
             {
-                GoCharge("orden del operador");
+                GoCharge("operadorearen agindua");
             }
 
             control.SetParkedHold();
-            state.Set(MachineStatus.Parked, "aparcada: esperando START");
+            state.Set(MachineStatus.Parked, "aparkatuta: START-en zain");
             state.BatteryStatus = state.Battery >= 99.9 ? BatteryStatus.FullyCharged : BatteryStatus.BatteryOk;
-            Log("Aparcada en la base. Esperando START.");
+            Log("Basean aparkatuta. START-en zain.");
             control.WaitWhileParked();
             state.Set(MachineStatus.Idle, null);
-            Log("START: vuelve al trabajo");
+            Log("START: lanera itzultzen da");
         }
 
         // ==================================================================
-        // TELEMETRÍA (hilo propio, UDP)
+        // TELEMETRIA (hari propioa, UDP)
         // ==================================================================
 
         private void TelemetryLoop()

@@ -5,15 +5,15 @@ using AgroCore.Shared.Models;
 namespace AgroCore.Shared.Messages
 {
     /// <summary>
-    /// Máquina -> servidor por UDP, 5 veces por segundo.
-    /// Lleva posición, batería, velocidad, temperatura y estado en un solo datagrama.
-    /// Si se pierde uno no pasa nada: enseguida llega el siguiente.
+    /// Makina -> zerbitzaria UDP bidez, 5 aldiz segundoko.
+    /// Posizioa, bateria, abiadura, tenperatura eta egoera datagrama bakar batean darama.
+    /// Bat galtzen bada ez da ezer gertatzen: berehala iristen da hurrengoa.
     /// </summary>
     public class PositionUpdate : NetMessage
     {
         public string MachineId { get; set; } = "";
 
-        /// <summary>Token de la sesión de la máquina. Sirve para descartar datagramas falsos.</summary>
+        /// <summary>Makinaren saioaren tokena. Datagrama faltsuak baztertzeko balio du.</summary>
         public string SessionToken { get; set; } = "";
 
         public double X { get; set; }
@@ -34,7 +34,7 @@ namespace AgroCore.Shared.Messages
         }
     }
 
-    /// <summary>Servidor -> WPF por UDP: telemetría de las máquinas de la explotación que el usuario puede ver.</summary>
+    /// <summary>Zerbitzaria -> WPF UDP bidez: erabiltzaileak ikus dezakeen ustiategiko makinen telemetria.</summary>
     public class TelemetryBatch : NetMessage
     {
         public int FarmId { get; set; }

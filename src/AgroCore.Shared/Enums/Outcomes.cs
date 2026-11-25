@@ -1,21 +1,21 @@
 namespace AgroCore.Shared.Enums;
 
-/// <summary>Resultado de una petición de tarea (TASK_REQUEST) de una máquina.</summary>
+/// <summary>Makina baten zeregin-eskaeraren (TASK_REQUEST) emaitza.</summary>
 public enum AssignmentOutcome
 {
     Assigned,
-    /// <summary>No hay tarea en el tiempo de espera indicado por la máquina.</summary>
+    /// <summary>Ez dago zereginik makinak adierazitako itxaronaldian.</summary>
     NoTask,
-    /// <summary>Existen tareas, pero la batería no alcanza para hacerlas y volver: debe cargar.</summary>
+    /// <summary>Zereginak badaude, baina bateria ez da nahikoa haiek egin eta itzultzeko: kargatu behar du.</summary>
     NeedsCharge,
-    /// <summary>La espera fue cancelada (STOP, emergencia, retorno a base...).</summary>
+    /// <summary>Itxaronaldia bertan behera utzi zen (STOP, larrialdia, basera itzultzea...).</summary>
     Cancelled
 }
 
 public enum ZoneOutcome
 {
     Granted,
-    /// <summary>Denegada para evitar un interbloqueo (ciclo de esperas). La máquina debe ceder el paso.</summary>
+    /// <summary>Ukatua elkarblokeo bat saihesteko (itxaronaldien zikloa). Makinak bidea utzi behar du.</summary>
     DeniedDeadlock,
     Cancelled
 }

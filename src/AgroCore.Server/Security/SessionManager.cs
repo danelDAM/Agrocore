@@ -4,9 +4,9 @@ using System.Collections.Generic;
 namespace AgroCore.Server.Security
 {
     /// <summary>
-    /// Sesiones abiertas de los centros de control.
-    /// Se usa un ConcurrentDictionary porque varios hilos (uno por cliente, más el hilo que
-    /// envía el estado cada segundo) añaden, quitan y recorren sesiones a la vez.
+    /// Kontrol Zentroen saio irekiak.
+    /// ConcurrentDictionary bat erabiltzen da hainbat harik (bat bezero bakoitzeko, gehi segundoro
+    /// egoera bidaltzen duen haria) saioak aldi berean gehitu, kendu eta zeharkatzen dituztelako.
     /// </summary>
     public class SessionManager
     {
@@ -30,13 +30,13 @@ namespace AgroCore.Server.Security
             return session;
         }
 
-        /// <summary>Copia de todas las sesiones (se puede recorrer sin problemas aunque otro hilo cambie la lista).</summary>
+        /// <summary>Saio guztien kopia (arazorik gabe zeharka daiteke, beste hari batek zerrenda aldatu arren).</summary>
         public List<UserSession> GetAll()
         {
             return new List<UserSession>(sessions.Values);
         }
 
-        /// <summary>Sesiones abiertas de un usuario concreto (puede estar conectado desde varios equipos).</summary>
+        /// <summary>Erabiltzaile jakin baten saio irekiak (hainbat ordenagailutatik konekta daiteke).</summary>
         public List<UserSession> FindByUser(int userId)
         {
             List<UserSession> result = new List<UserSession>();

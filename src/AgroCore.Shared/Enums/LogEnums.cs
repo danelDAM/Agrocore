@@ -10,7 +10,7 @@ public enum LogSeverity
     Security
 }
 
-/// <summary>Tipo de evento registrado. Las estadísticas se calculan contando estos eventos en el log.</summary>
+/// <summary>Erregistratutako gertaera mota. Estatistikak gertaeren erregistroko gertaera hauek zenbatuz kalkulatzen dira.</summary>
 public enum EventKind
 {
     Info,

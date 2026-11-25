@@ -8,8 +8,8 @@ using AgroCore.Shared.Networking;
 namespace AgroCore.ControlCenter.Views
 {
     /// <summary>
-    /// Ventana de login. El usuario y la contraseña se comprueban SIEMPRE en el servidor:
-    /// el Centro de Control no sabe nada de contraseñas.
+    /// Saioa hasteko leihoa. Erabiltzailea eta pasahitza BETI zerbitzarian egiaztatzen dira:
+    /// Kontrol Zentroak ez daki ezer pasahitzei buruz.
     /// </summary>
     public partial class LoginWindow : Window
     {
@@ -45,7 +45,7 @@ namespace AgroCore.ControlCenter.Views
             {
                 if (!loggedIn)
                 {
-                    Application.Current.Shutdown(); // cerrar el login sin entrar = salir del programa
+                    Application.Current.Shutdown(); // saioa hasi gabe leihoa ixtea = programatik irtetea
                 }
             };
         }
@@ -58,11 +58,11 @@ namespace AgroCore.ControlCenter.Views
 
             if (username == "" || password == "")
             {
-                ShowError("Escriba el usuario y la contraseña.");
+                ShowError("Idatzi erabiltzailea eta pasahitza.");
                 return;
             }
 
-            // "servidor" o "servidor:puerto"
+            // "zerbitzaria" edo "zerbitzaria:ataka"
             string host = hostText;
             int port = NetworkDefaults.TcpPort;
             int colon = hostText.LastIndexOf(':');
@@ -71,7 +71,7 @@ namespace AgroCore.ControlCenter.Views
                 host = hostText.Substring(0, colon);
                 if (!int.TryParse(hostText.Substring(colon + 1), out port))
                 {
-                    ShowError("El puerto del servidor no es válido.");
+                    ShowError("Zerbitzariaren ataka ez da baliozkoa.");
                     return;
                 }
             }
@@ -81,17 +81,17 @@ namespace AgroCore.ControlCenter.Views
             }
 
             LoginButton.IsEnabled = false;
-            LoginButton.Content = "CONECTANDO...";
+            LoginButton.Content = "KONEKTATZEN...";
             ErrorPanel.Visibility = Visibility.Collapsed;
             NoticePanel.Visibility = Visibility.Collapsed;
 
-            // La conexión se hace en otro hilo para que la ventana no se congele
+            // Konexioa beste hari batean egiten da, leihoa izoztu ez dadin
             Thread thread = new Thread(() => DoLogin(host, port, username, password));
             thread.IsBackground = true;
             thread.Start();
         }
 
-        /// <summary>Se ejecuta en un hilo secundario.</summary>
+        /// <summary>Bigarren mailako hari batean exekutatzen da.</summary>
         private void DoLogin(string host, int port, string username, string password)
         {
             ServerConnection connection = new ServerConnection(host, port);
@@ -104,7 +104,7 @@ namespace AgroCore.ControlCenter.Views
                 response = connection.Login(username, password);
                 if (response == null)
                 {
-                    error = "El servidor ha cerrado la conexión.";
+                    error = "Zerbitzariak konexioa itxi du.";
                 }
                 else if (!response.Success)
                 {
@@ -113,7 +113,7 @@ namespace AgroCore.ControlCenter.Views
             }
             catch (Exception)
             {
-                error = "No se puede conectar con el servidor " + host + ":" + port + ". Compruebe que está arrancado.";
+                error = "Ezin da " + host + ":" + port + " zerbitzariarekin konektatu. Egiaztatu martxan dagoela.";
             }
 
             if (error != null)
@@ -121,7 +121,7 @@ namespace AgroCore.ControlCenter.Views
                 connection.Close();
             }
 
-            // Volver al hilo de la interfaz para tocar los controles
+            // Interfazearen harira itzuli kontrolak ukitzeko
             Dispatcher.BeginInvoke(new Action(() => LoginFinished(connection, response, error, host, port, username)));
         }
 
@@ -129,7 +129,7 @@ namespace AgroCore.ControlCenter.Views
                                    string host, int port, string username)
         {
             LoginButton.IsEnabled = true;
-            LoginButton.Content = "ENTRAR";
+            LoginButton.Content = "SAIOA HASI";
 
             if (error != null)
             {
@@ -139,7 +139,7 @@ namespace AgroCore.ControlCenter.Views
                 return;
             }
 
-            // Guardar la sesión local
+            // Saio lokala gorde
             LocalSessionData data = LocalSession.Load();
             data.Host = port == NetworkDefaults.TcpPort ? host : host + ":" + port;
             data.LastUsername = username;
@@ -163,11 +163,11 @@ namespace AgroCore.ControlCenter.Views
         private void Help_Click(object sender, RoutedEventArgs e)
         {
             MessageBox.Show(this,
-                "• Compruebe que el servidor AGROCORE está arrancado y que la dirección es correcta.\n" +
-                "• Tras 5 intentos fallidos la cuenta se bloquea 30 segundos.\n" +
-                "• Si ha olvidado la contraseña, pida al administrador que le asigne una nueva.\n\n" +
-                "Usuarios de demostración: admin/admin123, juan/juan123, maria/maria123, pedro/pedro123",
-                "Ayuda de acceso", MessageBoxButton.OK, MessageBoxImage.Information);
+                "• Egiaztatu AGROCORE zerbitzaria martxan dagoela eta helbidea zuzena dela.\n" +
+                "• Huts egindako 5 saiakeraren ondoren, kontua 30 segundoz blokeatzen da.\n" +
+                "• Pasahitza ahaztu baduzu, eskatu administratzaileari berri bat esleitzeko.\n\n" +
+                "Demo-erabiltzaileak: admin/admin123, juan/juan123, maria/maria123, pedro/pedro123",
+                "Sartzeko laguntza", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 }

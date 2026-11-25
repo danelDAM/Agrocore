@@ -8,7 +8,7 @@ using AgroCore.Shared.Models;
 
 namespace AgroCore.Server.Security
 {
-    /// <summary>Resultado de un intento de login.</summary>
+    /// <summary>Saioa hasteko saiakera baten emaitza.</summary>
     public class LoginResult
     {
         public bool Success { get; set; }
@@ -18,29 +18,29 @@ namespace AgroCore.Server.Security
     }
 
     /// <summary>
-    /// Comprueba las credenciales. Pasos (en el servidor, nunca en el WPF):
-    ///   1. Busca el usuario.
-    ///   2. Comprueba la contraseña (hash PBKDF2).
-    ///   3. Comprueba que el usuario esté activo.
-    ///   4. Comprueba el rol.
-    ///   5. Comprueba que su explotación exista.
-    /// Además bloquea un rato el usuario tras varios intentos fallidos (contra fuerza bruta).
+    /// Kredentzialak egiaztatzen ditu. Urratsak (zerbitzarian, inoiz ez WPFan):
+    ///   1. Erabiltzailea bilatzen du.
+    ///   2. Pasahitza egiaztatzen du (PBKDF2 hasha).
+    ///   3. Erabiltzailea aktibo dagoela egiaztatzen du.
+    ///   4. Rola egiaztatzen du.
+    ///   5. Bere ustiategia existitzen dela egiaztatzen du.
+    /// Gainera, huts egindako hainbat saiakeraren ondoren, erabiltzailea denbora batez blokeatzen du (indar gordinaren aurka).
     /// </summary>
     public class AuthService
     {
-        private const string GenericError = "Usuario o contraseña incorrectos";
+        private const string GenericError = "Erabiltzailea edo pasahitza okerrak dira";
 
         private readonly DataStore store;
         private readonly ConfigStore config;
         private readonly EventLogger logger;
 
-        // Intentos fallidos por usuario. Lo usan varios hilos a la vez: se protege con lock.
+        // Erabiltzaile bakoitzaren huts egindako saiakerak. Hainbat harik erabiltzen dute aldi berean: lock-ekin babesten da.
         private readonly Dictionary<string, int> failedAttempts = new Dictionary<string, int>();
         private readonly Dictionary<string, DateTime> lockedUntil = new Dictionary<string, DateTime>();
         private readonly object attemptsLock = new object();
 
-        // Hash de una contraseña cualquiera, para tardar lo mismo aunque el usuario no exista
-        // (así un atacante no puede saber qué usuarios existen midiendo el tiempo de respuesta).
+        // Edozein pasahitzen hasha, erabiltzailea existitu ez arren denbora bera behar izateko
+        // (horrela erasotzaile batek ezin du jakin zein erabiltzaile dauden erantzun-denbora neurtuz).
         private readonly string dummyHash = PasswordHasher.Hash("dummy-password");
 
         public AuthService(DataStore store, ConfigStore config, EventLogger logger)
@@ -56,28 +56,28 @@ namespace AgroCore.Server.Security
             username = (username ?? "").Trim();
             string key = username.ToLower();
 
-            // 0. ¿Está bloqueado por demasiados intentos?
+            // 0. Saiakera gehiegirengatik blokeatuta dago?
             lock (attemptsLock)
             {
                 DateTime until;
                 if (lockedUntil.TryGetValue(key, out until) && until > DateTime.Now)
                 {
                     int seconds = (int)(until - DateTime.Now).TotalSeconds + 1;
-                    result.Message = "Demasiados intentos fallidos. Espere " + seconds + " segundos.";
+                    result.Message = "Saiakera gehiegi huts egin dira. Itxaron " + seconds + " segundo.";
                     logger.Log(EventKind.LoginFailed, LogSeverity.Security,
-                        "Login bloqueado para '" + username + "' desde " + remote);
+                        "Saio-hasiera blokeatuta '" + username + "' erabiltzailearentzat (" + remote + ")");
                     return result;
                 }
             }
 
-            // 1. Buscar usuario
+            // 1. Erabiltzailea bilatu
             User user = store.FindUserByUsername(username);
 
-            // 2. Comprobar contraseña
+            // 2. Pasahitza egiaztatu
             bool passwordOk;
             if (user == null)
             {
-                PasswordHasher.Verify(password, dummyHash); // mismo tiempo de cálculo
+                PasswordHasher.Verify(password, dummyHash); // kalkulu-denbora bera
                 passwordOk = false;
             }
             else
@@ -90,36 +90,36 @@ namespace AgroCore.Server.Security
                 RegisterFailure(key);
                 result.Message = GenericError;
                 logger.Log(EventKind.LoginFailed, LogSeverity.Security,
-                    "Login fallido para '" + username + "' desde " + remote);
+                    "Saio-hasierak huts egin du '" + username + "' erabiltzailearentzat (" + remote + ")");
                 return result;
             }
 
-            // 3. Usuario activo
+            // 3. Erabiltzaile aktiboa
             if (!user.IsActive)
             {
-                result.Message = "El usuario está desactivado. Contacte con el administrador.";
+                result.Message = "Erabiltzailea desaktibatuta dago. Jarri harremanetan administratzailearekin.";
                 logger.Log(EventKind.LoginFailed, LogSeverity.Security,
-                    "Login de usuario desactivado '" + username + "'", user.FarmId, null);
+                    "Desaktibatutako erabiltzailearen saio-hasiera: '" + username + "'", user.FarmId, null);
                 return result;
             }
 
-            // 4. Rol válido
+            // 4. Rol baliozkoa
             if (!Enum.IsDefined(typeof(UserRole), user.Role))
             {
-                result.Message = "El usuario no tiene un rol válido.";
+                result.Message = "Erabiltzaileak ez du rol baliozkorik.";
                 return result;
             }
 
-            // 5. Explotación (el administrador no necesita una)
+            // 5. Ustiategia (administratzaileak ez du behar)
             Farm farm = null;
             if (user.Role != UserRole.Admin)
             {
                 farm = store.GetFarm(user.FarmId);
                 if (farm == null)
                 {
-                    result.Message = "El usuario no tiene ninguna explotación asignada.";
+                    result.Message = "Erabiltzaileak ez du ustiategirik esleituta.";
                     logger.Log(EventKind.LoginFailed, LogSeverity.Security,
-                        "Login de '" + username + "' sin explotación válida");
+                        "'" + username + "' erabiltzailearen saio-hasiera, ustiategi baliozkorik gabe");
                     return result;
                 }
             }
@@ -154,17 +154,17 @@ namespace AgroCore.Server.Security
             }
         }
 
-        /// <summary>Cambio de contraseña: el servidor exige la contraseña actual.</summary>
+        /// <summary>Pasahitz-aldaketa: zerbitzariak uneko pasahitza eskatzen du.</summary>
         public string ChangePassword(int userId, string currentPassword, string newPassword)
         {
             User user = store.GetUser(userId);
             if (user == null)
             {
-                return "Usuario no encontrado";
+                return "Ez da erabiltzailea aurkitu";
             }
             if (!PasswordHasher.Verify(currentPassword, user.PasswordHash))
             {
-                return "La contraseña actual no es correcta";
+                return "Uneko pasahitza ez da zuzena";
             }
             string error = ValidatePassword(newPassword);
             if (error != null)
@@ -173,18 +173,18 @@ namespace AgroCore.Server.Security
             }
             if (currentPassword == newPassword)
             {
-                return "La nueva contraseña debe ser distinta de la actual";
+                return "Pasahitz berriak unekoaren desberdina izan behar du";
             }
             store.SetPassword(userId, newPassword);
-            return null; // null = sin errores
+            return null; // null = errorerik gabe
         }
 
-        /// <summary>Reglas mínimas de contraseña. Devuelve null si es válida.</summary>
+        /// <summary>Pasahitzaren gutxieneko arauak. null itzultzen du baliozkoa bada.</summary>
         public static string ValidatePassword(string password)
         {
             if (string.IsNullOrEmpty(password) || password.Length < 6)
             {
-                return "La contraseña debe tener al menos 6 caracteres";
+                return "Pasahitzak gutxienez 6 karaktere izan behar ditu";
             }
             bool hasLetter = false;
             bool hasDigit = false;
@@ -195,7 +195,7 @@ namespace AgroCore.Server.Security
             }
             if (!hasLetter || !hasDigit)
             {
-                return "La contraseña debe tener letras y números";
+                return "Pasahitzak letrak eta zenbakiak izan behar ditu";
             }
             return null;
         }

@@ -9,8 +9,8 @@ using AgroCore.Server.Synchronization;
 namespace AgroCore.Server
 {
     /// <summary>
-    /// Agrupa todos los servicios del servidor para pasarlos fácilmente a cada cliente.
-    /// Se crea una sola vez en Program.cs.
+    /// Zerbitzariaren zerbitzu guztiak biltzen ditu, bezero bakoitzari erraz pasatzeko.
+    /// Behin bakarrik sortzen da, Program.cs fitxategian.
     /// </summary>
     public class ServerContext
     {
@@ -21,7 +21,7 @@ namespace AgroCore.Server
         public SessionManager Sessions { get; set; }
         public UserManagementService Users { get; set; }
 
-        // Sprint 2: simulación y coordinación
+        // 2. sprinta: simulazioa eta koordinazioa
         public FarmManager Farms { get; set; }
         public MachineCommandService Commands { get; set; }
         public StatisticsService Statistics { get; set; }

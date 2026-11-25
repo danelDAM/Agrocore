@@ -6,9 +6,9 @@ using AgroCore.Shared.Models;
 namespace AgroCore.MachineClient.Machine
 {
     /// <summary>
-    /// Estado físico de la máquina (posición, batería, estado...).
-    /// Lo modifica el hilo principal (que mueve la máquina) y lo lee el hilo de telemetría,
-    /// por eso todo va dentro de lock (stateLock).
+    /// Makinaren egoera fisikoa (posizioa, bateria, egoera...).
+    /// Hari nagusiak aldatzen du (makina mugitzen duenak) eta telemetria-hariak irakurtzen du;
+    /// horregatik dena lock (stateLock) barruan doa.
     /// </summary>
     public class MachineState
     {
@@ -81,7 +81,7 @@ namespace AgroCore.MachineClient.Machine
             set { lock (stateLock) { note = value; } }
         }
 
-        /// <summary>Cambia estado y nota a la vez.</summary>
+        /// <summary>Egoera eta oharra batera aldatzen ditu.</summary>
         public void Set(MachineStatus newStatus, string newNote)
         {
             lock (stateLock)
@@ -91,7 +91,7 @@ namespace AgroCore.MachineClient.Machine
             }
         }
 
-        /// <summary>Simula la temperatura del motor: sube trabajando, baja parada.</summary>
+        /// <summary>Motorraren tenperatura simulatzen du: lanean igo egiten da, geldirik jaitsi.</summary>
         public void UpdateTemperature(bool working, bool moving, double seconds)
         {
             lock (stateLock)
@@ -102,7 +102,7 @@ namespace AgroCore.MachineClient.Machine
             }
         }
 
-        /// <summary>Crea el datagrama UDP de telemetría con el estado actual.</summary>
+        /// <summary>Telemetriako UDP datagrama sortzen du uneko egoerarekin.</summary>
         public PositionUpdate ToTelemetry(string machineId, string token)
         {
             lock (stateLock)

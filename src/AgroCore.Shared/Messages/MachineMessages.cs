@@ -4,7 +4,7 @@ using AgroCore.Shared.Models;
 
 namespace AgroCore.Shared.Messages
 {
-    /// <summary>Máquina -> servidor: se autentica con la clave de flota y envía sus capacidades.</summary>
+    /// <summary>Makina -> zerbitzaria: flota-gakoarekin autentifikatzen da eta bere gaitasunak bidaltzen ditu.</summary>
     public class MachineAuthRequest : NetMessage
     {
         public string MachineId { get; set; } = "";
@@ -19,7 +19,7 @@ namespace AgroCore.Shared.Messages
         }
     }
 
-    /// <summary>Servidor -> máquina: datos que necesita para trabajar en su explotación.</summary>
+    /// <summary>Zerbitzaria -> makina: bere ustiategian lan egiteko behar dituen datuak.</summary>
     public class MachineAuthResponse : ResponseMessage
     {
         public string MachineId { get; set; }
@@ -31,7 +31,7 @@ namespace AgroCore.Shared.Messages
         public int SlotIndex { get; set; }
         public int SlotCount { get; set; }
 
-        /// <summary>Número de dron dentro de la explotación (define su altura de vuelo).</summary>
+        /// <summary>Dronearen zenbakia ustiategiaren barruan (bere hegaldi-altuera zehazten du).</summary>
         public int DroneIndex { get; set; }
 
         public int UdpPort { get; set; }
@@ -44,7 +44,7 @@ namespace AgroCore.Shared.Messages
         }
     }
 
-    /// <summary>Lanzador de flota -> servidor: pide la lista de máquinas de una explotación.</summary>
+    /// <summary>Flota-abiarazlea -> zerbitzaria: ustiategi bateko makinen zerrenda eskatzen du.</summary>
     public class FleetQueryRequest : NetMessage
     {
         public int FarmId { get; set; }
@@ -67,14 +67,14 @@ namespace AgroCore.Shared.Messages
     }
 
     /// <summary>
-    /// Máquina -> servidor: "dame trabajo". El hilo del servidor que atiende a esta máquina
-    /// se queda en Monitor.Wait() hasta que haya una tarea adecuada para ella.
+    /// Makina -> zerbitzaria: "emadazu lana". Makina honi erantzuten dion zerbitzariaren haria
+    /// Monitor.Wait()-en geratzen da harentzako zeregin egoki bat egon arte.
     /// </summary>
     public class TaskRequest : NetMessage
     {
         public string MachineId { get; set; } = "";
 
-        /// <summary>Milisegundos máximos de espera (0 = esperar lo que haga falta).</summary>
+        /// <summary>Itxaronaldiaren gehieneko milisegundoak (0 = behar adina itxaron).</summary>
         public int MaxWaitMs { get; set; }
 
         public TaskRequest()
@@ -83,7 +83,7 @@ namespace AgroCore.Shared.Messages
         }
     }
 
-    /// <summary>Servidor -> máquina: respuesta a TASK_REQUEST.</summary>
+    /// <summary>Zerbitzaria -> makina: TASK_REQUEST-i erantzuna.</summary>
     public class TaskAssignment : ResponseMessage
     {
         public AssignmentOutcome Outcome { get; set; }
@@ -94,7 +94,7 @@ namespace AgroCore.Shared.Messages
         public TaskType TaskType { get; set; }
         public CropType Crop { get; set; }
 
-        /// <summary>Progreso ya hecho (si otra máquina la dejó a medias).</summary>
+        /// <summary>Dagoeneko egindako aurrerapena (beste makina batek erdizka utzi bazuen).</summary>
         public double Progress { get; set; }
 
         public TaskAssignment()
@@ -127,7 +127,7 @@ namespace AgroCore.Shared.Messages
         }
     }
 
-    /// <summary>La máquina deja una tarea a medias (batería baja, orden de volver...).</summary>
+    /// <summary>Makinak zeregin bat erdizka uzten du (bateria baxua, itzultzeko agindua...).</summary>
     public class TaskAborted : NetMessage
     {
         public string MachineId { get; set; } = "";
@@ -142,7 +142,7 @@ namespace AgroCore.Shared.Messages
         }
     }
 
-    /// <summary>Servidor -> máquina: el operador ha cancelado la tarea que estaba haciendo.</summary>
+    /// <summary>Zerbitzaria -> makina: operadoreak egiten ari zen zeregina bertan behera utzi du.</summary>
     public class TaskCancelledNotice : NetMessage
     {
         public string TaskId { get; set; } = "";
@@ -154,7 +154,7 @@ namespace AgroCore.Shared.Messages
         }
     }
 
-    /// <summary>Máquina -> servidor: quiere entrar en una zona del camino.</summary>
+    /// <summary>Makina -> zerbitzaria: bideko gune batean sartu nahi du.</summary>
     public class ZoneRequest : NetMessage
     {
         public string MachineId { get; set; } = "";
@@ -177,7 +177,7 @@ namespace AgroCore.Shared.Messages
         }
     }
 
-    /// <summary>Máquina -> servidor: ya ha salido de la zona.</summary>
+    /// <summary>Makina -> zerbitzaria: gunetik irten da dagoeneko.</summary>
     public class ZoneRelease : NetMessage
     {
         public string MachineId { get; set; } = "";
@@ -189,7 +189,7 @@ namespace AgroCore.Shared.Messages
         }
     }
 
-    /// <summary>Máquina -> servidor: necesita un cargador (espera en cola si no hay ninguno libre).</summary>
+    /// <summary>Makina -> zerbitzaria: kargagailu bat behar du (ilaran itxaroten du libre bat ere ez badago).</summary>
     public class ChargerRequest : NetMessage
     {
         public string MachineId { get; set; } = "";
@@ -223,7 +223,7 @@ namespace AgroCore.Shared.Messages
         }
     }
 
-    /// <summary>Máquina -> servidor: algo importante ha pasado (batería baja, vuelve a la base...).</summary>
+    /// <summary>Makina -> zerbitzaria: zerbait garrantzitsua gertatu da (bateria baxua, basera itzultzen da...).</summary>
     public class MachineEventMessage : NetMessage
     {
         public string MachineId { get; set; } = "";

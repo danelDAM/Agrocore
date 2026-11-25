@@ -4,9 +4,9 @@
     <StackPanel Margin="20,16" MaxWidth="760" HorizontalAlignment="Left">
         <Border Style="{StaticResource Card}" Padding="22">
             <StackPanel>
-                <TextBlock Text="INFORME DE OPERACIONES (PDF)" Style="{StaticResource SectionText}" />
+                <TextBlock Text="ERAGIKETA-TXOSTENA (PDF)" Style="{StaticResource SectionText}" />
                 <TextBlock TextWrapping="Wrap" Style="{StaticResource MutedText}" Margin="0,0,0,18"
-                           Text="El informe incluye el resumen del periodo, el estado de los campos, la actividad de cada máquina, las tareas y las incidencias. Solo contiene datos de la explotación indicada." />
+                           Text="Txostenak aldiaren laburpena, soroen egoera, makina bakoitzaren jarduera, zereginak eta gorabeherak biltzen ditu. Adierazitako ustiategiaren datuak bakarrik ditu." />
 
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -19,25 +19,25 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
-                    <TextBlock Text="Agricultor" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="0,0,0,12" />
+                    <TextBlock Text="Nekazaria" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="0,0,0,12" />
                     <TextBlock x:Name="FarmerText" Grid.Column="1" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,12" />
 
-                    <TextBlock Grid.Row="1" Text="Explotación" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="0,0,0,12" />
+                    <TextBlock Grid.Row="1" Text="Ustiategia" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="0,0,0,12" />
                     <TextBlock x:Name="FarmText" Grid.Row="1" Grid.Column="1" FontSize="14" Margin="0,0,0,12" />
 
-                    <TextBlock Grid.Row="2" Text="Periodo" Style="{StaticResource MutedText}" VerticalAlignment="Center" />
+                    <TextBlock Grid.Row="2" Text="Aldia" Style="{StaticResource MutedText}" VerticalAlignment="Center" />
                     <ComboBox x:Name="PeriodBox" Grid.Row="2" Grid.Column="1" SelectedIndex="1" Width="260" HorizontalAlignment="Left">
-                        <ComboBoxItem Content="Última hora" />
-                        <ComboBoxItem Content="Hoy" />
-                        <ComboBoxItem Content="Últimos 7 días" />
-                        <ComboBoxItem Content="Últimos 30 días" />
-                        <ComboBoxItem Content="Desde el principio" />
+                        <ComboBoxItem Content="Azken ordua" />
+                        <ComboBoxItem Content="Gaur" />
+                        <ComboBoxItem Content="Azken 7 egunak" />
+                        <ComboBoxItem Content="Azken 30 egunak" />
+                        <ComboBoxItem Content="Hasieratik" />
                     </ComboBox>
                 </Grid>
 
                 <StackPanel Orientation="Horizontal" Margin="0,22,0,0">
-                    <Button x:Name="GenerateButton" Content="GENERAR INFORME PDF" Padding="18,9" Click="Generate_Click" />
-                    <Button x:Name="OpenButton" Content="ABRIR ÚLTIMO INFORME" Style="{StaticResource GhostButton}" Padding="18,9"
+                    <Button x:Name="GenerateButton" Content="PDF TXOSTENA SORTU" Padding="18,9" Click="Generate_Click" />
+                    <Button x:Name="OpenButton" Content="AZKEN TXOSTENA IREKI" Style="{StaticResource GhostButton}" Padding="18,9"
                             Visibility="Collapsed" Click="Open_Click" />
                 </StackPanel>
 

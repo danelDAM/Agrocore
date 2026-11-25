@@ -7,9 +7,9 @@ using AgroCore.Shared.Models;
 namespace AgroCore.ControlCenter.Models
 {
     /// <summary>
-    /// Base de las filas de las tablas. Cuando cambian los datos se llama a Refresh()
-    /// y WPF vuelve a leer TODAS las propiedades (PropertyChanged con nombre vacío).
-    /// Así las filas se actualizan sin recrear la tabla (no se pierde la selección).
+    /// Taulen errenkaden oinarria. Datuak aldatzen direnean Refresh() deitzen da
+    /// eta WPFk propietate GUZTIAK irakurtzen ditu berriro (PropertyChanged izen hutsarekin).
+    /// Horrela errenkadak eguneratzen dira taula berriro sortu gabe (hautapena ez da galtzen).
     /// </summary>
     public class Row : INotifyPropertyChanged
     {
@@ -44,7 +44,7 @@ namespace AgroCore.ControlCenter.Models
         public BatteryStatus BatteryStatus { get; private set; }
         public MachineProfile Profile { get; private set; }
 
-        // Textos para la tabla
+        // Taularako testuak
         public string TypeText { get { return Texts.MachineType(Type); } }
         public string StatusText { get { return Texts.MachineStatus(Status); } }
         public Brush StatusBrush { get { return Texts.ToBrush(Texts.StatusColor(Status)); } }
@@ -66,7 +66,7 @@ namespace AgroCore.ControlCenter.Models
                 string text = TaskType.HasValue ? Texts.TaskType(TaskType.Value) : CurrentTaskId;
                 if (FieldId != null)
                 {
-                    text = text + " · " + FieldId.Replace("FIELD-", "Campo ");
+                    text = text + " · " + FieldId.Replace("FIELD-", "") + " soroa";
                 }
                 return text;
             }
@@ -78,7 +78,7 @@ namespace AgroCore.ControlCenter.Models
             Update(machine);
         }
 
-        /// <summary>Datos completos (FARM_STATE por TCP, cada segundo).</summary>
+        /// <summary>Datu osoak (FARM_STATE TCP bidez, segundoro).</summary>
         public void Update(Machine machine)
         {
             Name = machine.Name;
@@ -98,7 +98,7 @@ namespace AgroCore.ControlCenter.Models
             Refresh();
         }
 
-        /// <summary>Datos rápidos (telemetría UDP, cada 200 ms).</summary>
+        /// <summary>Datu azkarrak (UDP telemetria, 200 ms-ro).</summary>
         public void Update(Telemetry telemetry)
         {
             Battery = telemetry.Battery;
@@ -126,7 +126,7 @@ namespace AgroCore.ControlCenter.Models
         public int TimesHarvested { get; private set; }
         public string WorkingMachine { get; set; }
 
-        // Lo que el usuario elige en la tarjeta para crear un plan nuevo
+        // Erabiltzaileak txartelean aukeratzen duena plan berria sortzeko
         public int CropChoice { get; set; }
         public bool AutoReplantChoice { get; set; } = true;
 
@@ -140,9 +140,9 @@ namespace AgroCore.ControlCenter.Models
             {
                 if (!PlannedCrop.HasValue)
                 {
-                    return "Sin plan de cultivo";
+                    return "Labore-planik gabe";
                 }
-                return "Plan: " + Texts.Crop(PlannedCrop) + (AutoReplant ? " (resiembra automática)" : "");
+                return "Plana: " + Texts.Crop(PlannedCrop) + (AutoReplant ? " (birlandaketa automatikoa)" : "");
             }
         }
         public string DetailText
@@ -152,16 +152,16 @@ namespace AgroCore.ControlCenter.Models
                 string text = "";
                 if (BlockedBy.HasValue)
                 {
-                    text = "Necesita " + Texts.TaskType(BlockedBy.Value).ToLower();
+                    text = "Behar du: " + Texts.TaskType(BlockedBy.Value).ToLower();
                 }
                 if (WorkingMachine != null)
                 {
-                    text = (text == "" ? "" : text + " · ") + "Trabaja: " + WorkingMachine;
+                    text = (text == "" ? "" : text + " · ") + "Lanean: " + WorkingMachine;
                 }
                 return text;
             }
         }
-        public string HarvestText { get { return "Cosechas: " + TimesHarvested; } }
+        public string HarvestText { get { return "Uzta-bilketak: " + TimesHarvested; } }
 
         public FieldRow(Field field)
         {
@@ -204,7 +204,7 @@ namespace AgroCore.ControlCenter.Models
 
         public string TypeText { get { return Texts.TaskType(Type); } }
         public string CropText { get { return Texts.Crop(Crop); } }
-        public string FieldText { get { return FieldId.Replace("FIELD-", "Campo "); } }
+        public string FieldText { get { return FieldId.Replace("FIELD-", "") + " soroa"; } }
         public string StatusText { get { return Texts.TaskStatus(Status); } }
         public Brush StatusBrush { get { return Texts.ToBrush(Texts.TaskStatusColor(Status)); } }
         public string ProgressText { get { return Progress.ToString("0") + "%"; } }

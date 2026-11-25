@@ -2,7 +2,7 @@ using AgroCore.Shared.Enums;
 
 namespace AgroCore.Shared.Models
 {
-    /// <summary>Estado de una máquina tal y como lo conoce el servidor (que es la autoridad).</summary>
+    /// <summary>Makina baten egoera, zerbitzariak ezagutzen duen bezala (bera da agintea).</summary>
     public class Machine
     {
         public string Id { get; set; } = "";
@@ -12,7 +12,7 @@ namespace AgroCore.Shared.Models
 
         public Position Position { get; set; } = new Position();
 
-        /// <summary>Hacia dónde mira, en grados.</summary>
+        /// <summary>Nora begira dagoen, gradutan.</summary>
         public double Heading { get; set; }
 
         public double Speed { get; set; }
@@ -28,7 +28,7 @@ namespace AgroCore.Shared.Models
         public double Temperature { get; set; }
         public bool Online { get; set; }
 
-        /// <summary>Explicación corta del estado, por ejemplo "esperando zona Z07-04".</summary>
+        /// <summary>Egoeraren azalpen laburra, adibidez "Z07-04 gunearen zain".</summary>
         public string Note { get; set; }
 
         public MachineProfile Profile { get; set; } = new MachineProfile();

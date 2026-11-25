@@ -3,8 +3,8 @@ using System;
 namespace AgroCore.Shared.Models
 {
     /// <summary>
-    /// Posición 3D dentro de la explotación.
-    /// X y Z son el suelo. Y es la altura (los drones vuelan con Y mayor que 0).
+    /// 3D posizioa ustiategiaren barruan.
+    /// X eta Z lurra dira. Y altuera da (droneek 0 baino Y handiagoarekin egiten dute hegan).
     /// </summary>
     public class Position
     {
@@ -23,7 +23,7 @@ namespace AgroCore.Shared.Models
             Z = z;
         }
 
-        /// <summary>Distancia en línea recta entre dos posiciones.</summary>
+        /// <summary>Bi posizioren arteko distantzia lerro zuzenean.</summary>
         public double DistanceTo(Position other)
         {
             double dx = X - other.X;
@@ -32,7 +32,7 @@ namespace AgroCore.Shared.Models
             return Math.Sqrt(dx * dx + dy * dy + dz * dz);
         }
 
-        /// <summary>Distancia sobre el suelo (sin tener en cuenta la altura).</summary>
+        /// <summary>Lurraren gaineko distantzia (altuera kontuan hartu gabe).</summary>
         public double GroundDistanceTo(Position other)
         {
             double dx = X - other.X;

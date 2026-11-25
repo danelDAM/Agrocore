@@ -12,7 +12,7 @@ using AgroCore.Shared.Security;
 
 namespace AgroCore.ControlCenter.Views
 {
-    /// <summary>Fila de la tabla de estadísticas por máquina (ya con los textos formateados).</summary>
+    /// <summary>Makinakako estatistika-taularen errenkada (testuak dagoeneko formateatuta).</summary>
     public class MachineStatsRow
     {
         public string Name { get; set; }
@@ -30,7 +30,7 @@ namespace AgroCore.ControlCenter.Views
         public string Efficiency { get; set; }
     }
 
-    /// <summary>Una barra del gráfico.</summary>
+    /// <summary>Grafikoaren barra bat.</summary>
     public class ChartBar
     {
         public string Name { get; set; }
@@ -40,8 +40,8 @@ namespace AgroCore.ControlCenter.Views
     }
 
     /// <summary>
-    /// Estadísticas globales de la explotación y de cada máquina.
-    /// El servidor las calcula contando los eventos del registro (events.jsonl).
+    /// Ustiategiaren eta makina bakoitzaren estatistika orokorrak.
+    /// Zerbitzariak kalkulatzen ditu erregistroko gertaerak zenbatuz (events.jsonl).
     /// </summary>
     public partial class StatisticsPage : UserControl
     {
@@ -98,23 +98,23 @@ namespace AgroCore.ControlCenter.Views
 
         private void Show(FarmStatistics s)
         {
-            PeriodText.Text = s.FarmName + "   ·   " + (s.From.Year < 2000 ? "Desde el inicio" : "Desde " + s.From.ToString("dd/MM/yyyy HH:mm")) + "   ·   Actualizado " + DateTime.Now.ToString("HH:mm:ss");
+            PeriodText.Text = s.FarmName + "   ·   " + (s.From.Year < 2000 ? "Hasieratik" : "Noiztik: " + s.From.ToString("dd/MM/yyyy HH:mm")) + "   ·   Eguneratua: " + DateTime.Now.ToString("HH:mm:ss");
 
             TotalsGrid.Children.Clear();
-            AddTotal("TAREAS COMPLETADAS", s.TasksCompleted.ToString());
-            AddTotal("CAMPOS SEMBRADOS", s.FieldsSown.ToString());
-            AddTotal("CAMPOS REGADOS", s.FieldsIrrigated.ToString());
-            AddTotal("CAMPOS FUMIGADOS", s.FieldsSprayed.ToString());
-            AddTotal("CAMPOS COSECHADOS", s.FieldsHarvested.ToString());
-            AddTotal("DISTANCIA", s.DistanceKm.ToString("0.00") + " km");
-            AddTotal("TIEMPO DE ACTIVIDAD", s.TotalRuntimeMinutes.ToString("0") + " min");
-            AddTotal("TIEMPO ESPERANDO", s.WaitingMinutes.ToString("0") + " min");
-            AddTotal("TIEMPO CARGANDO", s.ChargingMinutes.ToString("0") + " min");
-            AddTotal("CONFLICTOS EVITADOS", s.ConflictsAvoided.ToString());
-            AddTotal("INTERBLOQUEOS EVITADOS", s.DeadlocksAvoided.ToString());
-            AddTotal("EMERGENCIAS", s.Emergencies.ToString());
+            AddTotal("OSATUTAKO ZEREGINAK", s.TasksCompleted.ToString());
+            AddTotal("EREINDAKO SOROAK", s.FieldsSown.ToString());
+            AddTotal("UREZTATUTAKO SOROAK", s.FieldsIrrigated.ToString());
+            AddTotal("FUMIGATUTAKO SOROAK", s.FieldsSprayed.ToString());
+            AddTotal("UZTA BILDUTAKO SOROAK", s.FieldsHarvested.ToString());
+            AddTotal("DISTANTZIA", s.DistanceKm.ToString("0.00") + " km");
+            AddTotal("JARDUERA-DENBORA", s.TotalRuntimeMinutes.ToString("0") + " min");
+            AddTotal("ZAIN EMANDAKO DENBORA", s.WaitingMinutes.ToString("0") + " min");
+            AddTotal("KARGATZEN EMANDAKO DENBORA", s.ChargingMinutes.ToString("0") + " min");
+            AddTotal("SAIHESTUTAKO GATAZKAK", s.ConflictsAvoided.ToString());
+            AddTotal("SAIHESTUTAKO ELKARBLOKEOAK", s.DeadlocksAvoided.ToString());
+            AddTotal("LARRIALDIAK", s.Emergencies.ToString());
 
-            // Tabla y gráfico
+            // Taula eta grafikoa
             List<MachineStatsRow> rows = new List<MachineStatsRow>();
             List<ChartBar> bars = new List<ChartBar>();
             int max = 1;

@@ -5,9 +5,9 @@ using AgroCore.Server.Synchronization;
 namespace AgroCore.Server.Fields
 {
     /// <summary>
-    /// Hilo que hace crecer los cultivos de todas las explotaciones.
-    /// Cada 500 ms avanza el crecimiento según el tiempo real transcurrido.
-    /// Cada 10 s guarda en disco el estado de los campos y las estadísticas.
+    /// Ustiategi guztietako laboreak hazarazten dituen haria.
+    /// 500 ms-ro hazkuntza aurreratzen du, igarotako denbora errealaren arabera.
+    /// 10 s-ro soroen egoera eta estatistikak diskoan gordetzen ditu.
     /// </summary>
     public class GrowthService
     {
@@ -60,7 +60,7 @@ namespace AgroCore.Server.Fields
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine("No se pudo guardar el estado: " + ex.Message);
+                        Console.WriteLine("Ezin izan da egoera gorde: " + ex.Message);
                     }
                 }
             }

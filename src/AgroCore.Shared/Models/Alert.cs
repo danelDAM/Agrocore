@@ -10,7 +10,7 @@ namespace AgroCore.Shared.Models
         Error
     }
 
-    /// <summary>Aviso que se muestra en el panel de alertas.</summary>
+    /// <summary>Alerten panelean erakusten den abisua.</summary>
     public class Alert
     {
         public DateTime Timestamp { get; set; } = DateTime.Now;

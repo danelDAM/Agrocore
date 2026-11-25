@@ -5,30 +5,30 @@ using AgroCore.Shared.Models;
 namespace AgroCore.Shared.Map
 {
     /// <summary>
-    /// Cálculos de trabajo y batería. Están en Shared para que el servidor (al elegir máquina)
-    /// y la propia máquina (al decidir si vuelve a la base) usen exactamente las mismas fórmulas.
+    /// Lanaren eta bateriaren kalkuluak. Shared-en daude zerbitzariak (makina aukeratzean)
+    /// eta makinak berak (basera itzuli ala ez erabakitzean) formula berberak erabil ditzaten.
     /// </summary>
     public static class MachineMath
     {
-        /// <summary>Ancho de cada pasada sobre el campo.</summary>
+        /// <summary>Soroaren gaineko pasada bakoitzaren zabalera.</summary>
         public static double LaneWidth(MachineProfile profile)
         {
             return Math.Max(1.5, 2 * profile.WorkRadius);
         }
 
-        /// <summary>Número de pasadas para cubrir un campo entero.</summary>
+        /// <summary>Soro oso bat estaltzeko behar den pasada kopurua.</summary>
         public static int LaneCount(MachineProfile profile, double fieldSize)
         {
             return (int)Math.Ceiling(fieldSize / LaneWidth(profile));
         }
 
-        /// <summary>Velocidad mientras trabaja (más lenta que al desplazarse).</summary>
+        /// <summary>Lanean ari den bitarteko abiadura (mugitzean baino motelagoa).</summary>
         public static double WorkSpeed(MachineProfile profile)
         {
             return Math.Max(0.5, profile.Speed * profile.WorkSpeedFactor * profile.Efficiency);
         }
 
-        /// <summary>Segundos que tardará en terminar el trabajo que falta de un campo.</summary>
+        /// <summary>Soro bateko falta den lana amaitzeko beharko dituen segundoak.</summary>
         public static double WorkSeconds(MachineProfile profile, double fieldSize, double progressPercent)
         {
             double totalDistance = LaneCount(profile, fieldSize) * fieldSize;
@@ -36,44 +36,44 @@ namespace AgroCore.Shared.Map
             return remaining / WorkSpeed(profile);
         }
 
-        /// <summary>Distancia aproximada por caminos (distancia "Manhattan": solo horizontal + vertical).</summary>
+        /// <summary>Bideetako gutxi gorabeherako distantzia ("Manhattan" distantzia: horizontala + bertikala soilik).</summary>
         public static double RoadDistance(Position a, Position b)
         {
             return Math.Abs(a.X - b.X) + Math.Abs(a.Z - b.Z);
         }
 
-        /// <summary>Distancia según el tipo de máquina: los drones vuelan en línea recta.</summary>
+        /// <summary>Distantzia makina motaren arabera: droneek lerro zuzenean egiten dute hegan.</summary>
         public static double TravelDistance(MachineType type, Position a, Position b)
         {
             if (type == MachineType.Sprayer)
             {
-                return a.GroundDistanceTo(b) + 10; // + subir y bajar
+                return a.GroundDistanceTo(b) + 10; // + igo eta jaitsi
             }
             return RoadDistance(a, b) + 6;
         }
 
-        /// <summary>% de batería para recorrer una distancia.</summary>
+        /// <summary>Distantzia bat egiteko bateria-%.</summary>
         public static double MoveCost(MachineProfile profile, BatteryConfig config, double distance)
         {
             double seconds = distance / Math.Max(0.5, profile.Speed);
             return seconds * profile.MoveConsumption * config.MoveMultiplier;
         }
 
-        /// <summary>% de batería para trabajar unos segundos.</summary>
+        /// <summary>Segundo batzuk lan egiteko bateria-%.</summary>
         public static double WorkCost(MachineProfile profile, BatteryConfig config, double seconds)
         {
             return seconds * profile.WorkConsumption * config.WorkMultiplier;
         }
 
-        /// <summary>Punto de referencia de la base (la puerta), para calcular el regreso.</summary>
+        /// <summary>Basearen erreferentzia-puntua (atea), itzulera kalkulatzeko.</summary>
         public static Position BaseGate(FarmLayout layout)
         {
             return layout.CellCenter(FarmLayout.BaseLaneCol, layout.GateRow);
         }
 
         /// <summary>
-        /// Batería necesaria para ir a un campo, hacer el trabajo que falta y volver a la base
-        /// dejando el margen de seguridad.
+        /// Soro batera joateko, falta den lana egiteko eta basera itzultzeko behar den bateria,
+        /// segurtasun-tartea utzita.
         /// </summary>
         public static double BatteryNeededForTask(MachineType type, MachineProfile profile, BatteryConfig config,
                                                   FarmLayout layout, Position from, int fieldIndex, double progress)
@@ -87,7 +87,7 @@ namespace AgroCore.Shared.Map
             return go + work + back + config.ReturnReserve;
         }
 
-        /// <summary>Tipo de máquina que hace cada tarea.</summary>
+        /// <summary>Zeregin bakoitza egiten duen makina mota.</summary>
         public static MachineType? MachineFor(TaskType task)
         {
             switch (task)
@@ -96,7 +96,7 @@ namespace AgroCore.Shared.Map
                 case TaskType.Irrigate: return MachineType.Irrigator;
                 case TaskType.Spray: return MachineType.Sprayer;
                 case TaskType.Harvest: return MachineType.Harvester;
-                default: return null; // Growth: la hace el servidor
+                default: return null; // Growth: zerbitzariak egiten du
             }
         }
     }

@@ -9,10 +9,10 @@ using AgroCore.Shared.Networking;
 namespace AgroCore.ControlCenter.Services
 {
     /// <summary>
-    /// Recibe por UDP la telemetría (TELEMETRY_BATCH) que el servidor envía cada 200 ms.
+    /// Zerbitzariak 200 ms-ro bidaltzen duen telemetria (TELEMETRY_BATCH) UDP bidez jasotzen du.
     ///
-    /// UDP porque son datos que se repiten continuamente: si se pierde un paquete no pasa nada,
-    /// el siguiente llega enseguida. Lo importante (órdenes, login...) va siempre por TCP.
+    /// UDP, etengabe errepikatzen diren datuak direlako: pakete bat galtzen bada ez da ezer gertatzen,
+    /// hurrengoa berehala iristen da. Garrantzitsua dena (aginduak, login...) beti TCP bidez doa.
     /// </summary>
     public class TelemetryReceiver
     {
@@ -20,21 +20,21 @@ namespace AgroCore.ControlCenter.Services
         private Thread thread;
         private volatile bool running;
 
-        /// <summary>Puerto local en el que escuchamos (se lo decimos al servidor con UDP_SUBSCRIBE).</summary>
+        /// <summary>Entzuten dugun ataka lokala (zerbitzariari UDP_SUBSCRIBE bidez esaten diogu).</summary>
         public int Port { get; private set; }
 
-        /// <summary>Llega un lote de telemetría (se lanza desde el hilo UDP).</summary>
+        /// <summary>Telemetria-sorta bat iristen da (UDP haritik jaurtitzen da).</summary>
         public event Action<TelemetryBatch> BatchReceived;
 
         public void Start()
         {
-            udp = new UdpClient(new IPEndPoint(IPAddress.Any, 0)); // puerto 0 = el sistema elige uno libre
+            udp = new UdpClient(new IPEndPoint(IPAddress.Any, 0)); // 0 ataka = sistemak libre bat aukeratzen du
             Port = ((IPEndPoint)udp.Client.LocalEndPoint).Port;
             running = true;
 
             thread = new Thread(ReceiveLoop);
             thread.IsBackground = true;
-            thread.Name = "Receptor UDP";
+            thread.Name = "UDP hartzailea";
             thread.Start();
         }
 
@@ -58,7 +58,7 @@ namespace AgroCore.ControlCenter.Services
                 }
                 catch (Exception)
                 {
-                    // socket cerrado al salir o paquete incorrecto: se ignora
+                    // irtetean itxitako socketa edo pakete okerra: ez ikusi egiten zaio
                 }
             }
         }

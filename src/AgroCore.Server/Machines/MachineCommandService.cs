@@ -6,13 +6,13 @@ using AgroCore.Shared.Messages;
 namespace AgroCore.Server.Machines
 {
     /// <summary>
-    /// Ejecuta las órdenes del operador sobre las máquinas.
+    /// Operadorearen aginduak exekutatzen ditu makinetan.
     ///
-    ///   WPF -> TCP -> SERVIDOR (valida) -> aquí -> MÁQUINA (ejecuta) -> telemetría -> SERVIDOR -> WPF
+    ///   WPF -> TCP -> ZERBITZARIA (balidatu) -> hemen -> MAKINA (exekutatu) -> telemetria -> ZERBITZARIA -> WPF
     ///
-    /// El servidor no solo reenvía la orden: también actualiza su propio estado (Halted, ReturnRequested)
-    /// y despierta a los hilos que estén esperando (Monitor.PulseAll) para que cancelen su espera.
-    /// Quien llama a estos métodos YA ha comprobado el rol y que la máquina sea de su explotación.
+    /// Zerbitzariak ez du agindua birbidali soilik: bere egoera ere eguneratzen du (Halted, ReturnRequested)
+    /// eta zain dauden hariak esnatzen ditu (Monitor.PulseAll), itxaronaldia bertan behera utz dezaten.
+    /// Metodo hauei deitzen dienak JADA egiaztatu ditu rola eta makina bere ustiategikoa dela.
     /// </summary>
     public class MachineCommandService
     {
@@ -23,35 +23,35 @@ namespace AgroCore.Server.Machines
             this.logger = logger;
         }
 
-        /// <summary>Orden a una sola máquina. Devuelve null si va bien o el texto del error.</summary>
+        /// <summary>Makina bakar baterako agindua. null itzultzen du ondo badoa, edo errorearen testua.</summary>
         public string Execute(FarmRuntime farm, MachineRuntime machine, string command, string username)
         {
             if (!machine.Online)
             {
-                return machine.Name + " no está conectada";
+                return machine.Name + " ez dago konektatuta";
             }
 
             switch (command)
             {
                 case MessageTypes.Stop:
                     machine.Halted = true;
-                    farm.WakeAllWaiters(); // si estaba esperando algo, que deje de esperar
+                    farm.WakeAllWaiters(); // zerbaiten zain bazegoen, itxaroteari utz diezaiola
                     Forward(machine, command, username);
                     logger.Log(EventKind.MachineStopped, LogSeverity.Warning,
-                        username + " detuvo " + machine.Name, farm.Id, machine.Id, username, null, null);
+                        username + " erabiltzaileak " + machine.Name + " gelditu du", farm.Id, machine.Id, username, null, null);
                     return null;
 
                 case MessageTypes.Resume:
                 case MessageTypes.Start:
                     if (farm.EmergencyActive)
                     {
-                        return "Parada de emergencia activa: use REANUDAR TODO para desbloquear la explotación";
+                        return "Larrialdiko geldialdia aktibo dago: erabili GUZTIAK BERREKIN ustiategia desblokeatzeko";
                     }
                     machine.Halted = false;
                     machine.ReturnRequested = false;
                     Forward(machine, command, username);
                     logger.Log(command == MessageTypes.Start ? EventKind.MachineStarted : EventKind.MachineResumed, LogSeverity.Info,
-                        username + " " + (command == MessageTypes.Start ? "arrancó " : "reanudó ") + machine.Name,
+                        username + " erabiltzaileak " + machine.Name + (command == MessageTypes.Start ? " abiarazi du" : " berrekin du"),
                         farm.Id, machine.Id, username, null, null);
                     return null;
 
@@ -60,15 +60,15 @@ namespace AgroCore.Server.Machines
                     farm.WakeAllWaiters();
                     Forward(machine, command, username);
                     logger.Log(EventKind.ReturnToBase, LogSeverity.Info,
-                        username + " mandó " + machine.Name + " a la base", farm.Id, machine.Id, username, null, null);
+                        username + " erabiltzaileak " + machine.Name + " basera bidali du", farm.Id, machine.Id, username, null, null);
                     return null;
 
                 default:
-                    return "Orden desconocida: " + command;
+                    return "Agindu ezezaguna: " + command;
             }
         }
 
-        /// <summary>Orden global sobre toda la flota de la explotación.</summary>
+        /// <summary>Ustiategiko flota osoarentzako agindu orokorra.</summary>
         public string ExecuteForFarm(FarmRuntime farm, string command, string username)
         {
             int count = 0;
@@ -87,7 +87,7 @@ namespace AgroCore.Server.Machines
                     }
                     farm.WakeAllWaiters();
                     logger.Log(EventKind.EmergencyStop, LogSeverity.Error,
-                        "PARADA DE EMERGENCIA ordenada por " + username + " (" + count + " máquinas detenidas)",
+                        "LARRIALDIKO GELDIALDIA, " + username + " erabiltzaileak aginduta (" + count + " makina geldituta)",
                         farm.Id, null, username, null, null);
                     return null;
 
@@ -103,7 +103,7 @@ namespace AgroCore.Server.Machines
                     }
                     farm.WakeAllWaiters();
                     logger.Log(EventKind.MachineStopped, LogSeverity.Warning,
-                        username + " detuvo toda la flota (" + count + " máquinas)", farm.Id, null, username, null, null);
+                        username + " erabiltzaileak flota osoa gelditu du (" + count + " makina)", farm.Id, null, username, null, null);
                     return null;
 
                 case MessageTypes.ResumeAll:
@@ -120,7 +120,7 @@ namespace AgroCore.Server.Machines
                         }
                     }
                     logger.Log(EventKind.MachineResumed, LogSeverity.Info,
-                        username + " reanudó toda la flota (" + count + " máquinas)" + (wasEmergency ? " - fin de la emergencia" : ""),
+                        username + " erabiltzaileak flota osoa berrekin du (" + count + " makina)" + (wasEmergency ? " - larrialdiaren amaiera" : ""),
                         farm.Id, null, username, null, null);
                     return null;
 
@@ -136,15 +136,15 @@ namespace AgroCore.Server.Machines
                     }
                     farm.WakeAllWaiters();
                     logger.Log(EventKind.ReturnToBase, LogSeverity.Info,
-                        username + " mandó toda la flota a la base (" + count + " máquinas)", farm.Id, null, username, null, null);
+                        username + " erabiltzaileak flota osoa basera bidali du (" + count + " makina)", farm.Id, null, username, null, null);
                     return null;
 
                 default:
-                    return "Orden desconocida: " + command;
+                    return "Agindu ezezaguna: " + command;
             }
         }
 
-        /// <summary>Envía la orden a la máquina por su conexión TCP.</summary>
+        /// <summary>Agindua makinari bidaltzen dio bere TCP konexioaren bidez.</summary>
         private void Forward(MachineRuntime machine, string command, string username)
         {
             MachineCommand message = new MachineCommand(command, machine.Id);

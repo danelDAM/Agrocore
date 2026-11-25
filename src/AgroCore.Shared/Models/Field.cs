@@ -4,7 +4,7 @@ using AgroCore.Shared.Enums;
 
 namespace AgroCore.Shared.Models
 {
-    /// <summary>Campo (parcela) de una explotación.</summary>
+    /// <summary>Ustiategi baten soroa (lursaila).</summary>
     public class Field
     {
         /// <summary>FIELD-A, FIELD-B...</summary>
@@ -12,27 +12,27 @@ namespace AgroCore.Shared.Models
         public int FarmId { get; set; }
         public string Name { get; set; } = "";
 
-        /// <summary>Posición de la parcela en el plano (0, 1, 2...).</summary>
+        /// <summary>Lursailaren posizioa planoan (0, 1, 2...).</summary>
         public int Index { get; set; }
 
         public FieldStatus Status { get; set; } = FieldStatus.Empty;
 
-        /// <summary>Cultivo sembrado ahora mismo.</summary>
+        /// <summary>Une honetan ereindako laborea.</summary>
         public CropType? Crop { get; set; }
 
-        /// <summary>Cultivo planificado.</summary>
+        /// <summary>Planifikatutako laborea.</summary>
         public CropType? PlannedCrop { get; set; }
 
-        /// <summary>Si es true, después de recolectar se vuelve a plantar lo mismo.</summary>
+        /// <summary>True bada, uzta bildu ondoren gauza bera landatzen da berriro.</summary>
         public bool AutoReplant { get; set; }
 
-        /// <summary>Crecimiento de 0 a 100. Lo calcula el servidor.</summary>
+        /// <summary>Hazkuntza 0tik 100era. Zerbitzariak kalkulatzen du.</summary>
         public double Growth { get; set; }
 
-        /// <summary>Si el crecimiento está parado, qué necesita (regar o fumigar).</summary>
+        /// <summary>Hazkuntza geldituta badago, zer behar duen (ureztatu edo fumigatu).</summary>
         public TaskType? GrowthBlockedBy { get; set; }
 
-        /// <summary>Cuidados ya hechos en este ciclo (riego, fumigación).</summary>
+        /// <summary>Ziklo honetan dagoeneko egindako zainketak (ureztatzea, fumigazioa).</summary>
         public List<TaskType> CompletedCare { get; set; } = new List<TaskType>();
 
         public string CurrentTaskId { get; set; }
@@ -40,7 +40,7 @@ namespace AgroCore.Shared.Models
         public DateTime? HarvestedAt { get; set; }
         public int TimesHarvested { get; set; }
 
-        /// <summary>Copia del campo (para enviarlo sin compartir el objeto original entre hilos).</summary>
+        /// <summary>Soroaren kopia (jatorrizko objektua harien artean partekatu gabe bidaltzeko).</summary>
         public Field Clone()
         {
             Field copy = (Field)MemberwiseClone();

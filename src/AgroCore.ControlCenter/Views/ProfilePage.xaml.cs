@@ -11,7 +11,7 @@ using AgroCore.Shared.Security;
 
 namespace AgroCore.ControlCenter.Views
 {
-    /// <summary>Datos del usuario y cambio de contraseña (el servidor valida la contraseña actual).</summary>
+    /// <summary>Erabiltzailearen datuak eta pasahitz-aldaketa (zerbitzariak balidatzen du uneko pasahitza).</summary>
     public partial class ProfilePage : UserControl
     {
         private readonly MainWindow main;
@@ -23,17 +23,17 @@ namespace AgroCore.ControlCenter.Views
             main.MessageArrived += OnMessage;
 
             NameText.Text = main.User.FullName;
-            UserText.Text = "Usuario: " + main.User.Username;
-            RoleText.Text = "Rol: " + Texts.Role(main.User.Role);
-            FarmText.Text = "Explotación: " + (main.User.Role == UserRole.Admin ? "todas" : main.User.FarmName);
+            UserText.Text = "Erabiltzailea: " + main.User.Username;
+            RoleText.Text = "Rola: " + Texts.Role(main.User.Role);
+            FarmText.Text = "Ustiategia: " + (main.User.Role == UserRole.Admin ? "guztiak" : main.User.FarmName);
             LocalSessionData session = LocalSession.Load();
             if (session.LoginTime.HasValue)
             {
-                LoginText.Text = "Sesión iniciada: " + session.LoginTime.Value.ToString("dd/MM/yyyy HH:mm");
+                LoginText.Text = "Saioa hasita: " + session.LoginTime.Value.ToString("dd/MM/yyyy HH:mm");
             }
 
-            // Lista de lo que puede hacer este rol
-            string text = "Permisos: ";
+            // Rol honek egin dezakeenaren zerrenda
+            string text = "Baimenak: ";
             foreach (Permission permission in Enum.GetValues(typeof(Permission)))
             {
                 if (RolePermissions.Has(main.User.Role, permission))
@@ -48,12 +48,12 @@ namespace AgroCore.ControlCenter.Views
         {
             if (CurrentBox.Password == "" || NewBox.Password == "")
             {
-                ShowResult("Rellene todos los campos.", false);
+                ShowResult("Bete eremu guztiak.", false);
                 return;
             }
             if (NewBox.Password != RepeatBox.Password)
             {
-                ShowResult("Las dos contraseñas nuevas no coinciden.", false);
+                ShowResult("Bi pasahitz berriak ez datoz bat.", false);
                 return;
             }
 

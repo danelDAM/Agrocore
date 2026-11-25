@@ -11,17 +11,17 @@ using AgroCore.Shared.Networking;
 namespace AgroCore.Server.Logging
 {
     /// <summary>
-    /// Registro de actividad del servidor.
+    /// Zerbitzariaren gertaeren erregistroa.
     ///
-    /// Patrón PRODUCTOR / CONSUMIDOR:
-    ///  - Cualquier hilo llama a Log(...) (productor). Solo añade la entrada a una cola, que es rápido.
-    ///  - Un único hilo escritor (consumidor) saca las entradas de la cola y las escribe en disco.
-    /// Así los hilos que atienden máquinas nunca se quedan esperando a que se escriba un archivo.
+    /// EKOIZLE / KONTSUMITZAILE eredua:
+    ///  - Edozein harik deitzen dio Log(...)-i (ekoizlea). Sarrera ilara batera gehitzen du soilik, eta hori azkarra da.
+    ///  - Idazle-hari bakar batek (kontsumitzailea) sarrerak ilaratik atera eta diskoan idazten ditu.
+    /// Horrela, makinak artatzen dituzten hariak ez dira inoiz fitxategi bat idatzi arte zain geratzen.
     ///
-    /// Se escriben dos archivos en la carpeta logs/:
-    ///  - agrocore-AAAAMMDD.log : texto legible  "[10:32:15] Seeder-01 completed TASK-103"
-    ///  - events.jsonl          : una entrada JSON por línea. Al arrancar se vuelve a leer para
-    ///                            calcular las estadísticas (los logs sirven para las estadísticas).
+    /// Bi fitxategi idazten dira logs/ karpetan:
+    ///  - agrocore-UUUUHHEE.log : testu irakurgarria  "[10:32:15] Seeder-01 completed TASK-103"
+    ///  - events.jsonl          : JSON sarrera bat lerro bakoitzeko. Abiaraztean berriro irakurtzen da
+    ///                            estatistikak kalkulatzeko (erregistroak estatistiketarako balio dute).
     /// </summary>
     public class EventLogger
     {
@@ -41,7 +41,7 @@ namespace AgroCore.Server.Logging
             Directory.CreateDirectory(folder);
         }
 
-        /// <summary>Si es false no se muestran en consola los mensajes de nivel Debug (reservas de zonas).</summary>
+        /// <summary>false bada, Debug mailako mezuak (guneen erreserbak) ez dira kontsolan erakusten.</summary>
         public bool ShowDebugInConsole { get; set; } = false;
 
         public void Start()
@@ -63,7 +63,7 @@ namespace AgroCore.Server.Logging
         }
 
         // ------------------------------------------------------------------
-        // Métodos para registrar
+        // Erregistratzeko metodoak
         // ------------------------------------------------------------------
 
         public void Log(EventKind kind, LogSeverity severity, string message)
@@ -105,15 +105,15 @@ namespace AgroCore.Server.Logging
 
             if (!writeQueue.IsAddingCompleted)
             {
-                writeQueue.Add(entry); // el hilo escritor lo guardará en disco
+                writeQueue.Add(entry); // idazle-hariak diskoan gordeko du
             }
         }
 
         // ------------------------------------------------------------------
-        // Consultas
+        // Kontsultak
         // ------------------------------------------------------------------
 
-        /// <summary>Últimas entradas de una explotación (farmId 0 = todas).</summary>
+        /// <summary>Ustiategi baten azken sarrerak (farmId 0 = guztiak).</summary>
         public List<LogEntry> GetRecent(int farmId, int count, bool includeDebug)
         {
             List<LogEntry> result = new List<LogEntry>();
@@ -132,10 +132,10 @@ namespace AgroCore.Server.Logging
                     }
                 }
             }
-            return result; // de más nueva a más antigua
+            return result; // berrienetik zaharrenera
         }
 
-        /// <summary>Entradas de una explotación en un periodo (para estadísticas e informes).</summary>
+        /// <summary>Ustiategi baten sarrerak aldi batean (estatistika eta txostenetarako).</summary>
         public List<LogEntry> GetEntries(int farmId, DateTime from, DateTime to)
         {
             List<LogEntry> result = new List<LogEntry>();
@@ -153,7 +153,7 @@ namespace AgroCore.Server.Logging
         }
 
         // ------------------------------------------------------------------
-        // Escritura
+        // Idazketa
         // ------------------------------------------------------------------
 
         private void WriteToConsole(LogEntry entry)
@@ -177,12 +177,12 @@ namespace AgroCore.Server.Logging
             }
         }
 
-        /// <summary>Hilo consumidor: escribe en disco todo lo que llega a la cola.</summary>
+        /// <summary>Kontsumitzaile-haria: ilarara iristen den guztia diskoan idazten du.</summary>
         private void WriterLoop()
         {
             string eventsPath = Path.Combine(folder, "events.jsonl");
 
-            // GetConsumingEnumerable se bloquea (sin gastar CPU) mientras la cola está vacía.
+            // GetConsumingEnumerable blokeatuta geratzen da (PUZik gastatu gabe) ilara hutsik dagoen bitartean.
             foreach (LogEntry entry in writeQueue.GetConsumingEnumerable())
             {
                 try
@@ -198,12 +198,12 @@ namespace AgroCore.Server.Logging
                 }
                 catch (IOException)
                 {
-                    // si el archivo está bloqueado un momento se pierde esa línea, pero el servidor sigue
+                    // fitxategia une batez blokeatuta badago, lerro hori galtzen da, baina zerbitzariak jarraitu egiten du
                 }
             }
         }
 
-        /// <summary>Al arrancar, recupera los eventos anteriores para que las estadísticas sean acumuladas.</summary>
+        /// <summary>Abiaraztean, aurreko gertaerak berreskuratzen ditu, estatistikak metatuak izan daitezen.</summary>
         private void LoadPreviousEvents()
         {
             string eventsPath = Path.Combine(folder, "events.jsonl");
@@ -231,7 +231,7 @@ namespace AgroCore.Server.Logging
                 }
                 catch (JsonException)
                 {
-                    // línea dañada: se ignora
+                    // lerro hondatua: ez ikusi egiten zaio
                 }
             }
 
@@ -242,7 +242,7 @@ namespace AgroCore.Server.Logging
                     entries.RemoveRange(0, entries.Count - MaxEntriesInMemory);
                 }
             }
-            Console.WriteLine("Eventos anteriores cargados: " + loaded);
+            Console.WriteLine("Kargatutako aurreko gertaerak: " + loaded);
         }
     }
 }

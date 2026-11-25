@@ -10,8 +10,8 @@ using AgroCore.Shared.Security;
 namespace AgroCore.ControlCenter.Views
 {
     /// <summary>
-    /// Panel principal personalizado del agricultor: KPIs de SU explotación, vista 3D,
-    /// máquina seleccionada, alertas y órdenes a toda la flota.
+    /// Nekazariaren aginte-panel pertsonalizatua: BERE ustiategiaren KPIak, 3D ikuspegia,
+    /// hautatutako makina, alertak eta flota osoarentzako aginduak.
     /// </summary>
     public partial class DashboardPage : UserControl
     {
@@ -31,7 +31,7 @@ namespace AgroCore.ControlCenter.Views
             AlertsList.ItemsSource = main.AlertRows;
             main.StateUpdated += OnStateUpdated;
 
-            // Botones según el rol (el servidor vuelve a comprobarlo siempre)
+            // Botoiak rolaren arabera (zerbitzariak beti egiaztatzen du berriro)
             if (!main.Can(Permission.ControlMachines))
             {
                 SelButtons.Visibility = Visibility.Collapsed;
@@ -59,7 +59,7 @@ namespace AgroCore.ControlCenter.Views
 
             if (selectedId != null && main.FindMachine(selectedId) == null)
             {
-                SelectMachine(null); // la máquina ya no existe (cambio de explotación)
+                SelectMachine(null); // makina jada ez da existitzen (ustiategi-aldaketa)
             }
             RefreshSelected();
         }
@@ -67,22 +67,22 @@ namespace AgroCore.ControlCenter.Views
         private void UpdateKpis(FarmSummary summary)
         {
             KpiMachines.Text = summary.MachineCount.ToString();
-            KpiMachinesSub.Text = summary.OnlineMachines + " conectadas";
+            KpiMachinesSub.Text = summary.OnlineMachines + " konektatuta";
             KpiFields.Text = summary.FieldCount.ToString();
-            KpiFieldsSub.Text = summary.FieldsCultivated + " cultivados · " + summary.FieldsPending + " pendientes";
+            KpiFieldsSub.Text = summary.FieldsCultivated + " landatuta · " + summary.FieldsPending + " egiteko";
             KpiBattery.Text = summary.AverageBattery.ToString("0") + "%";
             KpiBatteryBar.Value = summary.AverageBattery;
             KpiBatteryBar.Foreground = Texts.ToBrush(Texts.BatteryColor(summary.AverageBattery));
             KpiWorking.Text = summary.Working.ToString();
-            KpiWorkingSub.Text = summary.Moving + " en camino · " + summary.Waiting + " esperando";
+            KpiWorkingSub.Text = summary.Moving + " bidean · " + summary.Waiting + " zain";
             KpiCharging.Text = summary.Charging.ToString();
-            KpiChargingSub.Text = summary.ChargersBusy + " cargadores ocupados · " + summary.ChargerQueue + " en cola";
+            KpiChargingSub.Text = summary.ChargersBusy + " kargagailu okupatuta · " + summary.ChargerQueue + " ilaran";
             KpiAvailable.Text = summary.Available.ToString();
-            KpiAvailableSub.Text = summary.Stopped + " detenidas · " + summary.Returning + " volviendo";
+            KpiAvailableSub.Text = summary.Stopped + " geldituta · " + summary.Returning + " itzultzen";
         }
 
         // ==================================================================
-        // MÁQUINA SELECCIONADA
+        // HAUTATUTAKO MAKINA
         // ==================================================================
 
         private void OnMachineClicked(string machineId)
@@ -97,7 +97,7 @@ namespace AgroCore.ControlCenter.Views
             RefreshSelected();
         }
 
-        /// <summary>Repinta el panel de la máquina seleccionada (se llama con cada telemetría).</summary>
+        /// <summary>Hautatutako makinaren panela berriro marrazten du (telemetria bakoitzarekin deitzen da).</summary>
         public void RefreshSelected()
         {
             MachineRow row = selectedId == null ? null : main.FindMachine(selectedId);
@@ -113,7 +113,7 @@ namespace AgroCore.ControlCenter.Views
 
             SelName.Text = row.Name;
             SelType.Text = row.TypeText + " · " + row.ModelText;
-            SelStatus.Text = row.Online ? row.StatusText.ToUpper() : "DESCONECTADA";
+            SelStatus.Text = row.Online ? row.StatusText.ToUpper() : "DESKONEKTATUTA";
             SelStatusChip.Background = row.Online ? row.StatusBrush : Brushes.Gray;
             SelBattery.Text = row.BatteryText;
             SelBatteryBar.Value = row.Battery;
@@ -135,7 +135,7 @@ namespace AgroCore.ControlCenter.Views
         }
 
         // ==================================================================
-        // VISTA
+        // IKUSPEGIA
         // ==================================================================
 
         private void ResetView_Click(object sender, RoutedEventArgs e)
@@ -164,7 +164,7 @@ namespace AgroCore.ControlCenter.Views
         }
 
         // ==================================================================
-        // ÓRDENES A TODA LA FLOTA
+        // AGINDUAK FLOTA OSOARI
         // ==================================================================
 
         private void StopAll_Click(object sender, RoutedEventArgs e)

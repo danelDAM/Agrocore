@@ -8,8 +8,8 @@ using AgroCore.Shared.Messages;
 namespace AgroCore.Server.Networking
 {
     /// <summary>
-    /// Hilo que cada segundo envía por TCP a cada centro de control el estado completo
-    /// (FARM_STATE) de la explotación que está viendo. Cada usuario solo recibe SU explotación.
+    /// Segundoro, Kontrol Zentro bakoitzari ikusten ari den ustiategiaren egoera osoa
+    /// (FARM_STATE) TCP bidez bidaltzen dion haria. Erabiltzaile bakoitzak BERE ustiategia bakarrik jasotzen du.
     /// </summary>
     public class StateBroadcaster
     {
@@ -41,7 +41,7 @@ namespace AgroCore.Server.Networking
             {
                 Thread.Sleep(context.Config.Current.StateBroadcastIntervalMs);
 
-                // Un estado por explotación aunque la vean varios usuarios
+                // Egoera bat ustiategi bakoitzeko, hainbat erabiltzailek ikusi arren
                 Dictionary<int, FarmStateMessage> cache = new Dictionary<int, FarmStateMessage>();
                 foreach (UserSession session in context.Sessions.GetAll())
                 {
@@ -51,7 +51,7 @@ namespace AgroCore.Server.Networking
                     }
                     catch (Exception)
                     {
-                        // si falla un cliente, se sigue con los demás
+                        // bezero batek huts egiten badu, besteekin jarraitzen da
                     }
                 }
             }

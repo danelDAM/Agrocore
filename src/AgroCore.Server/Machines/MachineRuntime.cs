@@ -8,13 +8,13 @@ using AgroCore.Shared.Networking;
 namespace AgroCore.Server.Machines
 {
     /// <summary>
-    /// Lo que el servidor sabe en cada momento de una máquina: estado, posición, conexión,
-    /// órdenes pendientes y estadísticas acumuladas.
+    /// Zerbitzariak une oro makina bati buruz dakiena: egoera, posizioa, konexioa,
+    /// egiteko aginduak eta estatistika metatuak.
     ///
-    /// La leen y escriben varios hilos (el de la conexión TCP de la máquina, el receptor UDP,
-    /// el que envía el estado al WPF...). Por eso los datos de estado se tocan dentro de lock(stateLock).
-    /// Los indicadores de control (Halted, ReturnRequested, Disconnected) son "volatile" para que
-    /// todos los hilos vean siempre el último valor.
+    /// Hainbat haritatik irakurri eta idazten da (makinaren TCP konexioarena, UDP hartzailea,
+    /// egoera WPFra bidaltzen duena...). Horregatik, egoera-datuak lock(stateLock) barruan ukitzen dira.
+    /// Kontrol-adierazleak (Halted, ReturnRequested, Disconnected) "volatile" dira, hari guztiek
+    /// beti azken balioa ikus dezaten.
     /// </summary>
     public class MachineRuntime
     {
@@ -49,25 +49,25 @@ namespace AgroCore.Server.Machines
             get { return Registration.Type; }
         }
 
-        // ---------------- Conexión ----------------
+        // ---------------- Konexioa ----------------
         public Connection Connection { get; set; }
         public string SessionToken { get; set; }
         public MachineProfile Profile { get; set; } = new MachineProfile();
         public bool Online { get; set; }
 
-        // ---------------- Control (los cambian las órdenes del operador) ----------------
-        /// <summary>STOP o EMERGENCY_STOP: la máquina está detenida.</summary>
+        // ---------------- Kontrola (operadorearen aginduek aldatzen dituzte) ----------------
+        /// <summary>STOP edo EMERGENCY_STOP: makina geldituta dago.</summary>
         public volatile bool Halted;
 
-        /// <summary>Se ha ordenado RETURN_TO_BASE.</summary>
+        /// <summary>RETURN_TO_BASE agindu da.</summary>
         public volatile bool ReturnRequested;
 
-        /// <summary>La máquina se ha desconectado.</summary>
+        /// <summary>Makina deskonektatu egin da.</summary>
         public volatile bool Disconnected;
 
         /// <summary>
-        /// ¿Hay que cancelar la espera en la que está el hilo de esta máquina?
-        /// Lo comprueban los bucles con Monitor.Wait() cada vez que se despiertan.
+        /// Makina honen haria dagoen itxaronaldia bertan behera utzi behar da?
+        /// Monitor.Wait() duten begiztek egiaztatzen dute, esnatzen diren bakoitzean.
         /// </summary>
         public bool ShouldAbortWait(bool alsoWhenReturning)
         {
@@ -78,7 +78,7 @@ namespace AgroCore.Server.Machines
             return alsoWhenReturning && ReturnRequested;
         }
 
-        // ---------------- Estado (protegido con stateLock) ----------------
+        // ---------------- Egoera (stateLock-ekin babestua) ----------------
         private Position position;
         private double heading;
         private double speed;
@@ -87,14 +87,14 @@ namespace AgroCore.Server.Machines
         private double taskProgress;
         private MachineStatus status;
         private BatteryStatus batteryStatus;
-        private string note;        // nota que envía la máquina por telemetría
-        private string serverNote;  // nota que pone el servidor mientras la máquina espera (más detallada)
+        private string note;        // makinak telemetria bidez bidaltzen duen oharra
+        private string serverNote;  // zerbitzariak jartzen duen oharra makina zain dagoen bitartean (zehatzagoa)
         private string currentTaskId;
         private TaskType? currentTaskType;
         private string currentFieldId;
         private DateTime lastTelemetry = DateTime.MinValue;
 
-        // ---------------- Estadísticas acumuladas ----------------
+        // ---------------- Estatistika metatuak ----------------
         private double distance;
         private double activeSeconds;
         private double workingSeconds;
@@ -132,7 +132,7 @@ namespace AgroCore.Server.Machines
             }
         }
 
-        /// <summary>Se llama al autenticarse la máquina.</summary>
+        /// <summary>Makina autentifikatzean deitzen da.</summary>
         public void MarkConnected(Connection connection, string token, MachineProfile profile, double initialBattery, Position start)
         {
             lock (stateLock)
@@ -161,7 +161,7 @@ namespace AgroCore.Server.Machines
                 currentTaskId = null;
                 currentTaskType = null;
                 currentFieldId = null;
-                note = "desconectada";
+                note = "deskonektatuta";
             }
         }
 
@@ -200,7 +200,7 @@ namespace AgroCore.Server.Machines
             lock (stateLock) { chargeCycles++; }
         }
 
-        /// <summary>Actualiza el estado con un datagrama UDP de telemetría y acumula estadísticas.</summary>
+        /// <summary>Egoera telemetriako UDP datagrama batekin eguneratzen du eta estatistikak metatzen ditu.</summary>
         public void ApplyTelemetry(PositionUpdate update)
         {
             lock (stateLock)
@@ -209,7 +209,7 @@ namespace AgroCore.Server.Machines
                 double seconds = (now - lastTelemetry).TotalSeconds;
                 if (seconds > 2 || seconds < 0)
                 {
-                    seconds = 0; // primer dato o hueco largo: no contar
+                    seconds = 0; // lehen datua edo hutsune luzea: ez zenbatu
                 }
                 lastTelemetry = now;
 
@@ -220,7 +220,7 @@ namespace AgroCore.Server.Machines
                     batteryConsumed += battery - update.Battery;
                 }
 
-                // Tiempo según el estado
+                // Denbora egoeraren arabera
                 if (status != MachineStatus.Offline && status != MachineStatus.Parked)
                 {
                     activeSeconds += seconds;
@@ -243,7 +243,7 @@ namespace AgroCore.Server.Machines
             }
         }
 
-        /// <summary>Copia del estado para enviarla al centro de control.</summary>
+        /// <summary>Egoeraren kopia, kontrol zentrora bidaltzeko.</summary>
         public Machine ToDto()
         {
             lock (stateLock)
@@ -301,7 +301,7 @@ namespace AgroCore.Server.Machines
                 s.MachineId = Id;
                 s.Name = Name;
                 s.Type = Type;
-                s.DistanceKm = distance / 1000.0 * 10; // 1 unidad del mapa = 10 m
+                s.DistanceKm = distance / 1000.0 * 10; // mapako unitate 1 = 10 m
                 s.ActiveMinutes = activeSeconds / 60.0;
                 s.WorkingMinutes = workingSeconds / 60.0;
                 s.MovingMinutes = movingSeconds / 60.0;
@@ -319,7 +319,7 @@ namespace AgroCore.Server.Machines
             }
         }
 
-        /// <summary>Recupera las estadísticas guardadas en disco al arrancar el servidor.</summary>
+        /// <summary>Zerbitzaria abiaraztean diskoan gordetako estatistikak berreskuratzen ditu.</summary>
         public void LoadStatistics(MachineStatistics s)
         {
             if (s == null)

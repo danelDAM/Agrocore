@@ -9,9 +9,9 @@
 
         <Border Style="{StaticResource Card}" Padding="14,10" Margin="0,0,0,14">
             <DockPanel>
-                <Button DockPanel.Dock="Right" Content="ACTUALIZAR" Style="{StaticResource GhostButton}" Margin="10,0,0,0" Click="Refresh_Click" />
-                <CheckBox x:Name="OnlyImportant" DockPanel.Dock="Right" Content="Solo avisos, errores y seguridad" Margin="14,0,0,0" Click="Filter_Changed" />
-                <TextBlock Text="Buscar:" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                <Button DockPanel.Dock="Right" Content="EGUNERATU" Style="{StaticResource GhostButton}" Margin="10,0,0,0" Click="Refresh_Click" />
+                <CheckBox x:Name="OnlyImportant" DockPanel.Dock="Right" Content="Abisuak, erroreak eta segurtasuna bakarrik" Margin="14,0,0,0" Click="Filter_Changed" />
+                <TextBlock Text="Bilatu:" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="0,0,8,0" />
                 <TextBox x:Name="SearchBox" TextChanged="Filter_Changed" />
             </DockPanel>
         </Border>
@@ -19,17 +19,17 @@
         <Border Grid.Row="1" Style="{StaticResource Card}" Padding="0">
             <DataGrid x:Name="LogsGrid" RowHeight="28">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="HORA" Binding="{Binding Time}" Width="90" />
-                    <DataGridTemplateColumn Header="NIVEL" Width="100">
+                    <DataGridTextColumn Header="ORDUA" Binding="{Binding Time}" Width="90" />
+                    <DataGridTemplateColumn Header="MAILA" Width="100">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Level}" Foreground="{Binding LevelBrush}" FontWeight="SemiBold" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn Header="EVENTO" Binding="{Binding Kind}" Width="170" />
-                    <DataGridTextColumn Header="USUARIO" Binding="{Binding User}" Width="100" />
-                    <DataGridTextColumn Header="MENSAJE" Binding="{Binding Message}" Width="*" />
+                    <DataGridTextColumn Header="GERTAERA" Binding="{Binding Kind}" Width="170" />
+                    <DataGridTextColumn Header="ERABILTZAILEA" Binding="{Binding User}" Width="115" />
+                    <DataGridTextColumn Header="MEZUA" Binding="{Binding Message}" Width="*" />
                 </DataGrid.Columns>
             </DataGrid>
         </Border>

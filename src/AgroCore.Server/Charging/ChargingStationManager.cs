@@ -9,15 +9,15 @@ using AgroCore.Shared.Models;
 namespace AgroCore.Server.Charging
 {
     /// <summary>
-    /// Estaciones de carga de una explotación con COLA DE ESPERA.
+    /// Ustiategi baten karga-estazioak, ITXARON-ILARAREKIN.
     ///
-    /// Hay menos cargadores que máquinas (p. ej. 11 máquinas y 3 cargadores). Si varias
-    /// necesitan cargar a la vez:   3 -> CHARGING,  el resto -> WAITING_FOR_CHARGER.
+    /// Makinak baino kargagailu gutxiago daude (adib. 11 makina eta 3 kargagailu). Hainbatek
+    /// aldi berean kargatu behar badute:   3 -> CHARGING,  gainerakoak -> WAITING_FOR_CHARGER.
     ///
-    /// - La cola es FIFO (la primera que llega, la primera que carga): así nadie espera para siempre.
-    /// - Cada máquina en cola espera con Monitor.Wait().
-    /// - Cuando un cargador queda libre: Monitor.PulseAll() y las que esperan vuelven a comprobar
-    ///   si ya les toca (solo pasa la primera de la cola).
+    /// - Ilara FIFO da (lehenengo iristen dena, lehenengo kargatzen da): horrela inor ez dago betiko zain.
+    /// - Ilaran dagoen makina bakoitzak Monitor.Wait()-ekin itxaroten du.
+    /// - Kargagailu bat libre geratzen denean: Monitor.PulseAll() eta zain daudenek berriro egiaztatzen dute
+    ///   haien txanda den (ilarako lehenengoa bakarrik pasatzen da).
     /// </summary>
     public class ChargingStationManager
     {
@@ -42,13 +42,13 @@ namespace AgroCore.Server.Charging
             }
         }
 
-        /// <summary>Pide un cargador. Bloquea hasta conseguirlo (o hasta que se cancele la espera).</summary>
+        /// <summary>Kargagailu bat eskatzen du. Blokeatuta geratzen da lortu arte (edo itxaronaldia bertan behera utzi arte).</summary>
         public ChargerOutcome Acquire(MachineRuntime machine, out Charger assigned)
         {
             assigned = null;
             lock (sync)
             {
-                // ¿Ya tenía uno? (por si repite la petición)
+                // Bazuen bat jada? (eskaera errepikatzen badu ere)
                 foreach (Charger charger in chargers)
                 {
                     if (charger.OccupiedBy == machine.Id)
@@ -77,7 +77,7 @@ namespace AgroCore.Server.Charging
                             assigned = free.Clone();
                             machine.CountChargeCycle();
                             logger.Log(EventKind.ChargingStarted, LogSeverity.Info,
-                                machine.Name + " conectada a " + free.Id, farmId, machine.Id);
+                                machine.Name + " kargagailura konektatuta: " + free.Id, farmId, machine.Id);
                             return ChargerOutcome.Granted;
                         }
 
@@ -85,9 +85,9 @@ namespace AgroCore.Server.Charging
                         {
                             waitLogged = true;
                             int position = PositionInQueue(machine.Id);
-                            machine.SetNote("en cola de carga (puesto " + position + ")");
+                            machine.SetNote("karga-ilaran (" + position + ". postua)");
                             logger.Log(EventKind.WaitingForCharger, LogSeverity.Warning,
-                                machine.Name + " esperando cargador (puesto " + position + " en la cola)", farmId, machine.Id);
+                                machine.Name + " kargagailuaren zain (ilarako " + position + ". postua)", farmId, machine.Id);
                         }
                         Monitor.Wait(sync, 1000);
                     }
@@ -96,7 +96,7 @@ namespace AgroCore.Server.Charging
                 {
                     queue.Remove(machine.Id);
                     machine.SetNote(null);
-                    // Al salir de la cola, la siguiente puede pasar a ser la primera: avisar.
+                    // Ilaratik ateratzean, hurrengoa lehenengoa izan daiteke: abisatu.
                     Monitor.PulseAll(sync);
                 }
             }
@@ -112,14 +112,14 @@ namespace AgroCore.Server.Charging
                     {
                         charger.OccupiedBy = null;
                         logger.Log(EventKind.ChargingCompleted, LogSeverity.Success,
-                            machine.Name + " liberó " + charger.Id + " (100%)", farmId, machine.Id);
+                            machine.Name + " makinak " + charger.Id + " askatu du (100%)", farmId, machine.Id);
                     }
                 }
-                Monitor.PulseAll(sync); // un cargador libre: que la siguiente de la cola lo coja
+                Monitor.PulseAll(sync); // kargagailu bat libre: ilarako hurrengoak har dezala
             }
         }
 
-        /// <summary>Al desconectarse una máquina, se libera su cargador sin registrar carga completa.</summary>
+        /// <summary>Makina bat deskonektatzean, bere kargagailua askatzen da karga osoa erregistratu gabe.</summary>
         public void ReleaseAll(MachineRuntime machine)
         {
             lock (sync)

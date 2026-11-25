@@ -10,9 +10,9 @@ using AgroCore.Shared.Models;
 namespace AgroCore.Server.Synchronization
 {
     /// <summary>
-    /// Todo lo que está "vivo" de UNA explotación: su coordinador de tareas, su sistema de zonas,
-    /// sus cargadores y sus máquinas. Cada explotación tiene los suyos propios, así los datos
-    /// de un agricultor nunca se mezclan con los de otro.
+    /// Ustiategi BATEN "bizirik" dagoen guztia: bere zeregin-koordinatzailea, bere gune-sistema,
+    /// bere kargagailuak eta bere makinak. Ustiategi bakoitzak bereak ditu; horrela, nekazari baten
+    /// datuak ez dira inoiz beste batenekin nahasten.
     /// </summary>
     public class FarmRuntime
     {
@@ -23,10 +23,10 @@ namespace AgroCore.Server.Synchronization
         public ZoneManager Zones { get; set; }
         public ChargingStationManager Chargers { get; set; }
 
-        /// <summary>Máquinas de la explotación (clave = id de máquina).</summary>
+        /// <summary>Ustiategiko makinak (gakoa = makinaren id-a).</summary>
         public ConcurrentDictionary<string, MachineRuntime> Machines { get; } = new ConcurrentDictionary<string, MachineRuntime>();
 
-        /// <summary>Parada de emergencia activa (hasta RESUME_ALL).</summary>
+        /// <summary>Larrialdiko geldialdia aktibo (RESUME_ALL arte).</summary>
         public volatile bool EmergencyActive;
 
         public int Id
@@ -34,7 +34,7 @@ namespace AgroCore.Server.Synchronization
             get { return Farm.Id; }
         }
 
-        /// <summary>Máquinas ordenadas por su plaza en la base.</summary>
+        /// <summary>Makinak, basean duten aparkalekuaren arabera ordenatuta.</summary>
         public List<MachineRuntime> GetMachines()
         {
             List<MachineRuntime> list = new List<MachineRuntime>(Machines.Values);
@@ -43,8 +43,8 @@ namespace AgroCore.Server.Synchronization
         }
 
         /// <summary>
-        /// Despierta a TODOS los hilos que esperan en esta explotación (tareas, zonas y cargadores).
-        /// Se usa tras STOP, EMERGENCY_STOP o RETURN_TO_BASE para que comprueben que deben dejar de esperar.
+        /// Ustiategi honetan zain dauden hari GUZTIAK esnatzen ditu (zereginak, guneak eta kargagailuak).
+        /// STOP, EMERGENCY_STOP edo RETURN_TO_BASE ondoren erabiltzen da, itxaroteari utzi behar diotela egiazta dezaten.
         /// </summary>
         public void WakeAllWaiters()
         {

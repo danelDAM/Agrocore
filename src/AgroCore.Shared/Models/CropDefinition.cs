@@ -3,12 +3,12 @@ using AgroCore.Shared.Enums;
 
 namespace AgroCore.Shared.Models
 {
-    /// <summary>Cuidado que necesita un cultivo al llegar a cierto crecimiento.</summary>
+    /// <summary>Laborea hazkuntza jakin batera iristean behar duen zainketa.</summary>
     public class CareStep
     {
         public TaskType Task { get; set; }
 
-        /// <summary>El cultivo deja de crecer en este porcentaje hasta que se hace el cuidado.</summary>
+        /// <summary>Laboreak ehuneko honetan uzten dio hazteari zainketa egin arte.</summary>
         public double AtGrowth { get; set; }
 
         public CareStep()
@@ -22,48 +22,48 @@ namespace AgroCore.Shared.Models
         }
     }
 
-    /// <summary>Definición de un tipo de cultivo. Se puede cambiar desde la configuración.</summary>
+    /// <summary>Labore mota baten definizioa. Konfiguraziotik alda daiteke.</summary>
     public class CropDefinition
     {
         public CropType Type { get; set; }
         public string DisplayName { get; set; } = "";
 
-        /// <summary>Minutos que tarda en crecer del 0 al 100 %.</summary>
+        /// <summary>0tik 100 %-ra hazteko behar dituen minutuak.</summary>
         public double GrowthMinutes { get; set; }
 
         public List<CareStep> CareSteps { get; set; } = new List<CareStep>();
 
-        /// <summary>Kilos que produce una parcela.</summary>
+        /// <summary>Lursail batek ematen dituen kiloak.</summary>
         public double Yield { get; set; } = 150;
 
-        /// <summary>Los tres cultivos iniciales.</summary>
+        /// <summary>Hasierako hiru laboreak.</summary>
         public static List<CropDefinition> Defaults()
         {
             List<CropDefinition> list = new List<CropDefinition>();
 
-            // Zanahoria: sembrar + regar + recolectar
+            // Azenarioa: erein + ureztatu + uzta bildu
             CropDefinition carrot = new CropDefinition();
             carrot.Type = CropType.Carrot;
-            carrot.DisplayName = "Zanahorias";
+            carrot.DisplayName = "Azenarioa";
             carrot.GrowthMinutes = 5;
             carrot.Yield = 120;
             carrot.CareSteps.Add(new CareStep(TaskType.Irrigate, 35));
             list.Add(carrot);
 
-            // Maíz: sembrar + regar + fumigar + recolectar
+            // Artoa: erein + ureztatu + fumigatu + uzta bildu
             CropDefinition corn = new CropDefinition();
             corn.Type = CropType.Corn;
-            corn.DisplayName = "Maíz";
+            corn.DisplayName = "Artoa";
             corn.GrowthMinutes = 8;
             corn.Yield = 220;
             corn.CareSteps.Add(new CareStep(TaskType.Irrigate, 25));
             corn.CareSteps.Add(new CareStep(TaskType.Spray, 60));
             list.Add(corn);
 
-            // Tomate: sembrar + fumigar + regar + recolectar
+            // Tomatea: erein + fumigatu + ureztatu + uzta bildu
             CropDefinition tomato = new CropDefinition();
             tomato.Type = CropType.Tomato;
-            tomato.DisplayName = "Tomates";
+            tomato.DisplayName = "Tomatea";
             tomato.GrowthMinutes = 12;
             tomato.Yield = 180;
             tomato.CareSteps.Add(new CareStep(TaskType.Spray, 20));

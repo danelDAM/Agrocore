@@ -22,7 +22,7 @@ namespace AgroCore.Tests
         [Fact]
         public void Hash_MismaContrasena_DaHashesDistintos()
         {
-            // por la sal aleatoria
+            // ausazko gatzagatik
             Assert.NotEqual(PasswordHasher.Hash("abc123"), PasswordHasher.Hash("abc123"));
         }
 
@@ -48,7 +48,7 @@ namespace AgroCore.Tests
             Assert.True(result.Success);
             Assert.Equal("Juan García", result.User.FullName);
             Assert.Equal(UserRole.Farmer, result.User.Role);
-            Assert.Equal("Finca La Esperanza", result.Farm.Name);
+            Assert.Equal("Esperantza baserria", result.Farm.Name);
         }
 
         [Fact]
@@ -60,7 +60,7 @@ namespace AgroCore.Tests
             LoginResult unknownUser = context.Auth.Login("noexiste", "mala", "test");
 
             Assert.False(wrongPassword.Success);
-            Assert.Equal("Usuario o contraseña incorrectos", wrongPassword.Message);
+            Assert.Equal("Erabiltzailea edo pasahitza okerrak dira", wrongPassword.Message);
             Assert.Equal(wrongPassword.Message, unknownUser.Message);
         }
 
@@ -74,7 +74,7 @@ namespace AgroCore.Tests
             LoginResult result = context.Auth.Login("maria", "maria123", "test");
 
             Assert.False(result.Success);
-            Assert.Contains("desactivado", result.Message);
+            Assert.Contains("desaktibatu", result.Message);
         }
 
         [Fact]
@@ -86,11 +86,11 @@ namespace AgroCore.Tests
                 context.Auth.Login("pedro", "mala", "test");
             }
 
-            // Aunque ahora ponga bien la contraseña, está bloqueado un rato
+            // Orain pasahitza ondo jarri arren, denbora batez blokeatuta dago
             LoginResult result = context.Auth.Login("pedro", "pedro123", "test");
 
             Assert.False(result.Success);
-            Assert.Contains("Demasiados intentos", result.Message);
+            Assert.Contains("Saiakera gehiegi", result.Message);
         }
 
         [Fact]
@@ -112,7 +112,7 @@ namespace AgroCore.Tests
             request.FullName = "Lucía Gómez";
             request.Username = "lucia";
             request.Password = "lucia123";
-            request.FarmName = "Finca El Sauce";
+            request.FarmName = "Sahats baserria";
 
             AgroCore.Shared.Messages.CreateFarmerResponse response = context.Users.CreateFarmer(request, "admin");
 

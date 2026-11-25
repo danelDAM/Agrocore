@@ -11,8 +11,8 @@ using AgroCore.Shared.Models;
 namespace AgroCore.Server.Statistics
 {
     /// <summary>
-    /// Construye el mensaje FARM_STATE de una explotación: máquinas, campos, tareas, cargadores,
-    /// zonas reservadas, resumen y alertas. SOLO lleva datos de esa explotación.
+    /// Ustiategi baten FARM_STATE mezua eraikitzen du: makinak, soroak, zereginak, kargagailuak,
+    /// erreserbatutako guneak, laburpena eta alertak. Ustiategi horren datuak SOILIK ditu.
     /// </summary>
     public class FarmStateBuilder
     {
@@ -46,7 +46,7 @@ namespace AgroCore.Server.Statistics
             state.Chargers = farm.Chargers.GetSnapshot();
             state.Zones = farm.Zones.GetReservations();
 
-            // El progreso de las tareas en curso viene de la telemetría de la máquina
+            // Martxan dauden zereginen aurrerapena makinaren telemetriatik dator
             foreach (FarmTask task in state.Tasks)
             {
                 if (task.Status == AgroTaskStatus.Running && task.AssignedMachineId != null)
@@ -137,14 +137,14 @@ namespace AgroCore.Server.Statistics
             return s;
         }
 
-        /// <summary>Alertas: situaciones actuales (batería baja, esperas...) + últimos eventos importantes.</summary>
+        /// <summary>Alertak: uneko egoerak (bateria baxua, itxaronaldiak...) + azken gertaera garrantzitsuak.</summary>
         private List<Alert> BuildAlerts(FarmRuntime farm, FarmStateMessage state, SystemConfig config)
         {
             List<Alert> alerts = new List<Alert>();
 
             if (farm.EmergencyActive)
             {
-                alerts.Add(NewAlert(AlertLevel.Error, "⛔ PARADA DE EMERGENCIA ACTIVA"));
+                alerts.Add(NewAlert(AlertLevel.Error, "⛔ LARRIALDIKO GELDIALDIA AKTIBO"));
             }
 
             foreach (Machine m in state.Machines)
@@ -155,23 +155,23 @@ namespace AgroCore.Server.Statistics
                 }
                 if (m.Battery <= config.Battery.LowBatteryThreshold && m.Status != MachineStatus.Charging)
                 {
-                    alerts.Add(NewAlert(AlertLevel.Warning, "⚠ " + m.Name + " batería baja (" + m.Battery.ToString("0") + "%)"));
+                    alerts.Add(NewAlert(AlertLevel.Warning, "⚠ " + m.Name + " bateria baxua (" + m.Battery.ToString("0") + "%)"));
                 }
-                if (m.Status == MachineStatus.WaitingForTask && m.Note != null && m.Note.StartsWith("esperando FIELD"))
+                if (m.Status == MachineStatus.WaitingForTask && m.Note != null && m.Note.StartsWith("zain FIELD"))
                 {
                     alerts.Add(NewAlert(AlertLevel.Info, "⏳ " + m.Name + " " + m.Note));
                 }
                 if (m.Status == MachineStatus.WaitingForCharger)
                 {
-                    alerts.Add(NewAlert(AlertLevel.Warning, "⚠ " + m.Name + " esperando cargador"));
+                    alerts.Add(NewAlert(AlertLevel.Warning, "⚠ " + m.Name + " kargagailuaren zain"));
                 }
                 if (m.Status == MachineStatus.WaitingForZone || m.Status == MachineStatus.Yielding)
                 {
-                    alerts.Add(NewAlert(AlertLevel.Info, "🚧 " + m.Name + " " + (m.Note ?? "esperando zona")));
+                    alerts.Add(NewAlert(AlertLevel.Info, "🚧 " + m.Name + " " + (m.Note ?? "gune baten zain")));
                 }
                 if (m.Status == MachineStatus.Stopped)
                 {
-                    alerts.Add(NewAlert(AlertLevel.Warning, "⏸ " + m.Name + " detenida"));
+                    alerts.Add(NewAlert(AlertLevel.Warning, "⏸ " + m.Name + " geldituta"));
                 }
             }
 
@@ -179,11 +179,11 @@ namespace AgroCore.Server.Statistics
             {
                 if (c.OccupiedBy != null)
                 {
-                    alerts.Add(NewAlert(AlertLevel.Info, "🔌 " + c.Id + " ocupado por " + ShortName(c.OccupiedBy)));
+                    alerts.Add(NewAlert(AlertLevel.Info, "🔌 " + c.Id + " okupatuta: " + ShortName(c.OccupiedBy)));
                 }
             }
 
-            // Últimos eventos relevantes del log
+            // Gertaeren erregistroko azken gertaera garrantzitsuak
             foreach (LogEntry e in logger.GetRecent(farm.Id, 40, false))
             {
                 if (alerts.Count >= 40)

@@ -5,8 +5,8 @@ using AgroCore.Shared.Enums;
 namespace AgroCore.Shared.Models
 {
     /// <summary>
-    /// Tarea agrícola (el "Task" del enunciado). Se llama FarmTask para no confundirla
-    /// con System.Threading.Tasks.Task.
+    /// Nekazaritza-zeregina (enuntziatuko "Task"). FarmTask deitzen da
+    /// System.Threading.Tasks.Task-ekin ez nahasteko.
     /// </summary>
     public class FarmTask
     {
@@ -19,16 +19,16 @@ namespace AgroCore.Shared.Models
         public AgroTaskStatus Status { get; set; } = AgroTaskStatus.Waiting;
         public string AssignedMachineId { get; set; }
 
-        /// <summary>Tareas que tienen que estar COMPLETED antes de empezar esta.</summary>
+        /// <summary>Hau hasi aurretik COMPLETED egon behar duten zereginak.</summary>
         public List<string> DependsOn { get; set; } = new List<string>();
 
-        /// <summary>Crecimiento mínimo del campo para poder hacerla (riego y fumigación).</summary>
+        /// <summary>Hura egin ahal izateko soroaren gutxieneko hazkuntza (ureztatzea eta fumigazioa).</summary>
         public double? RequiredGrowth { get; set; }
 
-        /// <summary>Por qué está esperando (se muestra en la interfaz).</summary>
+        /// <summary>Zergatik dagoen zain (interfazean erakusten da).</summary>
         public string BlockReason { get; set; }
 
-        /// <summary>Progreso 0-100. Si se interrumpe, otra máquina sigue desde aquí.</summary>
+        /// <summary>Aurrerapena 0-100. Eteten bada, beste makina batek hemendik jarraitzen du.</summary>
         public double Progress { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
@@ -39,7 +39,7 @@ namespace AgroCore.Shared.Models
         public string CancelReason { get; set; }
         public int Interruptions { get; set; }
 
-        /// <summary>Nombre legible, por ejemplo HARVEST_FIELD-A.</summary>
+        /// <summary>Izen irakurgarria, adibidez HARVEST_FIELD-A.</summary>
         public string Name
         {
             get { return Type.ToString().ToUpper() + "_" + FieldId; }

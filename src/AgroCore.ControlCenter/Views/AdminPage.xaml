@@ -8,31 +8,31 @@
                 <ColumnDefinition Width="360" />
             </Grid.ColumnDefinitions>
 
-            <!-- ================= IZQUIERDA ================= -->
+            <!-- ================= EZKERRA ================= -->
             <StackPanel>
-                <!-- Usuarios -->
+                <!-- Erabiltzaileak -->
                 <Border Style="{StaticResource Card}" Padding="0" Margin="0,0,0,14">
                     <StackPanel>
                         <DockPanel Margin="14,14,14,8">
-                            <Button DockPanel.Dock="Right" Content="ACTUALIZAR" Style="{StaticResource SmallButton}" Margin="0" Click="Refresh_Click" />
-                            <TextBlock Text="USUARIOS" Style="{StaticResource SectionText}" Margin="0" VerticalAlignment="Center" />
+                            <Button DockPanel.Dock="Right" Content="EGUNERATU" Style="{StaticResource SmallButton}" Margin="0" Click="Refresh_Click" />
+                            <TextBlock Text="ERABILTZAILEAK" Style="{StaticResource SectionText}" Margin="0" VerticalAlignment="Center" />
                         </DockPanel>
                         <DataGrid x:Name="UsersGrid" MaxHeight="420">
                             <DataGrid.Columns>
-                                <DataGridTextColumn Header="USUARIO" Binding="{Binding Username}" Width="100" FontWeight="SemiBold" />
-                                <DataGridTextColumn Header="NOMBRE" Binding="{Binding FullName}" Width="*" />
-                                <DataGridTextColumn Header="ROL" Binding="{Binding RoleText}" Width="100" />
-                                <DataGridTextColumn Header="EXPLOTACIÓN" Binding="{Binding FarmText}" Width="*" />
-                                <DataGridTextColumn Header="ESTADO" Binding="{Binding ActiveText}" Width="80" />
-                                <DataGridTextColumn Header="ÚLTIMO ACCESO" Binding="{Binding LastLoginText}" Width="120" />
-                                <DataGridTemplateColumn Header="ACCIONES" Width="290">
+                                <DataGridTextColumn Header="ERABILTZAILEA" Binding="{Binding Username}" Width="115" FontWeight="SemiBold" />
+                                <DataGridTextColumn Header="IZENA" Binding="{Binding FullName}" Width="*" />
+                                <DataGridTextColumn Header="ROLA" Binding="{Binding RoleText}" Width="100" />
+                                <DataGridTextColumn Header="USTIATEGIA" Binding="{Binding FarmText}" Width="*" />
+                                <DataGridTextColumn Header="EGOERA" Binding="{Binding ActiveText}" Width="90" />
+                                <DataGridTextColumn Header="AZKEN SARBIDEA" Binding="{Binding LastLoginText}" Width="130" />
+                                <DataGridTemplateColumn Header="EKINTZAK" Width="330">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
                                             <StackPanel Orientation="Horizontal">
-                                                <Button Content="Editar" Style="{StaticResource SmallButton}" Click="Edit_Click" />
-                                                <Button Content="Contraseña" Style="{StaticResource SmallButton}" Click="Password_Click" />
+                                                <Button Content="Editatu" Style="{StaticResource SmallButton}" Click="Edit_Click" />
+                                                <Button Content="Pasahitza" Style="{StaticResource SmallButton}" Click="Password_Click" />
                                                 <Button Content="{Binding ToggleText}" Style="{StaticResource SmallButton}" Click="Toggle_Click" />
-                                                <Button Content="Eliminar" Style="{StaticResource SmallButton}" Foreground="#FFFF8A80" Click="Delete_Click" />
+                                                <Button Content="Ezabatu" Style="{StaticResource SmallButton}" Foreground="#FFFF8A80" Click="Delete_Click" />
                                             </StackPanel>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
@@ -42,23 +42,23 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Explotaciones -->
+                <!-- Ustiategiak -->
                 <Border Style="{StaticResource Card}" Padding="0" Margin="0,0,0,14">
                     <StackPanel>
-                        <TextBlock Text="EXPLOTACIONES" Style="{StaticResource SectionText}" Margin="14,14,0,8" />
+                        <TextBlock Text="USTIATEGIAK" Style="{StaticResource SectionText}" Margin="14,14,0,8" />
                         <DataGrid x:Name="FarmsGrid">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="40" />
-                                <DataGridTextColumn Header="EXPLOTACIÓN" Binding="{Binding Name}" Width="*" FontWeight="SemiBold" />
-                                <DataGridTextColumn Header="AGRICULTOR" Binding="{Binding OwnerName}" Width="*" />
-                                <DataGridTextColumn Header="CAMPOS" Binding="{Binding FieldCount}" Width="70" />
-                                <DataGridTextColumn Header="MÁQUINAS" Binding="{Binding MachineCount}" Width="80" />
-                                <DataGridTextColumn Header="CONECTADAS" Binding="{Binding OnlineMachines}" Width="90" />
-                                <DataGridTextColumn Header="CARGADORES" Binding="{Binding ChargerCount}" Width="90" />
+                                <DataGridTextColumn Header="USTIATEGIA" Binding="{Binding Name}" Width="*" FontWeight="SemiBold" />
+                                <DataGridTextColumn Header="NEKAZARIA" Binding="{Binding OwnerName}" Width="*" />
+                                <DataGridTextColumn Header="SOROAK" Binding="{Binding FieldCount}" Width="70" />
+                                <DataGridTextColumn Header="MAKINAK" Binding="{Binding MachineCount}" Width="80" />
+                                <DataGridTextColumn Header="KONEKTATUTA" Binding="{Binding OnlineMachines}" Width="105" />
+                                <DataGridTextColumn Header="KARGAGAILUAK" Binding="{Binding ChargerCount}" Width="110" />
                                 <DataGridTemplateColumn Header="" Width="170">
                                     <DataGridTemplateColumn.CellTemplate>
                                         <DataTemplate>
-                                            <Button Content="Nueva clave de flota" Style="{StaticResource SmallButton}" Click="RegenerateKey_Click" />
+                                            <Button Content="Flota-gako berria" Style="{StaticResource SmallButton}" Click="RegenerateKey_Click" />
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>
                                 </DataGridTemplateColumn>
@@ -67,96 +67,96 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Configuración -->
+                <!-- Konfigurazioa -->
                 <Border Style="{StaticResource Card}">
                     <StackPanel>
-                        <TextBlock Text="CONFIGURACIÓN DEL SISTEMA" Style="{StaticResource SectionText}" />
+                        <TextBlock Text="SISTEMAREN KONFIGURAZIOA" Style="{StaticResource SectionText}" />
                         <UniformGrid Columns="4">
                             <StackPanel Margin="0,0,12,10">
-                                <Label Content="Zanahoria (minutos)" />
+                                <Label Content="Azenarioa (minutuak)" />
                                 <TextBox x:Name="CarrotBox" />
                             </StackPanel>
                             <StackPanel Margin="0,0,12,10">
-                                <Label Content="Maíz (minutos)" />
+                                <Label Content="Artoa (minutuak)" />
                                 <TextBox x:Name="CornBox" />
                             </StackPanel>
                             <StackPanel Margin="0,0,12,10">
-                                <Label Content="Tomate (minutos)" />
+                                <Label Content="Tomatea (minutuak)" />
                                 <TextBox x:Name="TomatoBox" />
                             </StackPanel>
                             <StackPanel Margin="0,0,12,10">
-                                <Label Content="Campo libre tras cosecha (s)" />
+                                <Label Content="Soroa libre uzta ondoren (s)" />
                                 <TextBox x:Name="ResetBox" />
                             </StackPanel>
                             <StackPanel Margin="0,0,12,10">
-                                <Label Content="Batería baja (%)" />
+                                <Label Content="Bateria baxua (%)" />
                                 <TextBox x:Name="LowBatteryBox" />
                             </StackPanel>
                             <StackPanel Margin="0,0,12,10">
-                                <Label Content="Velocidad de carga (%/s)" />
+                                <Label Content="Karga-abiadura (%/s)" />
                                 <TextBox x:Name="ChargeRateBox" />
                             </StackPanel>
                             <StackPanel Margin="0,0,12,10">
-                                <Label Content="Intentos de login" />
+                                <Label Content="Saio-hasiera saiakerak" />
                                 <TextBox x:Name="AttemptsBox" />
                             </StackPanel>
                             <StackPanel Margin="0,0,12,10">
-                                <Label Content="Bloqueo (s)" />
+                                <Label Content="Blokeoa (s)" />
                                 <TextBox x:Name="LockoutBox" />
                             </StackPanel>
                         </UniformGrid>
                         <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                            <Button Content="GUARDAR CONFIGURACIÓN" Click="SaveConfig_Click" />
+                            <Button Content="KONFIGURAZIOA GORDE" Click="SaveConfig_Click" />
                             <TextBlock x:Name="ConfigResult" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="10,0,0,0" />
                         </StackPanel>
                     </StackPanel>
                 </Border>
             </StackPanel>
 
-            <!-- ================= DERECHA: ALTAS ================= -->
+            <!-- ================= ESKUINA: ALTAK ================= -->
             <StackPanel Grid.Column="1" Margin="14,0,0,0">
                 <Border Style="{StaticResource Card}" Margin="0,0,0,14">
                     <StackPanel>
-                        <TextBlock Text="NUEVO AGRICULTOR" Style="{StaticResource SectionText}" />
-                        <TextBlock Text="Crea el usuario y su explotación con campos, máquinas y cargadores." Style="{StaticResource MutedText}" TextWrapping="Wrap" Margin="0,0,0,10" />
-                        <Label Content="Nombre completo" />
+                        <TextBlock Text="NEKAZARI BERRIA" Style="{StaticResource SectionText}" />
+                        <TextBlock Text="Erabiltzailea eta bere ustiategia sortzen ditu, soro, makina eta kargagailuekin." Style="{StaticResource MutedText}" TextWrapping="Wrap" Margin="0,0,0,10" />
+                        <Label Content="Izen osoa" />
                         <TextBox x:Name="FarmerName" Margin="0,0,0,8" />
-                        <Label Content="Usuario" />
+                        <Label Content="Erabiltzailea" />
                         <TextBox x:Name="FarmerUser" Margin="0,0,0,8" />
-                        <Label Content="Contraseña inicial" />
+                        <Label Content="Hasierako pasahitza" />
                         <PasswordBox x:Name="FarmerPassword" Margin="0,0,0,8" />
-                        <Label Content="Nombre de la explotación" />
+                        <Label Content="Ustiategiaren izena" />
                         <TextBox x:Name="FarmName" Margin="0,0,0,8" />
                         <UniformGrid Columns="3">
-                            <StackPanel Margin="0,0,8,8"><Label Content="Campos" /><TextBox x:Name="FieldsBox" Text="6" /></StackPanel>
-                            <StackPanel Margin="0,0,8,8"><Label Content="Cargadores" /><TextBox x:Name="ChargersBox" Text="3" /></StackPanel>
-                            <StackPanel Margin="0,0,0,8"><Label Content="Sembradoras" /><TextBox x:Name="SeedersBox" Text="2" /></StackPanel>
-                            <StackPanel Margin="0,0,8,8"><Label Content="Regadoras" /><TextBox x:Name="IrrigatorsBox" Text="2" /></StackPanel>
-                            <StackPanel Margin="0,0,8,8"><Label Content="Drones" /><TextBox x:Name="SprayersBox" Text="3" /></StackPanel>
-                            <StackPanel Margin="0,0,0,8"><Label Content="Cosechadoras" /><TextBox x:Name="HarvestersBox" Text="4" /></StackPanel>
+                            <StackPanel Margin="0,0,8,8"><Label Content="Soroak" /><TextBox x:Name="FieldsBox" Text="6" /></StackPanel>
+                            <StackPanel Margin="0,0,8,8"><Label Content="Kargagailuak" /><TextBox x:Name="ChargersBox" Text="3" /></StackPanel>
+                            <StackPanel Margin="0,0,0,8"><Label Content="Ereileak" /><TextBox x:Name="SeedersBox" Text="2" /></StackPanel>
+                            <StackPanel Margin="0,0,8,8"><Label Content="Ureztatzaileak" /><TextBox x:Name="IrrigatorsBox" Text="2" /></StackPanel>
+                            <StackPanel Margin="0,0,8,8"><Label Content="Droneak" /><TextBox x:Name="SprayersBox" Text="3" /></StackPanel>
+                            <StackPanel Margin="0,0,0,8"><Label Content="Uzta-biltzaileak" /><TextBox x:Name="HarvestersBox" Text="4" /></StackPanel>
                         </UniformGrid>
-                        <Button Content="CREAR AGRICULTOR" Margin="0,6,0,0" Height="36" Click="CreateFarmer_Click" />
+                        <Button Content="NEKAZARIA SORTU" Margin="0,6,0,0" Height="36" Click="CreateFarmer_Click" />
                     </StackPanel>
                 </Border>
 
                 <Border Style="{StaticResource Card}">
                     <StackPanel>
-                        <TextBlock Text="NUEVO OPERADOR / OBSERVADOR" Style="{StaticResource SectionText}" />
-                        <Label Content="Nombre completo" />
+                        <TextBlock Text="OPERADORE / BEHATZAILE BERRIA" Style="{StaticResource SectionText}" />
+                        <Label Content="Izen osoa" />
                         <TextBox x:Name="UserName" Margin="0,0,0,8" />
-                        <Label Content="Usuario" />
+                        <Label Content="Erabiltzailea" />
                         <TextBox x:Name="UserLogin" Margin="0,0,0,8" />
-                        <Label Content="Contraseña inicial" />
+                        <Label Content="Hasierako pasahitza" />
                         <PasswordBox x:Name="UserPassword" Margin="0,0,0,8" />
-                        <Label Content="Rol" />
+                        <Label Content="Rola" />
                         <ComboBox x:Name="UserRoleBox" SelectedIndex="0" Margin="0,0,0,8">
-                            <ComboBoxItem Content="Operador (controla las máquinas)" />
-                            <ComboBoxItem Content="Observador (solo ver)" />
-                            <ComboBoxItem Content="Administrador" />
+                            <ComboBoxItem Content="Operadorea (makinak kontrolatzen ditu)" />
+                            <ComboBoxItem Content="Behatzailea (ikusi bakarrik)" />
+                            <ComboBoxItem Content="Administratzailea" />
                         </ComboBox>
-                        <Label Content="Explotación" />
+                        <Label Content="Ustiategia" />
                         <ComboBox x:Name="UserFarmBox" Margin="0,0,0,8" />
-                        <Button Content="CREAR USUARIO" Margin="0,6,0,0" Height="36" Click="CreateUser_Click" />
+                        <Button Content="ERABILTZAILEA SORTU" Margin="0,6,0,0" Height="36" Click="CreateUser_Click" />
                     </StackPanel>
                 </Border>
             </StackPanel>

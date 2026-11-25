@@ -1,9 +1,9 @@
 namespace AgroCore.Shared.Messages
 {
-    /// <summary>Todos los tipos de mensaje del protocolo AGROCORE.</summary>
+    /// <summary>AGROCORE protokoloaren mezu mota guztiak.</summary>
     public static class MessageTypes
     {
-        // ----- Login y sesión (WPF <-> servidor, TCP) -----
+        // ----- Saio-hasiera eta saioa (WPF <-> zerbitzaria, TCP) -----
         public const string LoginRequest = "LOGIN_REQUEST";
         public const string LoginResponse = "LOGIN_RESPONSE";
         public const string LogoutRequest = "LOGOUT_REQUEST";
@@ -11,7 +11,7 @@ namespace AgroCore.Shared.Messages
         public const string Result = "RESULT";
         public const string ForceLogout = "FORCE_LOGOUT";
 
-        // ----- Máquinas (máquina <-> servidor, TCP) -----
+        // ----- Makinak (makina <-> zerbitzaria, TCP) -----
         public const string MachineAuth = "MACHINE_AUTH";
         public const string MachineAuthResponse = "MACHINE_AUTH_RESPONSE";
         public const string FleetQuery = "FLEET_QUERY";
@@ -30,7 +30,7 @@ namespace AgroCore.Shared.Messages
         public const string ChargerRelease = "CHARGER_RELEASE";
         public const string MachineEvent = "MACHINE_EVENT";
 
-        // ----- Órdenes (WPF -> servidor -> máquina, TCP) -----
+        // ----- Aginduak (WPF -> zerbitzaria -> makina, TCP) -----
         public const string Start = "START";
         public const string Stop = "STOP";
         public const string Resume = "RESUME";
@@ -40,7 +40,7 @@ namespace AgroCore.Shared.Messages
         public const string ResumeAll = "RESUME_ALL";
         public const string ReturnAllToBase = "RETURN_ALL_TO_BASE";
 
-        // ----- Explotación (WPF <-> servidor, TCP) -----
+        // ----- Ustiategia (WPF <-> zerbitzaria, TCP) -----
         public const string SelectFarm = "SELECT_FARM";
         public const string UdpSubscribe = "UDP_SUBSCRIBE";
         public const string FarmState = "FARM_STATE";
@@ -55,7 +55,7 @@ namespace AgroCore.Shared.Messages
         public const string LogsRequest = "LOGS_REQUEST";
         public const string LogsResponse = "LOGS_RESPONSE";
 
-        // ----- Administración (WPF <-> servidor, TCP) -----
+        // ----- Administrazioa (WPF <-> zerbitzaria, TCP) -----
         public const string ListUsers = "LIST_USERS";
         public const string UsersResponse = "USERS_RESPONSE";
         public const string CreateFarmer = "CREATE_FARMER";
@@ -69,7 +69,7 @@ namespace AgroCore.Shared.Messages
         public const string ConfigResponse = "CONFIG_RESPONSE";
         public const string UpdateConfig = "UPDATE_CONFIG";
 
-        // ----- Telemetría (UDP) -----
+        // ----- Telemetria (UDP) -----
         public const string PositionUpdate = "POSITION_UPDATE";
         public const string TelemetryBatch = "TELEMETRY_BATCH";
     }

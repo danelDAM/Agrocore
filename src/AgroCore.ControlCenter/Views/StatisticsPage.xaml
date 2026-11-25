@@ -5,18 +5,18 @@
         <StackPanel Margin="20,16">
             <Border Style="{StaticResource Card}" Padding="14,10" Margin="0,0,0,14">
                 <DockPanel>
-                    <Button DockPanel.Dock="Right" Content="ACTUALIZAR" Style="{StaticResource GhostButton}" Margin="0" Click="Refresh_Click" />
+                    <Button DockPanel.Dock="Right" Content="EGUNERATU" Style="{StaticResource GhostButton}" Margin="0" Click="Refresh_Click" />
                     <TextBlock x:Name="PeriodText" Style="{StaticResource MutedText}" VerticalAlignment="Center" />
                 </DockPanel>
             </Border>
 
-            <!-- Totales de la explotación -->
+            <!-- Ustiategiaren guztizkoak -->
             <UniformGrid x:Name="TotalsGrid" Columns="6" Margin="0,0,0,14" />
 
-            <!-- Gráfico: tareas completadas por máquina -->
+            <!-- Grafikoa: makina bakoitzak osatutako zereginak -->
             <Border Style="{StaticResource Card}" Margin="0,0,0,14">
                 <StackPanel>
-                    <TextBlock Text="TAREAS COMPLETADAS POR MÁQUINA" Style="{StaticResource SectionText}" />
+                    <TextBlock Text="MAKINA BAKOITZAK OSATUTAKO ZEREGINAK" Style="{StaticResource SectionText}" />
                     <ItemsControl x:Name="ChartList">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
@@ -37,44 +37,44 @@
                 </StackPanel>
             </Border>
 
-            <!-- Detalle por máquina -->
+            <!-- Xehetasuna makinaka -->
             <Border Style="{StaticResource Card}" Padding="0" Margin="0,0,0,14">
                 <StackPanel>
-                    <TextBlock Text="ESTADÍSTICAS POR MÁQUINA" Style="{StaticResource SectionText}" Margin="14,14,0,8" />
+                    <TextBlock Text="ESTATISTIKAK MAKINAKA" Style="{StaticResource SectionText}" Margin="14,14,0,8" />
                     <DataGrid x:Name="MachinesGrid" MaxHeight="460">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="MÁQUINA" Binding="{Binding Name}" Width="120" FontWeight="SemiBold" />
-                            <DataGridTextColumn Header="TIPO" Binding="{Binding TypeText}" Width="120" />
-                            <DataGridTextColumn Header="DISTANCIA" Binding="{Binding Distance}" Width="*" />
-                            <DataGridTextColumn Header="ACTIVA" Binding="{Binding Active}" Width="*" />
-                            <DataGridTextColumn Header="TRABAJANDO" Binding="{Binding Working}" Width="*" />
-                            <DataGridTextColumn Header="EN MARCHA" Binding="{Binding Moving}" Width="*" />
-                            <DataGridTextColumn Header="ESPERANDO" Binding="{Binding Waiting}" Width="*" />
-                            <DataGridTextColumn Header="CARGANDO" Binding="{Binding Charging}" Width="*" />
-                            <DataGridTextColumn Header="BATERÍA USADA" Binding="{Binding Battery}" Width="*" />
-                            <DataGridTextColumn Header="TAREAS" Binding="{Binding Tasks}" Width="70" />
-                            <DataGridTextColumn Header="INTERR." Binding="{Binding Aborted}" Width="70" />
-                            <DataGridTextColumn Header="CARGAS" Binding="{Binding Charges}" Width="70" />
-                            <DataGridTextColumn Header="EFICIENCIA" Binding="{Binding Efficiency}" Width="90" />
+                            <DataGridTextColumn Header="MAKINA" Binding="{Binding Name}" Width="120" FontWeight="SemiBold" />
+                            <DataGridTextColumn Header="MOTA" Binding="{Binding TypeText}" Width="130" />
+                            <DataGridTextColumn Header="DISTANTZIA" Binding="{Binding Distance}" Width="*" />
+                            <DataGridTextColumn Header="AKTIBO" Binding="{Binding Active}" Width="*" />
+                            <DataGridTextColumn Header="LANEAN" Binding="{Binding Working}" Width="*" />
+                            <DataGridTextColumn Header="MUGIMENDUAN" Binding="{Binding Moving}" Width="*" />
+                            <DataGridTextColumn Header="ZAIN" Binding="{Binding Waiting}" Width="*" />
+                            <DataGridTextColumn Header="KARGATZEN" Binding="{Binding Charging}" Width="*" />
+                            <DataGridTextColumn Header="BATERIA ERAB." Binding="{Binding Battery}" Width="*" />
+                            <DataGridTextColumn Header="ZEREGINAK" Binding="{Binding Tasks}" Width="85" />
+                            <DataGridTextColumn Header="ETEN." Binding="{Binding Aborted}" Width="70" />
+                            <DataGridTextColumn Header="KARGAK" Binding="{Binding Charges}" Width="70" />
+                            <DataGridTextColumn Header="ERAGINKORTASUNA" Binding="{Binding Efficiency}" Width="125" />
                         </DataGrid.Columns>
                     </DataGrid>
                 </StackPanel>
             </Border>
 
-            <!-- Global (solo administrador) -->
+            <!-- Orokorra (administratzailea bakarrik) -->
             <Border x:Name="GlobalPanel" Style="{StaticResource Card}" Padding="0" Visibility="Collapsed">
                 <StackPanel>
-                    <TextBlock Text="ESTADÍSTICAS GLOBALES (TODAS LAS EXPLOTACIONES)" Style="{StaticResource SectionText}" Margin="14,14,0,8" />
+                    <TextBlock Text="ESTATISTIKA OROKORRAK (USTIATEGI GUZTIAK)" Style="{StaticResource SectionText}" Margin="14,14,0,8" />
                     <DataGrid x:Name="GlobalGrid">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="EXPLOTACIÓN" Binding="{Binding FarmName}" Width="*" FontWeight="SemiBold" />
-                            <DataGridTextColumn Header="TAREAS" Binding="{Binding TasksCompleted}" Width="90" />
-                            <DataGridTextColumn Header="SEMBRADOS" Binding="{Binding FieldsSown}" Width="100" />
-                            <DataGridTextColumn Header="COSECHADOS" Binding="{Binding FieldsHarvested}" Width="100" />
-                            <DataGridTextColumn Header="DISTANCIA (KM)" Binding="{Binding DistanceKm, StringFormat=0.00}" Width="120" />
-                            <DataGridTextColumn Header="CONFLICTOS" Binding="{Binding ConflictsAvoided}" Width="100" />
-                            <DataGridTextColumn Header="EMERGENCIAS" Binding="{Binding Emergencies}" Width="100" />
-                            <DataGridTextColumn Header="ACCESOS DENEGADOS" Binding="{Binding AccessDenied}" Width="140" />
+                            <DataGridTextColumn Header="USTIATEGIA" Binding="{Binding FarmName}" Width="*" FontWeight="SemiBold" />
+                            <DataGridTextColumn Header="ZEREGINAK" Binding="{Binding TasksCompleted}" Width="90" />
+                            <DataGridTextColumn Header="EREINDAKOAK" Binding="{Binding FieldsSown}" Width="110" />
+                            <DataGridTextColumn Header="UZTA BILDUTAKOAK" Binding="{Binding FieldsHarvested}" Width="135" />
+                            <DataGridTextColumn Header="DISTANTZIA (KM)" Binding="{Binding DistanceKm, StringFormat=0.00}" Width="120" />
+                            <DataGridTextColumn Header="GATAZKAK" Binding="{Binding ConflictsAvoided}" Width="100" />
+                            <DataGridTextColumn Header="LARRIALDIAK" Binding="{Binding Emergencies}" Width="100" />
+                            <DataGridTextColumn Header="UKATUTAKO SARBIDEAK" Binding="{Binding AccessDenied}" Width="160" />
                         </DataGrid.Columns>
                     </DataGrid>
                 </StackPanel>

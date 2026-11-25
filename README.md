@@ -1,31 +1,31 @@
 # AGROCORE
 
-Plataforma distribuida de gestión y coordinación de maquinaria agrícola autónoma.
-Proyecto de DAM (C#, WPF, TCP/UDP, hilos, concurrencia, seguridad, informes).
+Nekazaritzako makineria autonomoa kudeatu eta koordinatzeko plataforma banatua.
+DAMeko proiektua (C#, WPF, TCP/UDP, hariak, konkurrentzia, segurtasuna, txostenak).
 
 ```
-CENTRAL DE CONTROL WPF  <->  SERVIDOR AGROCORE  <->  MÁQUINAS AUTÓNOMAS
+KONTROL ZENTROA (WPF)  <->  AGROCORE ZERBITZARIA  <->  MAKINA AUTONOMOAK
 ```
 
-## Estructura
+## Egitura
 
 ```
 AgroCore.sln
 src/
-  AgroCore.Shared/      Modelos, enums, mensajes del protocolo, plano de la explotación
-  AgroCore.Server/      Servidor TCP/UDP, seguridad, coordinación, logs
-  AgroCore.MachineClient/  Máquina autónoma (un proceso por máquina)
-  AgroCore.ControlCenter/  Centro de control WPF con vista 3D
+  AgroCore.Shared/      Ereduak, enum-ak, protokoloaren mezuak, ustiategiaren planoa
+  AgroCore.Server/      TCP/UDP zerbitzaria, segurtasuna, koordinazioa, gertaeren erregistroa
+  AgroCore.MachineClient/  Makina autonomoa (prozesu bat makina bakoitzeko)
+  AgroCore.ControlCenter/  WPF Kontrol Zentroa, 3D ikuspegiarekin
 tests/
-  AgroCore.Tests/       Pruebas automáticas (xUnit)
-Documentation/          Documentación de cada sprint
+  AgroCore.Tests/       Proba automatikoak (xUnit)
+Documentation/          Sprint bakoitzaren dokumentazioa
 ```
 
-## Requisitos
+## Betekizunak
 
-- .NET 8 SDK (Windows para el centro de control WPF)
+- .NET 8 SDK (Windows, WPF Kontrol Zentroarentzat)
 
-## Ejecutar
+## Exekutatu
 
 ```
 dotnet build AgroCore.sln
@@ -33,12 +33,19 @@ dotnet test AgroCore.sln
 dotnet run --project src/AgroCore.Server
 ```
 
-Flota de ejemplo (otra terminal):
+Adibide-flota (beste terminal batean):
 
 ```
 dotnet run --project src/AgroCore.MachineClient -- --fleet --farm 1 --key AGRO-DEMO-1 --windows
 ```
 
-Usuarios de ejemplo: ver [Documentation/Sprint1.md](Documentation/Sprint1.md).
-- [Sprint 2](Documentation/Sprint2.md): coordinación y máquinas autónomas
-- [Sprint 3](Documentation/Sprint3.md): centro de control WPF y vista 3D
+Kontrol Zentroa (beste terminal batean):
+
+```
+dotnet run --project src/AgroCore.ControlCenter
+```
+
+Adibide-erabiltzaileak: ikus [Documentation/Sprint1.md](Documentation/Sprint1.md).
+- [Sprint 2](Documentation/Sprint2.md): koordinazioa eta makina autonomoak
+- [Sprint 3](Documentation/Sprint3.md): WPF Kontrol Zentroa eta 3D ikuspegia
+- [Sprint 4](Documentation/Sprint4.md): estatistikak, PDF txostenak, gertaeren erregistroa, profila eta administrazioa

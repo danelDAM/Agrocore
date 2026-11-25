@@ -10,16 +10,16 @@ using AgroCore.Shared.Networking;
 namespace AgroCore.Server.Networking
 {
     /// <summary>
-    /// Servidor TCP multicliente.
+    /// Bezero anitzeko TCP zerbitzaria.
     ///
-    /// Igual que el ejemplo clásico de clase:
-    ///   - Un hilo acepta conexiones (AcceptTcpClient es bloqueante).
-    ///   - Por cada cliente se crea un Thread nuevo que lo atiende.
+    /// Klaseko adibide klasikoaren berdina:
+    ///   - Hari batek konexioak onartzen ditu (AcceptTcpClient blokeatzailea da).
+    ///   - Bezero bakoitzeko Thread berri bat sortzen da hura artatzeko.
     ///
-    /// El PRIMER mensaje que envía un cliente dice qué es:
-    ///   LOGIN_REQUEST  -> es un centro de control WPF
-    ///   MACHINE_AUTH   -> es una máquina autónoma
-    ///   FLEET_QUERY    -> es el lanzador de flota (pide la lista de máquinas y se desconecta)
+    /// Bezero batek bidaltzen duen LEHEN mezuak zer den adierazten du:
+    ///   LOGIN_REQUEST  -> WPF Kontrol Zentro bat da
+    ///   MACHINE_AUTH   -> makina autonomo bat da
+    ///   FLEET_QUERY    -> flota-abiarazlea da (makinen zerrenda eskatu eta deskonektatu egiten da)
     /// </summary>
     public class TcpServer
     {
@@ -45,7 +45,7 @@ namespace AgroCore.Server.Networking
             acceptThread.Name = "TCP-Accept";
             acceptThread.Start();
 
-            context.Logger.Log(EventKind.ServerStarted, LogSeverity.Success, "Servidor TCP escuchando en el puerto " + port);
+            context.Logger.Log(EventKind.ServerStarted, LogSeverity.Success, "TCP zerbitzaria entzuten, ataka: " + port);
         }
 
         public void Stop()
@@ -61,11 +61,11 @@ namespace AgroCore.Server.Networking
                 TcpClient socket;
                 try
                 {
-                    socket = listener.AcceptTcpClient(); // bloqueante: espera a que alguien se conecte
+                    socket = listener.AcceptTcpClient(); // blokeatzailea: norbait konektatu arte itxaroten du
                 }
                 catch (SocketException)
                 {
-                    break; // el listener se ha parado
+                    break; // listener-a gelditu egin da
                 }
 
                 Thread clientThread = new Thread(() => HandleClient(socket));
@@ -75,7 +75,7 @@ namespace AgroCore.Server.Networking
             }
         }
 
-        /// <summary>Se ejecuta en el hilo propio de cada cliente.</summary>
+        /// <summary>Bezero bakoitzaren hari propioan exekutatzen da.</summary>
         private void HandleClient(TcpClient socket)
         {
             Connection connection = new Connection(socket);
@@ -105,16 +105,16 @@ namespace AgroCore.Server.Networking
                         break;
 
                     default:
-                        connection.TrySend(OperationResult.Fail(type, "El primer mensaje debe ser LOGIN_REQUEST, MACHINE_AUTH o FLEET_QUERY"));
+                        connection.TrySend(OperationResult.Fail(type, "Lehen mezuak LOGIN_REQUEST, MACHINE_AUTH edo FLEET_QUERY izan behar du"));
                         context.Logger.Log(EventKind.AccessDenied, LogSeverity.Security,
-                            "Conexión rechazada desde " + connection.RemoteText + ": primer mensaje '" + type + "'");
+                            "Konexioa baztertuta (" + connection.RemoteText + "): lehen mezua '" + type + "'");
                         break;
                 }
             }
             catch (Exception ex)
             {
                 context.Logger.Log(EventKind.Error, LogSeverity.Error,
-                    "Error con el cliente " + connection.RemoteText + ": " + ex.Message);
+                    "Errorea bezeroarekin (" + connection.RemoteText + "): " + ex.Message);
             }
             finally
             {

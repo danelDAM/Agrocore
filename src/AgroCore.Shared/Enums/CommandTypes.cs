@@ -1,6 +1,6 @@
 namespace AgroCore.Shared.Enums;
 
-/// <summary>Órdenes individuales que el centro de control puede enviar a una máquina (vía servidor).</summary>
+/// <summary>Kontrol Zentroak makina bati bidal diezazkiokeen agindu indibidualak (zerbitzariaren bidez).</summary>
 public enum MachineCommandType
 {
     Start,
@@ -9,7 +9,7 @@ public enum MachineCommandType
     ReturnToBase
 }
 
-/// <summary>Órdenes globales sobre toda la flota de una explotación.</summary>
+/// <summary>Ustiategi bateko flota osoaren gaineko agindu orokorrak.</summary>
 public enum FarmCommandType
 {
     StopAll,

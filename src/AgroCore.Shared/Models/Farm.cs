@@ -3,8 +3,8 @@ using System;
 namespace AgroCore.Shared.Models
 {
     /// <summary>
-    /// Explotación agrícola. Campos, máquinas, cargadores, tareas y logs llevan un FarmId,
-    /// así el servidor puede comprobar siempre a qué explotación pertenece cada cosa.
+    /// Nekazaritza-ustiategia. Soroek, makinek, kargagailuek, zereginek eta erregistroek FarmId bat dute;
+    /// horrela zerbitzariak beti egiazta dezake gauza bakoitza zein ustiategirena den.
     /// </summary>
     public class Farm
     {
@@ -14,7 +14,7 @@ namespace AgroCore.Shared.Models
         public int FieldCount { get; set; } = 6;
         public int ChargerCount { get; set; } = 3;
 
-        /// <summary>Hash de la clave con la que se autentican las máquinas de esta explotación.</summary>
+        /// <summary>Ustiategi honetako makinek autentifikatzeko erabiltzen duten gakoaren hash-a.</summary>
         public string FleetKeyHash { get; set; } = "";
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;

@@ -5,13 +5,13 @@ using AgroCore.Shared.Networking;
 
 namespace AgroCore.ControlCenter.Services
 {
-    /// <summary>Datos que el Centro de Control guarda en el equipo del usuario.</summary>
+    /// <summary>Kontrol Zentroak erabiltzailearen ordenagailuan gordetzen dituen datuak.</summary>
     public class LocalSessionData
     {
         public string Host { get; set; } = NetworkDefaults.Host;
         public string LastUsername { get; set; } = "";
 
-        // Sesión activa (se borra al cerrar sesión)
+        // Saio aktiboa (saioa ixtean ezabatzen da)
         public string Username { get; set; }
         public string FullName { get; set; }
         public string FarmName { get; set; }
@@ -19,10 +19,10 @@ namespace AgroCore.ControlCenter.Services
     }
 
     /// <summary>
-    /// Sesión local: se guarda en %APPDATA%\AgroCore\session.json.
-    /// - Al iniciar sesión se guardan los datos del usuario.
-    /// - Al CERRAR SESIÓN se eliminan (solo se recuerda el servidor y el último usuario para el login).
-    /// Nunca se guarda la contraseña ni el token.
+    /// Saio lokala: %APPDATA%\AgroCore\session.json fitxategian gordetzen da.
+    /// - Saioa hastean erabiltzailearen datuak gordetzen dira.
+    /// - SAIOA IXTEAN ezabatzen dira (zerbitzaria eta azken erabiltzailea bakarrik gogoratzen dira saioa hasteko).
+    /// Pasahitza eta tokena ez dira inoiz gordetzen.
     /// </summary>
     public static class LocalSession
     {
@@ -51,7 +51,7 @@ namespace AgroCore.ControlCenter.Services
             }
             catch (Exception)
             {
-                // archivo dañado: se empieza de cero
+                // fitxategia hondatuta: hutsetik hasten da
             }
             return new LocalSessionData();
         }
@@ -64,11 +64,11 @@ namespace AgroCore.ControlCenter.Services
             }
             catch (Exception)
             {
-                // no es grave si no se puede guardar
+                // ez da larria gorde ezin bada
             }
         }
 
-        /// <summary>Elimina los datos de la sesión activa (logout).</summary>
+        /// <summary>Saio aktiboaren datuak ezabatzen ditu (logout).</summary>
         public static void Clear()
         {
             LocalSessionData data = Load();

@@ -22,7 +22,7 @@ namespace AgroCore.ControlCenter.Views
         public LogSeverity Severity { get; set; }
     }
 
-    /// <summary>Registro de eventos de la explotación (lo guarda el servidor). Se refresca cada 5 s.</summary>
+    /// <summary>Ustiategiaren gertaeren erregistroa (zerbitzariak gordetzen du). 5 s-ro freskatzen da.</summary>
     public partial class LogsPage : UserControl
     {
         private readonly MainWindow main;

@@ -48,7 +48,7 @@ namespace AgroCore.Tests
             List<int[]> path = layout.FindPath(FarmLayout.BaseLaneCol, 0, entranceCol, entranceRow);
 
             Assert.NotEmpty(path);
-            // Todas las celdas son circulables y consecutivas
+            // Gelaxka guztiak zirkulagarriak eta jarraian daude
             for (int i = 0; i < path.Count; i++)
             {
                 Assert.True(layout.IsDrivable(path[i][0], path[i][1]));
@@ -57,7 +57,7 @@ namespace AgroCore.Tests
                     Assert.True(layout.CanConnect(path[i - 1][0], path[i - 1][1], path[i][0], path[i][1]));
                 }
             }
-            // Sale de la base por la puerta
+            // Basetik atetik irteten da
             bool passedGate = false;
             foreach (int[] cell in path)
             {
@@ -66,7 +66,7 @@ namespace AgroCore.Tests
             Assert.True(passedGate);
         }
 
-        /// <summary>Prueba de integración: login REAL por TCP contra el servidor.</summary>
+        /// <summary>Integrazio-proba: saio-hasiera ERREALA TCP bidez zerbitzariaren aurka.</summary>
         [Fact]
         public void Tcp_LoginContraElServidor()
         {
@@ -77,7 +77,7 @@ namespace AgroCore.Tests
 
             try
             {
-                // 1. Contraseña incorrecta
+                // 1. Pasahitz okerra
                 Connection connection = Connection.Connect("127.0.0.1", port);
                 LoginRequest bad = new LoginRequest();
                 bad.Username = "juan";
@@ -85,9 +85,9 @@ namespace AgroCore.Tests
                 connection.Send(bad);
                 LoginResponse badResponse = MessageSerializer.FromJson<LoginResponse>(connection.ReadLine());
                 Assert.False(badResponse.Success);
-                Assert.Equal("Usuario o contraseña incorrectos", badResponse.Message);
+                Assert.Equal("Erabiltzailea edo pasahitza okerrak dira", badResponse.Message);
 
-                // 2. En la misma conexión, contraseña correcta
+                // 2. Konexio berean, pasahitz zuzena
                 LoginRequest good = new LoginRequest();
                 good.Username = "juan";
                 good.Password = "juan123";
@@ -95,17 +95,17 @@ namespace AgroCore.Tests
                 LoginResponse goodResponse = MessageSerializer.FromJson<LoginResponse>(connection.ReadLine());
                 Assert.True(goodResponse.Success);
                 Assert.Equal(UserRole.Farmer, goodResponse.Role);
-                Assert.Equal("Finca La Esperanza", goodResponse.FarmName);
+                Assert.Equal("Esperantza baserria", goodResponse.FarmName);
                 Assert.False(string.IsNullOrEmpty(goodResponse.SessionToken));
                 Assert.Equal(1, context.Sessions.Count);
 
-                // 3. Un agricultor NO puede gestionar usuarios
+                // 3. Nekazari batek EZIN ditu erabiltzaileak kudeatu
                 connection.Send(new ListUsersRequest());
                 OperationResult denied = MessageSerializer.FromJson<OperationResult>(connection.ReadLine());
                 Assert.False(denied.Success);
-                Assert.Contains("Acceso denegado", denied.Message);
+                Assert.Contains("Sarbidea ukatuta", denied.Message);
 
-                // 4. Cerrar sesión: el servidor borra la sesión
+                // 4. Saioa itxi: zerbitzariak saioa ezabatzen du
                 connection.Send(new LogoutRequest());
                 OperationResult logout = MessageSerializer.FromJson<OperationResult>(connection.ReadLine());
                 Assert.True(logout.Success);

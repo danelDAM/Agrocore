@@ -10,10 +10,10 @@ using Microsoft.Win32;
 namespace AgroCore.ControlCenter.Views
 {
     /// <summary>
-    /// Informes PDF por agricultor. Pasos:
-    ///  1. Se pide REPORT_REQUEST al servidor (explotación + periodo).
-    ///  2. El servidor comprueba los permisos y devuelve SOLO los datos de esa explotación.
-    ///  3. Aquí se elige dónde guardarlo y se genera el PDF con QuestPDF.
+    /// PDF txostenak nekazariz nekazari. Urratsak:
+    ///  1. REPORT_REQUEST eskatzen zaio zerbitzariari (ustiategia + aldia).
+    ///  2. Zerbitzariak baimenak egiaztatzen ditu eta ustiategi horren datuak BAKARRIK itzultzen ditu.
+    ///  3. Hemen non gorde aukeratzen da eta PDFa QuestPDF-rekin sortzen da.
     /// </summary>
     public partial class ReportsPage : UserControl
     {
@@ -57,7 +57,7 @@ namespace AgroCore.ControlCenter.Views
             main.Send(request);
 
             GenerateButton.IsEnabled = false;
-            ResultText.Text = "Pidiendo los datos al servidor...";
+            ResultText.Text = "Datuak zerbitzariari eskatzen...";
         }
 
         private void OnMessage(string type, string json)
@@ -81,17 +81,17 @@ namespace AgroCore.ControlCenter.Views
             ReportResponse response = MessageSerializer.FromJson<ReportResponse>(json);
             if (!response.Success || response.Report == null)
             {
-                ResultText.Text = response.Message ?? "No se pudo generar el informe";
+                ResultText.Text = response.Message ?? "Ezin izan da txostena sortu";
                 return;
             }
 
             SaveFileDialog dialog = new SaveFileDialog();
-            dialog.Filter = "Documento PDF (*.pdf)|*.pdf";
-            dialog.FileName = "Informe_" + response.Report.FarmName.Replace(" ", "_") + "_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".pdf";
+            dialog.Filter = "PDF dokumentua (*.pdf)|*.pdf";
+            dialog.FileName = "Txostena_" + response.Report.FarmName.Replace(" ", "_") + "_" + DateTime.Now.ToString("yyyyMMdd_HHmm") + ".pdf";
             dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             if (dialog.ShowDialog(Window.GetWindow(this)) != true)
             {
-                ResultText.Text = "Generación cancelada.";
+                ResultText.Text = "Sorrera bertan behera utzi da.";
                 return;
             }
 
@@ -100,13 +100,13 @@ namespace AgroCore.ControlCenter.Views
                 Services.PdfReportGenerator.Create(response.Report, dialog.FileName);
                 lastFile = dialog.FileName;
                 OpenButton.Visibility = Visibility.Visible;
-                ResultText.Text = "Informe guardado en " + dialog.FileName + "  (" + response.Report.Tasks.Count
-                                  + " tareas, " + response.Report.Incidents.Count + " incidencias)";
-                main.ShowStatus("Informe PDF generado", true);
+                ResultText.Text = "Txostena hemen gorde da: " + dialog.FileName + "  (" + response.Report.Tasks.Count
+                                  + " zeregin, " + response.Report.Incidents.Count + " gorabehera)";
+                main.ShowStatus("PDF txostena sortu da", true);
             }
             catch (Exception ex)
             {
-                ResultText.Text = "Error al crear el PDF: " + ex.Message;
+                ResultText.Text = "Errorea PDFa sortzean: " + ex.Message;
             }
         }
 

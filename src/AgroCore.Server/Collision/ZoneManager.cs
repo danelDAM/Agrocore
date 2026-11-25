@@ -8,20 +8,20 @@ using AgroCore.Shared.Enums;
 namespace AgroCore.Server.Collision
 {
     /// <summary>
-    /// SISTEMA ANTICOLISIÓN de una explotación.
+    /// Ustiategi baten TALKEN AURKAKO SISTEMA.
     ///
-    /// El camino está dividido en zonas (celdas). Antes de entrar en una zona, la máquina la
-    /// reserva aquí. Si está ocupada por otra máquina, el hilo espera con Monitor.Wait().
-    /// Cuando una máquina libera una zona se llama a Monitor.PulseAll() y las que esperaban
-    /// vuelven a comprobar si ya pueden pasar.
+    /// Bidea guneetan (gelaxketan) banatuta dago. Gune batean sartu aurretik, makinak hemen
+    /// erreserbatzen du. Beste makina batek okupatuta badu, haria Monitor.Wait()-ekin itxaroten du.
+    /// Makina batek gune bat askatzen duenean, Monitor.PulseAll() deitzen da eta zain zeudenek
+    /// berriro egiaztatzen dute pasa daitezkeen.
     ///
-    ///   Seeder-01    -> pide Zona B -> libre   -> reservada -> continúa
-    ///   Irrigator-01 -> pide Zona B -> ocupada -> WAITING (Monitor.Wait)
-    ///   Seeder-01    -> libera Zona B -> Monitor.PulseAll -> Irrigator-01 entra
+    ///   Seeder-01    -> B gunea eskatu -> libre     -> erreserbatuta -> jarraitu
+    ///   Irrigator-01 -> B gunea eskatu -> okupatuta -> WAITING (Monitor.Wait)
+    ///   Seeder-01    -> B gunea askatu -> Monitor.PulseAll -> Irrigator-01 sartzen da
     ///
-    /// INTERBLOQUEO (deadlock): si A está en la zona 1 y quiere la 2, y B está en la 2 y quiere la 1,
-    /// esperarían para siempre. Antes de esperar se comprueba si se formaría un ciclo de esperas;
-    /// si es así se DENIEGA la petición y esa máquina se aparta al arcén y cede el paso.
+    /// ELKARBLOKEOA (deadlock): A 1. gunean badago eta 2.a nahi badu, eta B 2.ean badago eta 1.a nahi badu,
+    /// betiko egongo lirateke zain. Itxaron aurretik, itxaronaldien ziklo bat sortuko litzatekeen egiaztatzen da;
+    /// hala bada, eskaera UKATU egiten da, eta makina hori bazterrera aldentzen da eta bidea uzten du.
     /// </summary>
     public class ZoneManager
     {
@@ -29,10 +29,10 @@ namespace AgroCore.Server.Collision
         private readonly int farmId;
         private readonly EventLogger logger;
 
-        /// <summary>Zona -> máquina que la tiene reservada.</summary>
+        /// <summary>Gunea -> hura erreserbatuta duen makina.</summary>
         private readonly Dictionary<string, string> holders = new Dictionary<string, string>();
 
-        /// <summary>Máquina -> zona que está esperando.</summary>
+        /// <summary>Makina -> itxaroten ari den gunea.</summary>
         private readonly Dictionary<string, string> waitingFor = new Dictionary<string, string>();
 
         private int conflictsAvoided;
@@ -54,7 +54,7 @@ namespace AgroCore.Server.Collision
             get { lock (sync) { return deadlocksAvoided; } }
         }
 
-        /// <summary>Reserva una zona. Si está ocupada, espera (Monitor.Wait) hasta que quede libre.</summary>
+        /// <summary>Gune bat erreserbatzen du. Okupatuta badago, itxaron egiten du (Monitor.Wait) libre geratu arte.</summary>
         public ZoneOutcome Acquire(MachineRuntime machine, string zoneId)
         {
             lock (sync)
@@ -75,16 +75,16 @@ namespace AgroCore.Server.Collision
                         {
                             holders[zoneId] = machine.Id;
                             logger.Log(EventKind.ZoneReserved, LogSeverity.Debug,
-                                machine.Name + " reserva " + zoneId, farmId, machine.Id);
+                                machine.Name + " makinak " + zoneId + " erreserbatu du", farmId, machine.Id);
                             return ZoneOutcome.Granted;
                         }
 
-                        // ¿Esperar crearía un ciclo de esperas? Entonces se deniega.
+                        // Itxaroteak itxaronaldien ziklo bat sortuko luke? Orduan ukatu egiten da.
                         if (WouldCreateDeadlock(machine.Id, zoneId))
                         {
                             deadlocksAvoided++;
                             logger.Log(EventKind.DeadlockAvoided, LogSeverity.Warning,
-                                "Interbloqueo evitado: " + machine.Name + " cede el paso a " + ShortName(holder) + " en " + zoneId,
+                                "Elkarblokeoa saihestuta: " + machine.Name + " makinak bidea uzten dio " + ShortName(holder) + " makinari " + zoneId + " gunean",
                                 farmId, machine.Id);
                             return ZoneOutcome.DeniedDeadlock;
                         }
@@ -93,14 +93,14 @@ namespace AgroCore.Server.Collision
                         {
                             conflictLogged = true;
                             conflictsAvoided++;
-                            machine.SetNote("esperando zona " + zoneId + " (ocupada por " + ShortName(holder) + ")");
+                            machine.SetNote("zain " + zoneId + " gunea (" + ShortName(holder) + " makinak okupatuta)");
                             logger.Log(EventKind.ZoneConflict, LogSeverity.Info,
-                                machine.Name + " espera: zona " + zoneId + " ocupada por " + ShortName(holder),
+                                machine.Name + " zain: " + zoneId + " gunea " + ShortName(holder) + " makinak okupatuta",
                                 farmId, machine.Id);
                         }
 
                         waitingFor[machine.Id] = zoneId;
-                        Monitor.Wait(sync, 1000); // se despierta con PulseAll al liberarse una zona
+                        Monitor.Wait(sync, 1000); // PulseAll-ekin esnatzen da gune bat askatzean
                     }
                 }
                 finally
@@ -112,8 +112,8 @@ namespace AgroCore.Server.Collision
         }
 
         /// <summary>
-        /// Sigue la cadena "la zona que quiero la tiene X, X espera la zona que tiene Y..."
-        /// Si la cadena vuelve a mí, hay un ciclo: sería un interbloqueo.
+        /// "Nahi dudan gunea X-k du, X Y-k duen gunearen zain dago..." katea jarraitzen du.
+        /// Katea niregana itzultzen bada, ziklo bat dago: elkarblokeoa izango litzateke.
         /// </summary>
         private bool WouldCreateDeadlock(string requesterId, string zoneId)
         {
@@ -124,15 +124,15 @@ namespace AgroCore.Server.Collision
                 string holder;
                 if (!holders.TryGetValue(zone, out holder))
                 {
-                    return false; // la zona está libre: no hay ciclo
+                    return false; // gunea libre dago: ez dago ziklorik
                 }
                 if (holder == requesterId)
                 {
-                    return true; // la cadena vuelve a mí
+                    return true; // katea niregana itzultzen da
                 }
                 if (!visited.Add(holder))
                 {
-                    return false; // ciclo entre otras máquinas, no conmigo
+                    return false; // beste makinen arteko zikloa, ez nirekin
                 }
                 string next;
                 zone = waitingFor.TryGetValue(holder, out next) ? next : null;
@@ -149,13 +149,13 @@ namespace AgroCore.Server.Collision
                 {
                     holders.Remove(zoneId);
                     logger.Log(EventKind.ZoneReleased, LogSeverity.Debug,
-                        machine.Name + " libera " + zoneId, farmId, machine.Id);
-                    Monitor.PulseAll(sync); // despertar a quien esperaba esta zona
+                        machine.Name + " makinak " + zoneId + " askatu du", farmId, machine.Id);
+                    Monitor.PulseAll(sync); // gune honen zain zegoena esnatu
                 }
             }
         }
 
-        /// <summary>Libera todas las zonas de una máquina (al desconectarse).</summary>
+        /// <summary>Makina baten gune guztiak askatzen ditu (deskonektatzean).</summary>
         public void ReleaseAll(MachineRuntime machine)
         {
             lock (sync)

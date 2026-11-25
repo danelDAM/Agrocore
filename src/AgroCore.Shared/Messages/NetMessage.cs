@@ -3,12 +3,12 @@ using System;
 namespace AgroCore.Shared.Messages
 {
     /// <summary>
-    /// Clase base de TODOS los mensajes. Cada mensaje viaja como una línea de texto en JSON, por ejemplo:
+    /// Mezu GUZTIEN oinarrizko klasea. Mezu bakoitza JSON testu-lerro gisa bidaiatzen du, adibidez:
     ///
     ///   {"type":"LOGIN_REQUEST","username":"juan","password":"..."}
     ///
-    /// El campo "type" dice qué mensaje es. Quien lo recibe mira primero el "type"
-    /// (MessageSerializer.ReadType) y después lo convierte a la clase correcta con un switch.
+    /// "type" eremuak adierazten du zein mezu den. Jasotzen duenak lehenik "type" begiratzen du
+    /// (MessageSerializer.ReadType) eta gero switch batekin klase egokira bihurtzen du.
     /// </summary>
     public class NetMessage
     {
@@ -16,7 +16,7 @@ namespace AgroCore.Shared.Messages
         public DateTime Timestamp { get; set; } = DateTime.Now;
     }
 
-    /// <summary>Base de las respuestas: dicen si la operación fue bien y un texto explicativo.</summary>
+    /// <summary>Erantzunen oinarria: eragiketa ondo joan den eta azalpen-testu bat adierazten dute.</summary>
     public class ResponseMessage : NetMessage
     {
         public bool Success { get; set; } = true;
@@ -24,8 +24,8 @@ namespace AgroCore.Shared.Messages
     }
 
     /// <summary>
-    /// Respuesta genérica "RESULT". RequestType indica a qué petición responde
-    /// (así el cliente sabe qué ha ido bien o mal).
+    /// "RESULT" erantzun generikoa. RequestType-k zein eskaerari erantzuten dion adierazten du
+    /// (horrela bezeroak badaki zer joan den ondo edo gaizki).
     /// </summary>
     public class OperationResult : ResponseMessage
     {

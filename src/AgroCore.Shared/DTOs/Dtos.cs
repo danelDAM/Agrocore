@@ -5,7 +5,7 @@ using AgroCore.Shared.Models;
 
 namespace AgroCore.Shared.DTOs
 {
-    /// <summary>Usuario tal y como se envía al cliente (sin el hash de la contraseña).</summary>
+    /// <summary>Bezeroari bidaltzen zaion erabiltzailea (pasahitzaren hash-a gabe).</summary>
     public class UserDto
     {
         public int Id { get; set; }
@@ -18,7 +18,7 @@ namespace AgroCore.Shared.DTOs
         public DateTime? LastLogin { get; set; }
     }
 
-    /// <summary>Explotación tal y como se envía al cliente.</summary>
+    /// <summary>Bezeroari bidaltzen zaion ustiategia.</summary>
     public class FarmDto
     {
         public int Id { get; set; }
@@ -31,14 +31,14 @@ namespace AgroCore.Shared.DTOs
         public int OnlineMachines { get; set; }
     }
 
-    /// <summary>Zona del mapa reservada por una máquina (sistema anticolisión).</summary>
+    /// <summary>Makina batek erreserbatutako mapako gunea (talken aurkako sistema).</summary>
     public class ZoneReservation
     {
         public string ZoneId { get; set; } = "";
         public string MachineId { get; set; } = "";
     }
 
-    /// <summary>Números resumen que se muestran en el dashboard.</summary>
+    /// <summary>Aginte-panelean erakusten diren laburpen-zenbakiak.</summary>
     public class FarmSummary
     {
         public int MachineCount { get; set; }
@@ -62,7 +62,7 @@ namespace AgroCore.Shared.DTOs
         public int ConflictsAvoided { get; set; }
     }
 
-    /// <summary>Estadísticas de una máquina.</summary>
+    /// <summary>Makina baten estatistikak.</summary>
     public class MachineStatistics
     {
         public string MachineId { get; set; } = "";
@@ -79,11 +79,11 @@ namespace AgroCore.Shared.DTOs
         public int TasksAborted { get; set; }
         public int ChargeCycles { get; set; }
 
-        /// <summary>% del tiempo activo que pasa trabajando o yendo a trabajar.</summary>
+        /// <summary>Denbora aktiboaren %, lanean edo lanera bidean igarotakoa.</summary>
         public double Efficiency { get; set; }
     }
 
-    /// <summary>Estadísticas de una explotación.</summary>
+    /// <summary>Ustiategi baten estatistikak.</summary>
     public class FarmStatistics
     {
         public int FarmId { get; set; }
@@ -111,7 +111,7 @@ namespace AgroCore.Shared.DTOs
         public List<MachineStatistics> Machines { get; set; } = new List<MachineStatistics>();
     }
 
-    /// <summary>Datos del informe PDF. El servidor solo mete datos de la explotación permitida.</summary>
+    /// <summary>PDF txostenaren datuak. Zerbitzariak baimendutako ustiategiko datuak soilik sartzen ditu.</summary>
     public class ReportData
     {
         public DateTime GeneratedAt { get; set; } = DateTime.Now;

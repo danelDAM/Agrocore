@@ -12,18 +12,18 @@ using AgroCore.Shared.Security;
 namespace AgroCore.Server.Clients
 {
     /// <summary>
-    /// Atiende a UN centro de control WPF. Se ejecuta en el hilo propio de ese cliente.
+    /// WPF Kontrol Zentro BAT artatzen du. Bezero horren hari propioan exekutatzen da.
     ///
-    /// Funcionamiento:
-    ///   1. Espera un LOGIN_REQUEST correcto (puede reintentar si se equivoca de contraseña).
-    ///   2. Crea la sesión.
-    ///   3. Lee mensajes en bucle y los atiende con un switch según su "type".
-    ///   4. Al cerrar sesión o desconectarse, borra la sesión.
+    /// Funtzionamendua:
+    ///   1. LOGIN_REQUEST zuzen baten zain geratzen da (pasahitza oker jartzen badu, berriro saia daiteke).
+    ///   2. Saioa sortzen du.
+    ///   3. Mezuak begizta batean irakurtzen ditu eta "type"-aren arabera switch batekin artatzen ditu.
+    ///   4. Saioa ixtean edo deskonektatzean, saioa ezabatzen du.
     ///
-    /// SEGURIDAD: cada petición se comprueba aquí, en el servidor:
-    ///   - ¿El rol del usuario tiene permiso para esto?            -> Require(...)
-    ///   - ¿El recurso pertenece a SU explotación?                  -> ResolveFarm(...)
-    /// No se confía en que el WPF haya escondido los botones.
+    /// SEGURTASUNA: eskaera bakoitza hemen egiaztatzen da, zerbitzarian:
+    ///   - Erabiltzailearen rolak baimena al du honetarako?          -> Require(...)
+    ///   - Baliabidea BERE ustiategikoa al da?                       -> ResolveFarm(...)
+    /// Ez gara fidatzen WPFak botoiak ezkutatu izanaz.
     /// </summary>
     public partial class ControlCenterClient
     {
@@ -40,17 +40,17 @@ namespace AgroCore.Server.Clients
         public void Run(string firstLine)
         {
             context.Logger.Log(EventKind.ClientConnected, LogSeverity.Info,
-                "Centro de control conectado desde " + connection.RemoteText);
+                "Kontrol Zentroa konektatuta hemendik: " + connection.RemoteText);
 
             try
             {
-                // ---- 1. Login ----
+                // ---- 1. Saioa hasi ----
                 string line = firstLine;
                 while (session == null)
                 {
                     if (line == null)
                     {
-                        return; // se desconectó sin iniciar sesión
+                        return; // saioa hasi gabe deskonektatu da
                     }
 
                     if (MessageSerializer.ReadType(line) == MessageTypes.LoginRequest)
@@ -60,7 +60,7 @@ namespace AgroCore.Server.Clients
                     }
                     else
                     {
-                        connection.Send(OperationResult.Fail(MessageSerializer.ReadType(line), "Debe iniciar sesión primero"));
+                        connection.Send(OperationResult.Fail(MessageSerializer.ReadType(line), "Lehenik saioa hasi behar duzu"));
                     }
 
                     if (session == null)
@@ -69,21 +69,21 @@ namespace AgroCore.Server.Clients
                     }
                 }
 
-                // ---- 2. Bucle de mensajes ----
+                // ---- 2. Mezuen begizta ----
                 while (true)
                 {
                     line = connection.ReadLine();
                     if (line == null)
                     {
-                        break; // conexión cerrada
+                        break; // konexioa itxita
                     }
 
                     string type = MessageSerializer.ReadType(line);
                     if (type == MessageTypes.LogoutRequest)
                     {
-                        connection.TrySend(OperationResult.Ok(type, "Sesión cerrada"));
+                        connection.TrySend(OperationResult.Ok(type, "Saioa itxita"));
                         context.Logger.Log(EventKind.Logout, LogSeverity.Info,
-                            session.FullName + " cerró sesión", session.FarmId, null, session.Username, null, null);
+                            session.FullName + " saioa itxi du", session.FarmId, null, session.Username, null, null);
                         break;
                     }
 
@@ -93,9 +93,9 @@ namespace AgroCore.Server.Clients
                     }
                     catch (Exception ex)
                     {
-                        connection.TrySend(OperationResult.Fail(type, "Error en el servidor: " + ex.Message));
+                        connection.TrySend(OperationResult.Fail(type, "Errorea zerbitzarian: " + ex.Message));
                         context.Logger.Log(EventKind.Error, LogSeverity.Error,
-                            "Error atendiendo " + type + " de " + session.Username + ": " + ex.Message);
+                            "Errorea " + type + " artatzean (" + session.Username + "): " + ex.Message);
                     }
                 }
             }
@@ -106,7 +106,7 @@ namespace AgroCore.Server.Clients
                     context.Sessions.Remove(session.Token);
                 }
                 context.Logger.Log(EventKind.ClientDisconnected, LogSeverity.Info,
-                    "Centro de control desconectado (" + connection.RemoteText + ")");
+                    "Kontrol Zentroa deskonektatuta (" + connection.RemoteText + ")");
             }
         }
 
@@ -129,7 +129,7 @@ namespace AgroCore.Server.Clients
 
             User user = result.User;
 
-            // Crear la sesión en el servidor
+            // Saioa zerbitzarian sortu
             UserSession newSession = new UserSession();
             newSession.Token = PasswordHasher.GenerateToken();
             newSession.UserId = user.Id;
@@ -145,8 +145,8 @@ namespace AgroCore.Server.Clients
             }
             else
             {
-                // Administrador: empieza viendo la primera explotación que exista
-                newSession.FarmName = "Todas las explotaciones";
+                // Administratzailea: dagoen lehen ustiategia ikusten hasten da
+                newSession.FarmName = "Ustiategi guztiak";
                 if (context.Store.GetFarms().Count > 0)
                 {
                     newSession.ViewFarmId = context.Store.GetFarms()[0].Id;
@@ -156,7 +156,7 @@ namespace AgroCore.Server.Clients
             session = newSession;
 
             response.Success = true;
-            response.Message = "Bienvenido, " + user.FullName;
+            response.Message = "Ongi etorri, " + user.FullName;
             response.UserId = user.Id;
             response.Username = user.Username;
             response.FullName = user.FullName;
@@ -167,12 +167,12 @@ namespace AgroCore.Server.Clients
             connection.Send(response);
 
             context.Logger.Log(EventKind.LoginSuccess, LogSeverity.Success,
-                user.FullName + " (" + RolePermissions.DisplayName(user.Role) + ") inició sesión desde " + connection.RemoteText,
+                user.FullName + " (" + RolePermissions.DisplayName(user.Role) + ") saioa hasi du hemendik: " + connection.RemoteText,
                 user.FarmId == 0 ? (int?)null : user.FarmId, null, user.Username, null, null);
         }
 
         // ==================================================================
-        // MENSAJES DESPUÉS DEL LOGIN
+        // SAIOA HASI ONDOKO MEZUAK
         // ==================================================================
 
         private void HandleMessage(string type, string json)
@@ -183,12 +183,12 @@ namespace AgroCore.Server.Clients
                     HandleChangePassword(MessageSerializer.FromJson<ChangePasswordRequest>(json));
                     break;
 
-                // ----- Administración -----
+                // ----- Administrazioa -----
                 case MessageTypes.ListUsers:
                     if (Require(Permission.ManageUsers, type))
                     {
                         ListUsersResponse users = context.Users.ListUsers();
-                        // Máquinas conectadas ahora mismo (dato en vivo de cada explotación)
+                        // Une honetan konektatuta dauden makinak (ustiategi bakoitzaren zuzeneko datua)
                         foreach (FarmDto farmDto in users.Farms)
                         {
                             FarmRuntime runtime = context.Farms == null ? null : context.Farms.Get(farmDto.Id);
@@ -264,12 +264,12 @@ namespace AgroCore.Server.Clients
                         UpdateConfigRequest update = MessageSerializer.FromJson<UpdateConfigRequest>(json);
                         context.Config.Update(update.Config);
                         context.Logger.Log(EventKind.ConfigChanged, LogSeverity.Info,
-                            session.Username + " modificó la configuración del sistema");
-                        connection.Send(OperationResult.Ok(type, "Configuración guardada"));
+                            session.Username + " erabiltzaileak sistemaren konfigurazioa aldatu du");
+                        connection.Send(OperationResult.Ok(type, "Konfigurazioa gordeta"));
                     }
                     break;
 
-                // ----- Logs -----
+                // ----- Gertaeren erregistroa -----
                 case MessageTypes.LogsRequest:
                     if (Require(Permission.ViewLogs, type))
                     {
@@ -287,7 +287,7 @@ namespace AgroCore.Server.Clients
                 default:
                     if (!HandleFarmMessage(type, json))
                     {
-                        connection.Send(OperationResult.Fail(type, "Mensaje no reconocido: " + type));
+                        connection.Send(OperationResult.Fail(type, "Mezu ezezaguna: " + type));
                     }
                     break;
             }
@@ -305,20 +305,20 @@ namespace AgroCore.Server.Clients
             {
                 connection.Send(OperationResult.Fail(request.Type, error));
                 context.Logger.Log(EventKind.Info, LogSeverity.Warning,
-                    session.Username + " intentó cambiar la contraseña: " + error, session.FarmId, null, session.Username, null, null);
+                    session.Username + " erabiltzailea pasahitza aldatzen saiatu da: " + error, session.FarmId, null, session.Username, null, null);
                 return;
             }
 
-            connection.Send(OperationResult.Ok(request.Type, "Contraseña cambiada correctamente"));
+            connection.Send(OperationResult.Ok(request.Type, "Pasahitza ondo aldatu da"));
             context.Logger.Log(EventKind.PasswordChanged, LogSeverity.Info,
-                session.Username + " cambió su contraseña", session.FarmId, null, session.Username, null, null);
+                session.Username + " erabiltzaileak bere pasahitza aldatu du", session.FarmId, null, session.Username, null, null);
         }
 
         // ==================================================================
-        // COMPROBACIONES DE SEGURIDAD
+        // SEGURTASUN-EGIAZTAPENAK
         // ==================================================================
 
-        /// <summary>Comprueba que el rol del usuario tenga el permiso. Si no, responde con error y lo registra.</summary>
+        /// <summary>Erabiltzailearen rolak baimena duela egiaztatzen du. Bestela, errorearekin erantzun eta erregistratu egiten du.</summary>
         private bool Require(Permission permission, string requestType)
         {
             if (RolePermissions.Has(session.Role, permission))
@@ -327,17 +327,17 @@ namespace AgroCore.Server.Clients
             }
 
             connection.Send(OperationResult.Fail(requestType,
-                "Acceso denegado: su rol (" + RolePermissions.DisplayName(session.Role) + ") no permite esta acción"));
+                "Sarbidea ukatuta: zure rolak (" + RolePermissions.DisplayName(session.Role) + ") ez du ekintza hau baimentzen"));
             context.Logger.Log(EventKind.AccessDenied, LogSeverity.Security,
-                "DENEGADO: " + session.Username + " (" + session.Role + ") intentó " + requestType,
+                "UKATUTA: " + session.Username + " (" + session.Role + ") " + requestType + " egiten saiatu da",
                 session.FarmId, null, session.Username, null, null);
             return false;
         }
 
         /// <summary>
-        /// Decide sobre qué explotación se trabaja (AISLAMIENTO DE DATOS).
-        ///  - Usuario normal: SIEMPRE su propia explotación. Si pide otra, se deniega.
-        ///  - Administrador: la que pida, o la que esté viendo si no indica ninguna.
+        /// Zein ustiategitan lan egiten den erabakitzen du (DATUEN ISOLAMENDUA).
+        ///  - Erabiltzaile arrunta: BETI bere ustiategia. Beste bat eskatzen badu, ukatu egiten da.
+        ///  - Administratzailea: eskatzen duena, edo bat ere adierazten ez badu, ikusten ari dena.
         /// </summary>
         private bool ResolveFarm(int requestedFarmId, string requestType, out int farmId)
         {
@@ -350,7 +350,7 @@ namespace AgroCore.Server.Clients
             farmId = session.FarmId;
             if (requestedFarmId > 0 && requestedFarmId != session.FarmId)
             {
-                DenyOtherFarm(requestType, "la explotación " + requestedFarmId);
+                DenyOtherFarm(requestType, requestedFarmId + ". ustiategia");
                 return false;
             }
             return true;
@@ -358,9 +358,9 @@ namespace AgroCore.Server.Clients
 
         private void DenyOtherFarm(string requestType, string what)
         {
-            connection.Send(OperationResult.Fail(requestType, "Acceso denegado: " + what + " no pertenece a su explotación"));
+            connection.Send(OperationResult.Fail(requestType, "Sarbidea ukatuta: " + what + " ez da zure ustiategikoa"));
             context.Logger.Log(EventKind.AccessDenied, LogSeverity.Security,
-                "DENEGADO: " + session.Username + " (explotación " + session.FarmId + ") intentó " + requestType + " sobre " + what,
+                "UKATUTA: " + session.Username + " (" + session.FarmId + ". ustiategia) " + requestType + " egiten saiatu da hemen: " + what,
                 session.FarmId, null, session.Username, null, null);
         }
     }

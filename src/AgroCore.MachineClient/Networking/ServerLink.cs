@@ -9,15 +9,15 @@ using AgroCore.Shared.Networking;
 namespace AgroCore.MachineClient.Networking
 {
     /// <summary>
-    /// Comunicación de la máquina con el servidor.
+    /// Makinaren eta zerbitzariaren arteko komunikazioa.
     ///
-    /// TCP: un hilo LECTOR recibe todo lo que manda el servidor.
-    ///   - Si es la respuesta que el hilo principal está esperando (TASK_ASSIGNMENT, ZONE_RESPONSE,
-    ///     CHARGER_RESPONSE), la deja en un "buzón" y hace Monitor.PulseAll para despertarlo.
-    ///   - Si es una orden (STOP, RESUME, RETURN_TO_BASE, EMERGENCY_STOP, TASK_CANCELLED)
-    ///     llama al evento CommandReceived para que la máquina reaccione en el momento.
+    /// TCP: IRAKURLE-hari batek zerbitzariak bidaltzen duen guztia jasotzen du.
+    ///   - Hari nagusia zain duen erantzuna bada (TASK_ASSIGNMENT, ZONE_RESPONSE,
+    ///     CHARGER_RESPONSE), "postontzi" batean uzten du eta Monitor.PulseAll egiten du hura esnatzeko.
+    ///   - Agindu bat bada (STOP, RESUME, RETURN_TO_BASE, EMERGENCY_STOP, TASK_CANCELLED),
+    ///     CommandReceived gertaera deitzen du makinak berehala erreakziona dezan.
     ///
-    /// UDP: SendTelemetry envía la posición, batería, etc. varias veces por segundo.
+    /// UDP: SendTelemetry-k posizioa, bateria eta abar bidaltzen ditu segundoko hainbat aldiz.
     /// </summary>
     public class ServerLink
     {
@@ -27,13 +27,13 @@ namespace AgroCore.MachineClient.Networking
         private UdpClient udp;
         private IPEndPoint udpServer;
 
-        // Buzón para la respuesta que espera el hilo principal
+        // Hari nagusiak zain duen erantzunerako postontzia
         private readonly object mailboxLock = new object();
         private string expectedType;
         private string mailbox;
         private volatile bool closed;
 
-        /// <summary>Se llama (desde el hilo lector) cuando llega una orden del servidor.</summary>
+        /// <summary>Zerbitzariaren agindu bat iristen denean deitzen da (irakurle-haritik).</summary>
         public event Action<string, string> CommandReceived;
 
         public ServerLink(string host, int tcpPort)
@@ -52,19 +52,19 @@ namespace AgroCore.MachineClient.Networking
             connection = Connection.Connect(host, tcpPort);
         }
 
-        /// <summary>Autenticación (se hace antes de arrancar el hilo lector: enviar y leer la respuesta).</summary>
+        /// <summary>Autentifikazioa (irakurle-haria abiarazi aurretik egiten da: bidali eta erantzuna irakurri).</summary>
         public MachineAuthResponse Authenticate(MachineAuthRequest request)
         {
             connection.Send(request);
             string line = connection.ReadLine();
             if (line == null)
             {
-                throw new Exception("El servidor cerró la conexión");
+                throw new Exception("Zerbitzariak konexioa itxi du");
             }
             return MessageSerializer.FromJson<MachineAuthResponse>(line);
         }
 
-        /// <summary>Prepara el UDP y arranca el hilo lector de TCP.</summary>
+        /// <summary>UDPa prestatzen du eta TCPko irakurle-haria abiarazten du.</summary>
         public void Start(int udpPort)
         {
             udp = new UdpClient();
@@ -100,7 +100,7 @@ namespace AgroCore.MachineClient.Networking
                     {
                         mailbox = line;
                         isAwaitedReply = true;
-                        Monitor.PulseAll(mailboxLock); // despertar al hilo que espera esta respuesta
+                        Monitor.PulseAll(mailboxLock); // erantzun honen zain dagoen haria esnatu
                     }
                 }
 
@@ -110,7 +110,7 @@ namespace AgroCore.MachineClient.Networking
                 }
             }
 
-            // Conexión perdida: despertar a quien esté esperando para que no se quede bloqueado
+            // Konexioa galduta: zain dagoena esnatu, blokeatuta gera ez dadin
             closed = true;
             lock (mailboxLock)
             {
@@ -119,9 +119,9 @@ namespace AgroCore.MachineClient.Networking
         }
 
         /// <summary>
-        /// Envía una petición y espera (Monitor.Wait) la respuesta del tipo indicado.
-        /// La espera puede ser larga: el servidor no responde hasta que hay tarea, zona o cargador.
-        /// Devuelve null si se pierde la conexión.
+        /// Eskaera bat bidaltzen du eta adierazitako motako erantzunaren zain geratzen da (Monitor.Wait).
+        /// Itxarotea luzea izan daiteke: zerbitzariak ez du erantzuten zeregina, gunea edo kargagailua egon arte.
+        /// null itzultzen du konexioa galtzen bada.
         /// </summary>
         public T Request<T>(NetMessage request, string responseType)
         {
@@ -150,7 +150,7 @@ namespace AgroCore.MachineClient.Networking
             }
         }
 
-        /// <summary>Envía un aviso que no necesita respuesta (TASK_STARTED, ZONE_RELEASE...).</summary>
+        /// <summary>Erantzunik behar ez duen abisu bat bidaltzen du (TASK_STARTED, ZONE_RELEASE...).</summary>
         public void Send(NetMessage message)
         {
             connection.TrySend(message);
@@ -165,7 +165,7 @@ namespace AgroCore.MachineClient.Networking
             }
             catch (Exception)
             {
-                // UDP: si falla un envío no pasa nada
+                // UDP: bidalketa batek huts egiten badu, ez da ezer gertatzen
             }
         }
 

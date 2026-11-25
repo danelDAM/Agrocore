@@ -9,7 +9,7 @@
 
         <Border Style="{StaticResource Card}" Padding="14,10" Margin="0,0,0,14">
             <DockPanel>
-                <CheckBox x:Name="ShowFinished" Content="Mostrar completadas y canceladas" DockPanel.Dock="Right" Click="ShowFinished_Click" />
+                <CheckBox x:Name="ShowFinished" Content="Erakutsi osatutakoak eta bertan behera utzitakoak" DockPanel.Dock="Right" Click="ShowFinished_Click" />
                 <TextBlock x:Name="CountsText" Style="{StaticResource MutedText}" VerticalAlignment="Center" />
             </DockPanel>
         </Border>
@@ -17,11 +17,11 @@
         <Border Grid.Row="1" Style="{StaticResource Card}" Padding="0">
             <DataGrid x:Name="TasksGrid">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="TAREA" Binding="{Binding Id}" Width="90" FontWeight="SemiBold" />
-                    <DataGridTextColumn Header="CAMPO" Binding="{Binding FieldText}" Width="80" />
-                    <DataGridTextColumn Header="TIPO" Binding="{Binding TypeText}" Width="95" />
-                    <DataGridTextColumn Header="CULTIVO" Binding="{Binding CropText}" Width="85" />
-                    <DataGridTemplateColumn Header="ESTADO" Width="110">
+                    <DataGridTextColumn Header="ZEREGINA" Binding="{Binding Id}" Width="90" FontWeight="SemiBold" />
+                    <DataGridTextColumn Header="SOROA" Binding="{Binding FieldText}" Width="80" />
+                    <DataGridTextColumn Header="MOTA" Binding="{Binding TypeText}" Width="105" />
+                    <DataGridTextColumn Header="LABOREA" Binding="{Binding CropText}" Width="85" />
+                    <DataGridTemplateColumn Header="EGOERA" Width="145">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Border CornerRadius="9" Padding="8,2" Background="{Binding StatusBrush}" HorizontalAlignment="Left">
@@ -30,8 +30,8 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn Header="MÁQUINA" Binding="{Binding MachineText}" Width="110" />
-                    <DataGridTemplateColumn Header="PROGRESO" Width="120">
+                    <DataGridTextColumn Header="MAKINA" Binding="{Binding MachineText}" Width="110" />
+                    <DataGridTemplateColumn Header="AURRERAPENA" Width="120">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Grid>
@@ -41,14 +41,14 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn Header="ESPERA / MOTIVO" Binding="{Binding BlockReason}" Width="*" />
-                    <DataGridTextColumn Header="CREADA" Binding="{Binding CreatedText}" Width="70" />
-                    <DataGridTextColumn Header="FIN" Binding="{Binding CompletedText}" Width="70" />
-                    <DataGridTextColumn Header="INTERR." Binding="{Binding Interruptions}" Width="60" />
-                    <DataGridTemplateColumn x:Name="CancelColumn" Header="" Width="90">
+                    <DataGridTextColumn Header="ITXARONALDIA / ARRAZOIA" Binding="{Binding BlockReason}" Width="*" />
+                    <DataGridTextColumn Header="SORTUA" Binding="{Binding CreatedText}" Width="70" />
+                    <DataGridTextColumn Header="AMAIERA" Binding="{Binding CompletedText}" Width="70" />
+                    <DataGridTextColumn Header="ETEN." Binding="{Binding Interruptions}" Width="60" />
+                    <DataGridTemplateColumn x:Name="CancelColumn" Header="" Width="130">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Button Content="Cancelar" Style="{StaticResource SmallButton}" Click="Cancel_Click"
+                                <Button Content="Bertan behera" Style="{StaticResource SmallButton}" Click="Cancel_Click"
                                         IsEnabled="{Binding CanCancel}" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>

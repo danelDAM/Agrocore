@@ -3,11 +3,11 @@ using System.Threading;
 namespace AgroCore.MachineClient.Machine
 {
     /// <summary>
-    /// Órdenes recibidas del servidor (STOP, RESUME, RETURN_TO_BASE, EMERGENCY_STOP, TASK_CANCELLED).
+    /// Zerbitzaritik jasotako aginduak (STOP, RESUME, RETURN_TO_BASE, EMERGENCY_STOP, TASK_CANCELLED).
     ///
-    /// Las escribe el hilo lector de red y las lee el hilo principal que mueve la máquina.
-    /// Cuando la máquina está detenida, el hilo principal espera con Monitor.Wait (sin gastar CPU)
-    /// y la orden RESUME lo despierta con Monitor.PulseAll.
+    /// Sareko irakurle-hariak idazten ditu eta makina mugitzen duen hari nagusiak irakurtzen ditu.
+    /// Makina geldituta dagoenean, hari nagusia Monitor.Wait-ekin itxaroten du (CPUrik gastatu gabe)
+    /// eta RESUME aginduak Monitor.PulseAll-ekin esnatzen du.
     /// </summary>
     public class MachineControl
     {
@@ -48,7 +48,7 @@ namespace AgroCore.MachineClient.Machine
             }
         }
 
-        /// <summary>RESUME o START: deja de estar detenida y, si estaba aparcada, vuelve al trabajo.</summary>
+        /// <summary>RESUME edo START: geldituta egoteari uzten dio eta, aparkatuta bazegoen, lanera itzultzen da.</summary>
         public void Resume()
         {
             lock (controlLock)
@@ -69,7 +69,7 @@ namespace AgroCore.MachineClient.Machine
             }
         }
 
-        /// <summary>Devuelve true si había una orden de volver (y la borra).</summary>
+        /// <summary>true itzultzen du itzultzeko agindurik bazegoen (eta ezabatu egiten du).</summary>
         public bool TakeReturnRequest()
         {
             lock (controlLock)
@@ -104,7 +104,7 @@ namespace AgroCore.MachineClient.Machine
             }
         }
 
-        /// <summary>Si está detenida, el hilo se queda aquí dormido hasta RESUME.</summary>
+        /// <summary>Geldituta badago, haria hemen geratzen da lo RESUME iritsi arte.</summary>
         public void WaitWhileHalted()
         {
             lock (controlLock)
@@ -116,7 +116,7 @@ namespace AgroCore.MachineClient.Machine
             }
         }
 
-        /// <summary>Aparcada tras RETURN_TO_BASE: espera aquí hasta START/RESUME.</summary>
+        /// <summary>RETURN_TO_BASE ondoren aparkatuta: hemen itxaroten du START/RESUME iritsi arte.</summary>
         public void WaitWhileParked()
         {
             lock (controlLock)

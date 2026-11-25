@@ -5,7 +5,10 @@ obj/
 *.suo
 .idea/
 TestResults/
-# Datos y logs generados en ejecución
-**/data/
-**/logs/
-**/reports/
+# Exekuzioan sortutako datuak eta logak
+/data/
+**/bin/**/data/
+/logs/
+**/bin/**/logs/
+/reports/
+**/bin/**/reports/

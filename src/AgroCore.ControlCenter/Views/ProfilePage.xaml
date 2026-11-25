@@ -4,7 +4,7 @@
     <StackPanel Margin="20,16" Orientation="Horizontal" VerticalAlignment="Top">
         <Border Style="{StaticResource Card}" Padding="22" Width="380" VerticalAlignment="Top">
             <StackPanel>
-                <TextBlock Text="MI CUENTA" Style="{StaticResource SectionText}" />
+                <TextBlock Text="NIRE KONTUA" Style="{StaticResource SectionText}" />
                 <TextBlock x:Name="NameText" FontSize="20" FontWeight="SemiBold" />
                 <TextBlock x:Name="UserText" Style="{StaticResource MutedText}" Margin="0,4,0,0" />
                 <TextBlock x:Name="RoleText" Style="{StaticResource MutedText}" Margin="0,2,0,0" />
@@ -16,15 +16,15 @@
 
         <Border Style="{StaticResource Card}" Padding="22" Width="380" Margin="14,0,0,0" VerticalAlignment="Top">
             <StackPanel>
-                <TextBlock Text="CAMBIAR CONTRASEÑA" Style="{StaticResource SectionText}" />
-                <Label Content="Contraseña actual" />
+                <TextBlock Text="PASAHITZA ALDATU" Style="{StaticResource SectionText}" />
+                <Label Content="Uneko pasahitza" />
                 <PasswordBox x:Name="CurrentBox" Margin="0,0,0,12" />
-                <Label Content="Nueva contraseña" />
+                <Label Content="Pasahitz berria" />
                 <PasswordBox x:Name="NewBox" Margin="0,0,0,12" />
-                <Label Content="Repetir nueva contraseña" />
+                <Label Content="Errepikatu pasahitz berria" />
                 <PasswordBox x:Name="RepeatBox" Margin="0,0,0,8" />
-                <TextBlock Text="Mínimo 6 caracteres, con letras y números." Style="{StaticResource MutedText}" Margin="0,0,0,14" />
-                <Button x:Name="ChangeButton" Content="CAMBIAR CONTRASEÑA" Margin="0" Height="36" Click="Change_Click" />
+                <TextBlock Text="Gutxienez 6 karaktere, letrak eta zenbakiak dituela." Style="{StaticResource MutedText}" Margin="0,0,0,14" />
+                <Button x:Name="ChangeButton" Content="PASAHITZA ALDATU" Margin="0" Height="36" Click="Change_Click" />
                 <TextBlock x:Name="ResultText" TextWrapping="Wrap" Margin="0,12,0,0" />
             </StackPanel>
         </Border>

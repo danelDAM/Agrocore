@@ -2,7 +2,7 @@ using AgroCore.Shared.Enums;
 
 namespace AgroCore.Shared.Models
 {
-    /// <summary>Datos de telemetría de una máquina (el servidor los reenvía por UDP al centro de control).</summary>
+    /// <summary>Makina baten telemetria-datuak (zerbitzariak UDP bidez birbidaltzen dizkio Kontrol Zentroari).</summary>
     public class Telemetry
     {
         public string MachineId { get; set; } = "";

@@ -9,8 +9,8 @@ using AgroCore.Shared.Networking;
 namespace AgroCore.MachineClient.Machine
 {
     /// <summary>
-    /// Lee las capacidades de cada máquina de machine-profiles.json.
-    /// Si una máquina no aparece en el archivo, usa valores por defecto según su tipo.
+    /// Makina bakoitzaren gaitasunak machine-profiles.json fitxategitik irakurtzen ditu.
+    /// Makina bat fitxategian agertzen ez bada, bere motaren araberako balio lehenetsiak erabiltzen ditu.
     /// </summary>
     public static class ProfileLoader
     {
@@ -32,7 +32,7 @@ namespace AgroCore.MachineClient.Machine
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("No se pudo leer machine-profiles.json: " + ex.Message);
+                    Console.WriteLine("Ezin izan da machine-profiles.json irakurri: " + ex.Message);
                 }
             }
             return DefaultFor(type);

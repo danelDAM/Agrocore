@@ -4,21 +4,21 @@ using AgroCore.Shared.Enums;
 namespace AgroCore.Shared.Models
 {
     /// <summary>
-    /// Usuario del sistema. Solo se guarda en el servidor.
-    /// Al cliente se le envía un UserDto, que NO lleva el hash de la contraseña.
+    /// Sistemaren erabiltzailea. Zerbitzarian soilik gordetzen da.
+    /// Bezeroari UserDto bat bidaltzen zaio, eta horrek EZ darama pasahitzaren hash-a.
     /// </summary>
     public class User
     {
         public int Id { get; set; }
         public string Username { get; set; } = "";
 
-        /// <summary>Hash PBKDF2 con sal. La contraseña nunca se guarda en texto plano.</summary>
+        /// <summary>PBKDF2 hash-a gatzarekin. Pasahitza ez da inoiz testu arruntean gordetzen.</summary>
         public string PasswordHash { get; set; } = "";
 
         public string FullName { get; set; } = "";
         public UserRole Role { get; set; }
 
-        /// <summary>Explotación del usuario (0 para el administrador).</summary>
+        /// <summary>Erabiltzailearen ustiategia (0 administratzailearentzat).</summary>
         public int FarmId { get; set; }
 
         public bool IsActive { get; set; } = true;

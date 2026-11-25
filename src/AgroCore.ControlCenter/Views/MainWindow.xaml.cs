@@ -17,11 +17,11 @@ using AgroCore.Shared.Security;
 namespace AgroCore.ControlCenter.Views
 {
     /// <summary>
-    /// Ventana principal del Centro de Control.
+    /// Kontrol Zentroaren leiho nagusia.
     ///
-    /// Recibe los mensajes del servidor en el hilo lector (TCP) y en el hilo UDP, y los pasa al
-    /// hilo de la interfaz con Dispatcher.BeginInvoke. Allí un switch decide qué hacer con cada tipo.
-    /// Las páginas (panel, máquinas, campos...) leen los datos de las colecciones de esta ventana.
+    /// Zerbitzariaren mezuak hari irakurlean (TCP) eta UDP harian jasotzen ditu, eta interfazearen
+    /// harira pasatzen ditu Dispatcher.BeginInvoke bidez. Han switch batek erabakitzen du mota bakoitzarekin zer egin.
+    /// Orriek (panela, makinak, soroak...) leiho honen bildumetatik irakurtzen dituzte datuak.
     /// </summary>
     public partial class MainWindow : Window
     {
@@ -33,13 +33,13 @@ namespace AgroCore.ControlCenter.Views
         public LoginResponse User { get; private set; }
         public FarmStateMessage LastState { get; private set; }
 
-        // Datos que muestran las páginas (se actualizan sin recrearse)
+        // Orriek erakusten dituzten datuak (berriro sortu gabe eguneratzen dira)
         public ObservableCollection<MachineRow> MachineRows { get; private set; }
         public ObservableCollection<FieldRow> FieldRows { get; private set; }
         public ObservableCollection<TaskRow> TaskRows { get; private set; }
         public ObservableCollection<AlertRow> AlertRows { get; private set; }
 
-        // Páginas (se crean una vez y se reutilizan; así la vista 3D no se reconstruye)
+        // Orriak (behin sortzen dira eta berrerabiltzen dira; horrela 3D ikuspegia ez da berreraikitzen)
         private DashboardPage dashboardPage;
         private MachinesPage machinesPage;
         private FieldsPage fieldsPage;
@@ -50,10 +50,10 @@ namespace AgroCore.ControlCenter.Views
         private ProfilePage profilePage;
         private AdminPage adminPage;
 
-        /// <summary>Se lanza cada vez que llega un FARM_STATE nuevo (ya en el hilo de la interfaz).</summary>
+        /// <summary>FARM_STATE berri bat iristen den bakoitzean jaurtitzen da (dagoeneko interfazearen harian).</summary>
         public event Action<FarmStateMessage> StateUpdated;
 
-        /// <summary>Se lanza con cada mensaje que no gestiona la propia ventana (para las páginas).</summary>
+        /// <summary>Leihoak berak kudeatzen ez duen mezu bakoitzarekin jaurtitzen da (orrientzat).</summary>
         public event Action<string, string> MessageArrived;
 
         public MainWindow(ServerConnection connection, LoginResponse user)
@@ -67,21 +67,21 @@ namespace AgroCore.ControlCenter.Views
             TaskRows = new ObservableCollection<TaskRow>();
             AlertRows = new ObservableCollection<AlertRow>();
 
-            // Datos del usuario
+            // Erabiltzailearen datuak
             UserNameText.Text = user.FullName;
             UserRoleText.Text = Texts.Role(user.Role);
-            UserFarmText.Text = user.Role == UserRole.Admin ? "Todas las explotaciones" : user.FarmName;
-            FarmTitle.Text = user.Role == UserRole.Admin ? "Administrador del sistema" : user.FarmName;
+            UserFarmText.Text = user.Role == UserRole.Admin ? "Ustiategi guztiak" : user.FarmName;
+            FarmTitle.Text = user.Role == UserRole.Admin ? "Sistemaren administratzailea" : user.FarmName;
 
             CreatePages();
 
-            // Reloj de la cabecera
+            // Goiburuko erlojua
             clock.Interval = TimeSpan.FromSeconds(1);
             clock.Tick += (s, e) => ClockText.Text = DateTime.Now.ToString("HH:mm:ss");
             clock.Start();
             ClockText.Text = DateTime.Now.ToString("HH:mm:ss");
 
-            // Red: primero los eventos, después arrancar los hilos
+            // Sarea: lehenik gertaerak, gero hariak abiarazi
             connection.MessageReceived += OnMessageReceived;
             connection.ConnectionLost += OnConnectionLost;
             telemetry.BatchReceived += OnTelemetryReceived;
@@ -95,14 +95,14 @@ namespace AgroCore.ControlCenter.Views
             if (user.Role == UserRole.Admin)
             {
                 FarmSelectorPanel.Visibility = Visibility.Visible;
-                connection.Send(new ListUsersRequest()); // la respuesta trae la lista de explotaciones
+                connection.Send(new ListUsersRequest()); // erantzunak ustiategien zerrenda dakar
             }
 
             Closing += MainWindow_Closing;
         }
 
         // ==================================================================
-        // PERMISOS (los comprueba también el servidor; aquí solo se ocultan botones)
+        // BAIMENAK (zerbitzariak ere egiaztatzen ditu; hemen botoiak ezkutatu bakarrik egiten dira)
         // ==================================================================
 
         public bool Can(Permission permission)
@@ -111,7 +111,7 @@ namespace AgroCore.ControlCenter.Views
         }
 
         // ==================================================================
-        // NAVEGACIÓN
+        // NABIGAZIOA
         // ==================================================================
 
         private void CreatePages()
@@ -126,7 +126,7 @@ namespace AgroCore.ControlCenter.Views
             profilePage = new ProfilePage(this);
             adminPage = new AdminPage(this);
 
-            // Opciones del menú según el rol
+            // Menuko aukerak rolaren arabera
             NavStatistics.Visibility = Can(Permission.ViewStatistics) ? Visibility.Visible : Visibility.Collapsed;
             NavReports.Visibility = Can(Permission.GenerateReports) ? Visibility.Visible : Visibility.Collapsed;
             NavLogs.Visibility = Can(Permission.ViewLogs) ? Visibility.Visible : Visibility.Collapsed;
@@ -142,7 +142,7 @@ namespace AgroCore.ControlCenter.Views
         {
             if (PageHost == null)
             {
-                return; // todavía cargando la ventana
+                return; // leihoa oraindik kargatzen
             }
             RadioButton button = (RadioButton)sender;
             PageTitle.Text = button.Content.ToString();
@@ -158,21 +158,21 @@ namespace AgroCore.ControlCenter.Views
             else if (button == NavAdmin) PageHost.Content = adminPage;
         }
 
-        /// <summary>Abre la página de máquinas con una máquina seleccionada (desde el panel).</summary>
+        /// <summary>Makinen orria irekitzen du makina bat hautatuta duela (paneletik).</summary>
         public void ShowMachines()
         {
             NavMachines.IsChecked = true;
         }
 
         // ==================================================================
-        // ENVÍO DE ÓRDENES
+        // AGINDUAK BIDALTZEA
         // ==================================================================
 
         public void Send(NetMessage message)
         {
             if (!connection.Send(message))
             {
-                ShowStatus("No se pudo enviar la orden: sin conexión con el servidor", false);
+                ShowStatus("Ezin izan da agindua bidali: ez dago konexiorik zerbitzariarekin", false);
             }
         }
 
@@ -186,20 +186,20 @@ namespace AgroCore.ControlCenter.Views
             string question = null;
             if (type == MessageTypes.EmergencyStop)
             {
-                question = "¿Activar la PARADA DE EMERGENCIA? Todas las máquinas se detendrán inmediatamente.";
+                question = "LARRIALDIKO GELDIALDIA aktibatu? Makina guztiak berehala geldituko dira.";
             }
             else if (type == MessageTypes.StopAll)
             {
-                question = "¿Detener todas las máquinas de la explotación?";
+                question = "Ustiategiko makina guztiak gelditu?";
             }
             else if (type == MessageTypes.ReturnAllToBase)
             {
-                question = "¿Enviar todas las máquinas a la base?";
+                question = "Makina guztiak basera bidali?";
             }
 
             if (question != null)
             {
-                MessageBoxResult answer = MessageBox.Show(this, question, "Confirmar orden", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                MessageBoxResult answer = MessageBox.Show(this, question, "Agindua berretsi", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                 if (answer != MessageBoxResult.Yes)
                 {
                     return;
@@ -218,16 +218,16 @@ namespace AgroCore.ControlCenter.Views
         }
 
         // ==================================================================
-        // MENSAJES DEL SERVIDOR
+        // ZERBITZARIAREN MEZUAK
         // ==================================================================
 
-        /// <summary>Hilo lector TCP: solo pasa el mensaje al hilo de la interfaz.</summary>
+        /// <summary>TCP hari irakurlea: mezua interfazearen harira pasatu bakarrik egiten du.</summary>
         private void OnMessageReceived(string type, string json)
         {
             Dispatcher.BeginInvoke(new Action(() => HandleMessage(type, json)));
         }
 
-        /// <summary>Hilo de la interfaz: aquí ya se pueden tocar los controles.</summary>
+        /// <summary>Interfazearen haria: hemen kontrolak uki daitezke dagoeneko.</summary>
         private void HandleMessage(string type, string json)
         {
             switch (type)
@@ -252,18 +252,18 @@ namespace AgroCore.ControlCenter.Views
 
                 case MessageTypes.ForceLogout:
                     ForceLogoutNotice notice = MessageSerializer.FromJson<ForceLogoutNotice>(json);
-                    EndSession("Sesión cerrada por el servidor: " + notice.Reason, false);
+                    EndSession("Zerbitzariak saioa itxi du: " + notice.Reason, false);
                     return;
             }
 
-            // Las páginas pueden querer el mensaje (estadísticas, informes, usuarios...)
+            // Orriek mezua nahi izan dezakete (estatistikak, txostenak, erabiltzaileak...)
             if (MessageArrived != null)
             {
                 MessageArrived(type, json);
             }
         }
 
-        /// <summary>Hilo UDP: telemetría cada 200 ms.</summary>
+        /// <summary>UDP haria: telemetria 200 ms-ro.</summary>
         private void OnTelemetryReceived(TelemetryBatch batch)
         {
             Dispatcher.BeginInvoke(new Action(() => ApplyTelemetry(batch)));
@@ -293,13 +293,13 @@ namespace AgroCore.ControlCenter.Views
             {
                 if (!loggingOut)
                 {
-                    EndSession("Se ha perdido la conexión con el servidor. Vuelva a iniciar sesión.", false);
+                    EndSession("Zerbitzariarekiko konexioa galdu da. Hasi saioa berriro.", false);
                 }
             }));
         }
 
         // ==================================================================
-        // ESTADO DE LA EXPLOTACIÓN
+        // USTIATEGIAREN EGOERA
         // ==================================================================
 
         private void ApplyState(FarmStateMessage state)
@@ -314,12 +314,12 @@ namespace AgroCore.ControlCenter.Views
                 TaskRows.Clear();
             }
 
-            FarmTitle.Text = state.FarmName + "  ·  " + state.OwnerName + "  ·  " + state.FieldCount + " campos, "
-                             + state.Machines.Count + " máquinas, " + state.ChargerCount + " cargadores";
+            FarmTitle.Text = state.FarmName + "  ·  " + state.OwnerName + "  ·  " + state.FieldCount + " soro, "
+                             + state.Machines.Count + " makina, " + state.ChargerCount + " kargagailu";
             EmergencyBanner.Visibility = state.EmergencyActive ? Visibility.Visible : Visibility.Collapsed;
-            StatsText.Text = "Tareas completadas: " + state.Summary.TasksCompleted
-                             + "   ·   Conflictos evitados: " + state.Summary.ConflictsAvoided
-                             + "   ·   Cola de carga: " + state.Summary.ChargerQueue;
+            StatsText.Text = "Osatutako zereginak: " + state.Summary.TasksCompleted
+                             + "   ·   Saihestutako gatazkak: " + state.Summary.ConflictsAvoided
+                             + "   ·   Karga-ilara: " + state.Summary.ChargerQueue;
 
             SyncMachines(state);
             SyncFields(state);
@@ -370,7 +370,7 @@ namespace AgroCore.ControlCenter.Views
                     }
                 }
 
-                // ¿Qué máquina está trabajando en este campo?
+                // Zein makina ari da lanean soro honetan?
                 string working = null;
                 foreach (Machine machine in state.Machines)
                 {
@@ -403,7 +403,7 @@ namespace AgroCore.ControlCenter.Views
             {
                 if (task.Type == TaskType.Growth)
                 {
-                    continue; // el crecimiento lo hace el servidor solo; se ve en la página de campos
+                    continue; // hazkuntza zerbitzariak berak egiten du; soroen orrian ikusten da
                 }
                 ids.Add(task.Id);
 
@@ -432,7 +432,7 @@ namespace AgroCore.ControlCenter.Views
                 if (row == null)
                 {
                     row = new TaskRow(task);
-                    TaskRows.Insert(0, row); // las más nuevas arriba
+                    TaskRows.Insert(0, row); // berrienak goian
                 }
                 row.Update(task, machineName);
             }
@@ -489,7 +489,7 @@ namespace AgroCore.ControlCenter.Views
         }
 
         // ==================================================================
-        // SELECTOR DE EXPLOTACIÓN (solo administrador)
+        // USTIATEGI-HAUTATZAILEA (administratzailea bakarrik)
         // ==================================================================
 
         private bool fillingFarms = false;
@@ -525,7 +525,7 @@ namespace AgroCore.ControlCenter.Views
             Send(request);
         }
 
-        /// <summary>Vuelve a pedir la lista de explotaciones (p. ej. tras crear un agricultor).</summary>
+        /// <summary>Ustiategien zerrenda berriro eskatzen du (adib. nekazari bat sortu ondoren).</summary>
         public void RefreshFarmList()
         {
             if (User.Role == UserRole.Admin)
@@ -535,16 +535,16 @@ namespace AgroCore.ControlCenter.Views
         }
 
         // ==================================================================
-        // CERRAR SESIÓN
+        // SAIOA ITXI
         // ==================================================================
 
         private void Logout_Click(object sender, RoutedEventArgs e)
         {
-            connection.Send(new LogoutRequest()); // avisar al servidor
-            EndSession("Sesión cerrada correctamente.", true);
+            connection.Send(new LogoutRequest()); // zerbitzariari abisatu
+            EndSession("Saioa behar bezala itxi da.", true);
         }
 
-        /// <summary>Cierra la sesión: borra la sesión local, cierra la conexión y vuelve al login.</summary>
+        /// <summary>Saioa ixten du: saio lokala ezabatzen du, konexioa ixten du eta saioa hasteko leihora itzultzen da.</summary>
         private void EndSession(string notice, bool normalLogout)
         {
             if (loggingOut)
@@ -566,7 +566,7 @@ namespace AgroCore.ControlCenter.Views
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            // Cerrar la ventana con la X = cerrar sesión y salir del programa
+            // Leihoa X-rekin ixtea = saioa itxi eta programatik irten
             loggingOut = true;
             connection.Send(new LogoutRequest());
             LocalSession.Clear();

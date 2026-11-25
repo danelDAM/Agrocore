@@ -7,12 +7,12 @@ using System.Text;
 namespace AgroCore.Shared.Networking
 {
     /// <summary>
-    /// Conexión TCP sencilla: envía y recibe líneas de texto (un mensaje JSON por línea).
-    /// La usan el servidor, las máquinas y el centro de control.
+    /// TCP konexio sinplea: testu-lerroak bidali eta jasotzen ditu (JSON mezu bat lerroko).
+    /// Zerbitzariak, makinek eta Kontrol Zentroak erabiltzen dute.
     ///
-    /// Enviar está protegido con lock porque varios hilos pueden escribir en el mismo socket
-    /// a la vez (por ejemplo, el hilo que responde peticiones y el que envía el estado cada segundo).
-    /// Si no se protegiera, dos mensajes se podrían mezclar en la misma línea.
+    /// Bidaltzea lock-ekin babestuta dago, hainbat harik socket berean idatz dezaketelako
+    /// aldi berean (adibidez, eskaerei erantzuten dien haria eta egoera segundoro bidaltzen duena).
+    /// Babestuko ez balitz, bi mezu lerro berean nahas litezke.
     /// </summary>
     public class Connection
     {
@@ -26,7 +26,7 @@ namespace AgroCore.Shared.Networking
         public Connection(TcpClient socket)
         {
             this.socket = socket;
-            this.socket.NoDelay = true; // enviar enseguida, sin agrupar paquetes pequeños
+            this.socket.NoDelay = true; // berehala bidali, pakete txikiak taldekatu gabe
             network = socket.GetStream();
             reader = new StreamReader(network, new UTF8Encoding(false));
             writer = new StreamWriter(network, new UTF8Encoding(false));
@@ -40,11 +40,11 @@ namespace AgroCore.Shared.Networking
             }
             else
             {
-                RemoteText = "desconocido";
+                RemoteText = "ezezaguna";
             }
         }
 
-        /// <summary>IP del otro extremo.</summary>
+        /// <summary>Beste muturraren IPa.</summary>
         public IPAddress RemoteAddress { get; private set; }
 
         public string RemoteText { get; private set; }
@@ -54,15 +54,15 @@ namespace AgroCore.Shared.Networking
             get { return closed; }
         }
 
-        /// <summary>Se conecta a un servidor (lo usan los clientes).</summary>
+        /// <summary>Zerbitzari batera konektatzen da (bezeroek erabiltzen dute).</summary>
         public static Connection Connect(string host, int port)
         {
             TcpClient client = new TcpClient();
-            client.Connect(host, port); // bloqueante
+            client.Connect(host, port); // blokeatzailea
             return new Connection(client);
         }
 
-        /// <summary>Envía un mensaje (se convierte a JSON y se escribe como una línea).</summary>
+        /// <summary>Mezu bat bidaltzen du (JSON bihurtzen da eta lerro gisa idazten da).</summary>
         public void Send(object message)
         {
             string json = MessageSerializer.ToJson(message);
@@ -73,7 +73,7 @@ namespace AgroCore.Shared.Networking
             }
         }
 
-        /// <summary>Igual que Send pero sin lanzar excepción si la conexión está cerrada.</summary>
+        /// <summary>Send bezala, baina salbuespenik jaurti gabe konexioa itxita badago.</summary>
         public bool TrySend(object message)
         {
             try
@@ -88,8 +88,8 @@ namespace AgroCore.Shared.Networking
         }
 
         /// <summary>
-        /// Espera (bloqueante) hasta recibir una línea.
-        /// Devuelve null cuando el otro extremo cierra la conexión.
+        /// Itxaron (blokeatuz) lerro bat jaso arte.
+        /// null itzultzen du beste muturrak konexioa ixten duenean.
         /// </summary>
         public string ReadLine()
         {
@@ -98,7 +98,7 @@ namespace AgroCore.Shared.Networking
                 string line = reader.ReadLine();
                 while (line != null && line.Length == 0)
                 {
-                    line = reader.ReadLine(); // ignorar líneas vacías
+                    line = reader.ReadLine(); // lerro hutsak ez ikusi
                 }
                 return line;
             }
@@ -125,7 +125,7 @@ namespace AgroCore.Shared.Networking
             }
             catch (Exception)
             {
-                // ya estaba cerrado
+                // itxita zegoen jada
             }
         }
     }

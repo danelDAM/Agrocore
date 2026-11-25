@@ -12,7 +12,7 @@ using AgroCore.Shared.Models;
 
 namespace AgroCore.Server.Synchronization
 {
-    /// <summary>Todas las explotaciones en marcha en el servidor (clave = FarmId).</summary>
+    /// <summary>Zerbitzarian martxan dauden ustiategi guztiak (gakoa = FarmId).</summary>
     public class FarmManager
     {
         private readonly ConcurrentDictionary<int, FarmRuntime> farms = new ConcurrentDictionary<int, FarmRuntime>();
@@ -63,7 +63,7 @@ namespace AgroCore.Server.Synchronization
             FarmRuntime removed;
             if (farms.TryRemove(farmId, out removed))
             {
-                // Desconectar sus máquinas
+                // Bere makinak deskonektatu
                 foreach (MachineRuntime machine in removed.GetMachines())
                 {
                     machine.Disconnected = true;
@@ -90,7 +90,7 @@ namespace AgroCore.Server.Synchronization
             return list;
         }
 
-        /// <summary>Busca una máquina en TODAS las explotaciones (después se comprueba a cuál pertenece).</summary>
+        /// <summary>Makina bat bilatzen du ustiategi GUZTIETAN (gero egiaztatzen da zeinena den).</summary>
         public MachineRuntime FindMachine(string machineId)
         {
             if (string.IsNullOrEmpty(machineId))
@@ -108,7 +108,7 @@ namespace AgroCore.Server.Synchronization
             return null;
         }
 
-        /// <summary>Guarda en disco el estado de los campos y las estadísticas de las máquinas.</summary>
+        /// <summary>Soroen egoera eta makinen estatistikak diskoan gordetzen ditu.</summary>
         public void SaveAll()
         {
             List<AgroCore.Shared.DTOs.MachineStatistics> stats = new List<AgroCore.Shared.DTOs.MachineStatistics>();

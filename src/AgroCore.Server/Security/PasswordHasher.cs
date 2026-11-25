@@ -4,13 +4,13 @@ using System.Security.Cryptography;
 namespace AgroCore.Server.Security
 {
     /// <summary>
-    /// Hash seguro de contraseñas con PBKDF2 (SHA-256, 100.000 iteraciones y sal aleatoria).
+    /// Pasahitzen hash segurua PBKDF2 bidez (SHA-256, 100.000 iterazio eta ausazko gatza).
     ///
-    /// Formato guardado:  PBKDF2$100000$&lt;sal en base64&gt;$&lt;hash en base64&gt;
+    /// Gordetako formatua:  PBKDF2$100000$&lt;gatza base64-n&gt;$&lt;hasha base64-n&gt;
     ///
-    /// - La sal hace que dos usuarios con la misma contraseña tengan hashes distintos.
-    /// - Las muchas iteraciones hacen muy lento probar contraseñas por fuerza bruta.
-    /// - Nunca se guarda la contraseña en texto plano.
+    /// - Gatzari esker, pasahitz bera duten bi erabiltzailek hash desberdinak dituzte.
+    /// - Iterazio askorekin, oso motela da pasahitzak indar gordinez probatzea.
+    /// - Pasahitza ez da inoiz testu arruntean gordetzen.
     /// </summary>
     public static class PasswordHasher
     {
@@ -45,7 +45,7 @@ namespace AgroCore.Server.Security
                 byte[] expected = Convert.FromBase64String(parts[3]);
                 byte[] actual = Rfc2898DeriveBytes.Pbkdf2(password, salt, iterations, HashAlgorithmName.SHA256, expected.Length);
 
-                // Comparación en tiempo constante: no da pistas por lo que tarda en fallar.
+                // Denbora konstanteko konparazioa: ez du pistarik ematen huts egiten behar duen denboragatik.
                 return CryptographicOperations.FixedTimeEquals(actual, expected);
             }
             catch (FormatException)
@@ -54,7 +54,7 @@ namespace AgroCore.Server.Security
             }
         }
 
-        /// <summary>Genera una clave aleatoria legible (para las claves de flota de las máquinas).</summary>
+        /// <summary>Ausazko gako irakurgarri bat sortzen du (makinen flota-gakoetarako).</summary>
         public static string GenerateKey()
         {
             byte[] bytes = RandomNumberGenerator.GetBytes(9);
@@ -62,7 +62,7 @@ namespace AgroCore.Server.Security
             return "AGRO-" + text;
         }
 
-        /// <summary>Genera un token de sesión aleatorio.</summary>
+        /// <summary>Ausazko saio-token bat sortzen du.</summary>
         public static string GenerateToken()
         {
             return Convert.ToHexString(RandomNumberGenerator.GetBytes(16));

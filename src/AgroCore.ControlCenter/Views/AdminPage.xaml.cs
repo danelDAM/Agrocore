@@ -12,23 +12,23 @@ using AgroCore.Shared.Networking;
 
 namespace AgroCore.ControlCenter.Views
 {
-    /// <summary>Fila de la tabla de usuarios.</summary>
+    /// <summary>Erabiltzaileen taulako errenkada.</summary>
     public class UserRow
     {
         public UserDto User { get; set; }
         public string Username { get { return User.Username; } }
         public string FullName { get { return User.FullName; } }
         public string RoleText { get { return Texts.Role(User.Role); } }
-        public string FarmText { get { return User.Role == UserRole.Admin ? "(todas)" : User.FarmName; } }
-        public string ActiveText { get { return User.IsActive ? "Activo" : "Inactivo"; } }
-        public string ToggleText { get { return User.IsActive ? "Desactivar" : "Activar"; } }
+        public string FarmText { get { return User.Role == UserRole.Admin ? "(guztiak)" : User.FarmName; } }
+        public string ActiveText { get { return User.IsActive ? "Aktiboa" : "Ez-aktiboa"; } }
+        public string ToggleText { get { return User.IsActive ? "Desaktibatu" : "Aktibatu"; } }
         public string LastLoginText { get { return User.LastLogin.HasValue ? User.LastLogin.Value.ToString("dd/MM HH:mm") : "—"; } }
     }
 
     /// <summary>
-    /// Administración (solo rol Administrador; el servidor lo vuelve a comprobar):
-    /// alta de agricultores (crea User + Farm), operadores y observadores, edición, activar/desactivar,
-    /// eliminar, cambiar contraseña, regenerar la clave de flota y configuración del sistema.
+    /// Administrazioa (Administratzaile rola bakarrik; zerbitzariak berriro egiaztatzen du):
+    /// nekazarien alta (User + Farm sortzen ditu), operadoreak eta behatzaileak, edizioa, aktibatu/desaktibatu,
+    /// ezabatu, pasahitza aldatu, flota-gakoa berriro sortu eta sistemaren konfigurazioa.
     /// </summary>
     public partial class AdminPage : UserControl
     {
@@ -61,7 +61,7 @@ namespace AgroCore.ControlCenter.Views
         }
 
         // ==================================================================
-        // RESPUESTAS DEL SERVIDOR
+        // ZERBITZARIAREN ERANTZUNAK
         // ==================================================================
 
         private void OnMessage(string type, string json)
@@ -78,17 +78,17 @@ namespace AgroCore.ControlCenter.Views
                     if (farmer.Success)
                     {
                         MessageBox.Show(Owner,
-                            farmer.Message + "\n\nClave de flota: " + farmer.FleetKey + "\n\n" +
-                            "Guárdela: las máquinas la necesitan para conectarse y no se volverá a mostrar.\n\n" +
-                            "Para arrancar la flota:\nAgroCore.MachineClient --fleet --farm " + farmer.FarmId + " --key " + farmer.FleetKey,
-                            "Clave de flota", MessageBoxButton.OK, MessageBoxImage.Information);
+                            farmer.Message + "\n\nFlota-gakoa: " + farmer.FleetKey + "\n\n" +
+                            "Gorde ezazu: makinek behar dute konektatzeko eta ez da berriro erakutsiko.\n\n" +
+                            "Flota abiarazteko:\nAgroCore.MachineClient --fleet --farm " + farmer.FarmId + " --key " + farmer.FleetKey,
+                            "Flota-gakoa", MessageBoxButton.OK, MessageBoxImage.Information);
                         ClearFarmerForm();
                         main.Send(new ListUsersRequest());
                         main.RefreshFarmList();
                     }
                     else
                     {
-                        MessageBox.Show(Owner, farmer.Message, "No se pudo completar", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        MessageBox.Show(Owner, farmer.Message, "Ezin izan da osatu", MessageBoxButton.OK, MessageBoxImage.Warning);
                     }
                     break;
 
@@ -115,7 +115,7 @@ namespace AgroCore.ControlCenter.Views
             {
                 if (!result.Success)
                 {
-                    MessageBox.Show(Owner, result.Message, "No se pudo completar", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show(Owner, result.Message, "Ezin izan da osatu", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
                 else if (type == MessageTypes.CreateUser)
                 {
@@ -147,7 +147,7 @@ namespace AgroCore.ControlCenter.Views
             UsersGrid.ItemsSource = rows;
             FarmsGrid.ItemsSource = response.Farms;
 
-            // Explotaciones para el alta de operadores/observadores
+            // Ustiategiak operadoreen/behatzaileen altarako
             UserFarmBox.Items.Clear();
             foreach (FarmDto farm in response.Farms)
             {
@@ -163,7 +163,7 @@ namespace AgroCore.ControlCenter.Views
         }
 
         // ==================================================================
-        // ACCIONES SOBRE USUARIOS
+        // ERABILTZAILEEN GAINEKO EKINTZAK
         // ==================================================================
 
         private UserDto UserOf(object sender)
@@ -174,7 +174,7 @@ namespace AgroCore.ControlCenter.Views
         private void Edit_Click(object sender, RoutedEventArgs e)
         {
             UserDto user = UserOf(sender);
-            string name = InputDialog.Ask(Owner, "Editar usuario", "Nombre completo de " + user.Username + ":", user.FullName, false);
+            string name = InputDialog.Ask(Owner, "Erabiltzailea editatu", user.Username + " erabiltzailearen izen osoa:", user.FullName, false);
             if (name == null)
             {
                 return;
@@ -186,7 +186,7 @@ namespace AgroCore.ControlCenter.Views
 
             if (user.Role == UserRole.Farmer)
             {
-                string farm = InputDialog.Ask(Owner, "Editar explotación", "Nombre de la explotación:", user.FarmName, false);
+                string farm = InputDialog.Ask(Owner, "Ustiategia editatu", "Ustiategiaren izena:", user.FarmName, false);
                 if (farm == null)
                 {
                     return;
@@ -199,7 +199,7 @@ namespace AgroCore.ControlCenter.Views
         private void Password_Click(object sender, RoutedEventArgs e)
         {
             UserDto user = UserOf(sender);
-            string password = InputDialog.Ask(Owner, "Nueva contraseña", "Nueva contraseña para " + user.Username + " (mínimo 6, letras y números):", "", true);
+            string password = InputDialog.Ask(Owner, "Pasahitz berria", user.Username + " erabiltzailearen pasahitz berria (gutxienez 6, letrak eta zenbakiak):", "", true);
             if (string.IsNullOrEmpty(password))
             {
                 return;
@@ -222,13 +222,13 @@ namespace AgroCore.ControlCenter.Views
         private void Delete_Click(object sender, RoutedEventArgs e)
         {
             UserDto user = UserOf(sender);
-            string warning = "¿Eliminar el usuario " + user.Username + "?";
+            string warning = user.Username + " erabiltzailea ezabatu?";
             if (user.Role == UserRole.Farmer)
             {
-                warning = warning + "\n\nAl ser agricultor se eliminará también su explotación \"" + user.FarmName
-                          + "\" con todos sus campos, máquinas y usuarios asociados.";
+                warning = warning + "\n\nNekazaria denez, bere \"" + user.FarmName
+                          + "\" ustiategia ere ezabatuko da, lotutako soro, makina eta erabiltzaile guztiekin.";
             }
-            if (MessageBox.Show(Owner, warning + "\n\nEsta acción no se puede deshacer.", "Eliminar usuario",
+            if (MessageBox.Show(Owner, warning + "\n\nEkintza hau ezin da desegin.", "Erabiltzailea ezabatu",
                                 MessageBoxButton.YesNo, MessageBoxImage.Warning) != MessageBoxResult.Yes)
             {
                 return;
@@ -241,9 +241,9 @@ namespace AgroCore.ControlCenter.Views
         private void RegenerateKey_Click(object sender, RoutedEventArgs e)
         {
             FarmDto farm = (FarmDto)((Button)sender).DataContext;
-            if (MessageBox.Show(Owner, "¿Generar una nueva clave de flota para " + farm.Name + "?\n" +
-                                "Las máquinas que usen la clave antigua ya no podrán conectarse.",
-                                "Clave de flota", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
+            if (MessageBox.Show(Owner, farm.Name + " ustiategirako flota-gako berria sortu?\n" +
+                                "Gako zaharra erabiltzen duten makinak ezin izango dira konektatu.",
+                                "Flota-gakoa", MessageBoxButton.YesNo, MessageBoxImage.Question) != MessageBoxResult.Yes)
             {
                 return;
             }
@@ -253,7 +253,7 @@ namespace AgroCore.ControlCenter.Views
         }
 
         // ==================================================================
-        // ALTAS
+        // ALTAK
         // ==================================================================
 
         private void CreateFarmer_Click(object sender, RoutedEventArgs e)
@@ -269,7 +269,7 @@ namespace AgroCore.ControlCenter.Views
                 !int.TryParse(SeedersBox.Text, out seeders) || !int.TryParse(IrrigatorsBox.Text, out irrigators) ||
                 !int.TryParse(SprayersBox.Text, out sprayers) || !int.TryParse(HarvestersBox.Text, out harvesters))
             {
-                MessageBox.Show(Owner, "Los números de campos, cargadores y máquinas deben ser enteros.", "Datos incorrectos");
+                MessageBox.Show(Owner, "Soro, kargagailu eta makinen kopuruak zenbaki osoak izan behar dute.", "Datu okerrak");
                 return;
             }
             request.FieldCount = fields;
@@ -305,7 +305,7 @@ namespace AgroCore.ControlCenter.Views
         }
 
         // ==================================================================
-        // CONFIGURACIÓN
+        // KONFIGURAZIOA
         // ==================================================================
 
         private void ShowConfig(SystemConfig newConfig)
@@ -340,7 +340,7 @@ namespace AgroCore.ControlCenter.Views
                       && int.TryParse(AttemptsBox.Text, out attempts) && int.TryParse(LockoutBox.Text, out lockout);
             if (!ok || carrot <= 0 || corn <= 0 || tomato <= 0 || chargeRate <= 0 || lowBattery < 5 || lowBattery > 60 || attempts < 1)
             {
-                ConfigResult.Text = "Revise los valores (números positivos; batería baja entre 5 y 60).";
+                ConfigResult.Text = "Berrikusi balioak (zenbaki positiboak; bateria baxua 5 eta 60 artean).";
                 return;
             }
 

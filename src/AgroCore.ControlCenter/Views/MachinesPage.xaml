@@ -4,7 +4,7 @@
     <Grid Margin="20,16">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="300" />
+            <ColumnDefinition Width="250" />
         </Grid.ColumnDefinitions>
 
         <Border Style="{StaticResource Card}" Padding="0">
@@ -17,10 +17,10 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn Header="MÁQUINA" Binding="{Binding Name}" Width="120" FontWeight="SemiBold" />
-                    <DataGridTextColumn Header="TIPO" Binding="{Binding TypeText}" Width="110" />
-                    <DataGridTextColumn Header="ESTADO" Binding="{Binding StatusText}" Width="130" />
-                    <DataGridTemplateColumn Header="BATERÍA" Width="120">
+                    <DataGridTextColumn Header="MAKINA" Binding="{Binding Name}" Width="110" FontWeight="SemiBold" />
+                    <DataGridTextColumn Header="MOTA" Binding="{Binding TypeText}" Width="145" />
+                    <DataGridTextColumn Header="EGOERA" Binding="{Binding StatusText}" Width="160" />
+                    <DataGridTemplateColumn Header="BATERIA" Width="100">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Grid>
@@ -30,32 +30,32 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn Header="TAREA" Binding="{Binding TaskText}" Width="150" />
-                    <DataGridTextColumn Header="PROGRESO" Binding="{Binding ProgressText}" Width="80" />
-                    <DataGridTextColumn Header="VELOCIDAD" Binding="{Binding SpeedText}" Width="85" />
-                    <DataGridTextColumn Header="TEMP." Binding="{Binding TemperatureText}" Width="65" />
-                    <DataGridTextColumn Header="DETALLE" Binding="{Binding Note}" Width="*" MinWidth="200" />
-                    <DataGridTemplateColumn x:Name="ActionsColumn" Header="ÓRDENES" Width="250">
+                    <DataGridTextColumn Header="ZEREGINA" Binding="{Binding TaskText}" Width="125" />
+                    <DataGridTextColumn Header="AURRER." Binding="{Binding ProgressText}" Width="70" />
+                    <DataGridTextColumn Header="ABIADURA" Binding="{Binding SpeedText}" Width="80" />
+                    <DataGridTextColumn Header="TENP." Binding="{Binding TemperatureText}" Width="60" />
+                    <DataGridTemplateColumn x:Name="ActionsColumn" Header="AGINDUAK" Width="290">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <Button Content="START" Tag="START" Style="{StaticResource SmallButton}" Click="Command_Click" />
-                                    <Button Content="STOP" Tag="STOP" Style="{StaticResource SmallButton}" Click="Command_Click" />
-                                    <Button Content="RESUME" Tag="RESUME" Style="{StaticResource SmallButton}" Click="Command_Click" />
-                                    <Button Content="BASE" Tag="RETURN_TO_BASE" Style="{StaticResource SmallButton}" Click="Command_Click" />
+                                    <Button Content="HASI" Tag="START" Style="{StaticResource SmallButton}" Click="Command_Click" />
+                                    <Button Content="GELDITU" Tag="STOP" Style="{StaticResource SmallButton}" Click="Command_Click" />
+                                    <Button Content="BERREKIN" Tag="RESUME" Style="{StaticResource SmallButton}" Click="Command_Click" />
+                                    <Button Content="BASERA" Tag="RETURN_TO_BASE" Style="{StaticResource SmallButton}" Click="Command_Click" />
                                 </StackPanel>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="XEHETASUNA" Binding="{Binding Note}" Width="320" />
                 </DataGrid.Columns>
             </DataGrid>
         </Border>
 
-        <!-- Ficha de la máquina -->
+        <!-- Makinaren fitxa -->
         <Border Grid.Column="1" Style="{StaticResource Card}" Margin="14,0,0,0" VerticalAlignment="Top">
             <StackPanel>
-                <TextBlock Text="FICHA TÉCNICA" Style="{StaticResource SectionText}" />
-                <TextBlock x:Name="NoSelection" Text="Seleccione una máquina de la lista" Style="{StaticResource MutedText}" />
+                <TextBlock Text="FITXA TEKNIKOA" Style="{StaticResource SectionText}" />
+                <TextBlock x:Name="NoSelection" Text="Hautatu makina bat zerrendatik" Style="{StaticResource MutedText}" />
                 <StackPanel x:Name="Details" Visibility="Collapsed">
                     <TextBlock x:Name="DetName" FontSize="17" FontWeight="SemiBold" />
                     <TextBlock x:Name="DetModel" Style="{StaticResource MutedText}" Margin="0,2,0,12" />

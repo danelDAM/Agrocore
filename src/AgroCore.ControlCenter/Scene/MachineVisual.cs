@@ -8,16 +8,16 @@ using AgroCore.Shared.Enums;
 namespace AgroCore.ControlCenter.Scene
 {
     /// <summary>
-    /// Una máquina en la escena 3D: su modelo low-poly, su posición y sus animaciones.
+    /// Makina bat 3D eszenan: bere low-poly eredua, bere posizioa eta bere animazioak.
     ///
-    /// Los modelos se construyen mirando hacia +Z (rumbo 0) y con las ruedas en y = 0.
-    /// La posición que llega por telemetría (cada 200 ms) es el "objetivo"; en cada fotograma
-    /// la posición dibujada se acerca suavemente a ese objetivo (interpolación), así el
-    /// movimiento se ve continuo y sin saltos.
+    /// Ereduak +Z aldera begira eraikitzen dira (0 norabidea) eta gurpilak y = 0 puntuan dituztela.
+    /// Telemetriaz iristen den posizioa (200 ms-ro) "helburua" da; fotograma bakoitzean
+    /// marraztutako posizioa poliki hurbiltzen zaio helburu horri (interpolazioa), horrela
+    /// mugimendua jarraitua eta jauzirik gabea ikusten da.
     /// </summary>
     public class MachineVisual
     {
-        // Colores
+        // Koloreak
         private static readonly Color Black = Materials.Rgb(38, 38, 40);
         private static readonly Color Glass = Materials.Rgb(150, 205, 232);
         private static readonly Color Metal = Materials.Rgb(150, 152, 156);
@@ -26,13 +26,13 @@ namespace AgroCore.ControlCenter.Scene
         public string MachineId { get; private set; }
         public MachineType Type { get; private set; }
 
-        /// <summary>Objeto que se añade al Viewport3D.</summary>
+        /// <summary>Viewport3D-ri gehitzen zaion objektua.</summary>
         public ModelVisual3D Visual { get; private set; }
 
-        /// <summary>Sombra en el suelo (solo drones, para ver dónde están cuando vuelan).</summary>
+        /// <summary>Itzala lurrean (droneak bakarrik, hegan daudenean non dauden ikusteko).</summary>
         public ModelVisual3D Shadow { get; private set; }
 
-        /// <summary>Punto sobre la máquina donde se coloca su etiqueta 2D.</summary>
+        /// <summary>Makinaren gaineko puntua, bere 2D etiketa jartzen den lekua.</summary>
         public Point3D LabelPoint
         {
             get { return new Point3D(x, y + (Type == MachineType.Sprayer ? 2.2 : 4.0), z); }
@@ -53,7 +53,7 @@ namespace AgroCore.ControlCenter.Scene
         private bool effectVisible = false;
         private bool selected = false;
 
-        // Posición dibujada y posición objetivo
+        // Marraztutako posizioa eta helburuko posizioa
         private double x, y, z, heading;
         private double targetX, targetY, targetZ, targetHeading;
         private bool hasPosition = false;
@@ -72,7 +72,7 @@ namespace AgroCore.ControlCenter.Scene
                 case MachineType.Sprayer: BuildDrone(); break;
             }
 
-            // Anillo de selección (oculto hasta que se selecciona la máquina)
+            // Hautapen-eraztuna (ezkutuan makina hautatu arte)
             MeshBuilder ring = new MeshBuilder();
             ring.AddCylinder(new Point3D(0, 0.06, 0), new Point3D(0, 0.1, 0), Type == MachineType.Sprayer ? 1.8 : 2.6, 24);
             selectionRing = ring.ToModel(Materials.Argb(110, 255, 214, 64));
@@ -97,7 +97,7 @@ namespace AgroCore.ControlCenter.Scene
         }
 
         // ==================================================================
-        // DATOS QUE LLEGAN DEL SERVIDOR
+        // ZERBITZARITIK IRISTEN DIREN DATUAK
         // ==================================================================
 
         public void SetTarget(double newX, double newY, double newZ, double newHeading)
@@ -107,7 +107,7 @@ namespace AgroCore.ControlCenter.Scene
             targetZ = newZ;
             targetHeading = newHeading;
 
-            // La primera vez (o si está muy lejos) se coloca directamente
+            // Lehen aldian (edo oso urrun badago) zuzenean kokatzen da
             double distance = Math.Sqrt((x - newX) * (x - newX) + (z - newZ) * (z - newZ));
             if (!hasPosition || distance > 25)
             {
@@ -164,14 +164,14 @@ namespace AgroCore.ControlCenter.Scene
         }
 
         // ==================================================================
-        // ANIMACIÓN (se llama en cada fotograma)
+        // ANIMAZIOA (fotograma bakoitzean deitzen da)
         // ==================================================================
 
         public void Animate(double dt)
         {
             time += dt;
 
-            // Interpolación suave hacia la posición objetivo
+            // Interpolazio leuna helburuko posiziorantz
             double k = 1 - Math.Exp(-dt * 9);
             x += (targetX - x) * k;
             y += (targetY - y) * k;
@@ -184,7 +184,7 @@ namespace AgroCore.ControlCenter.Scene
 
             ApplyTransform();
 
-            // Piezas que giran (rotores de los drones, molinete de la cosechadora)
+            // Biratzen diren piezak (droneen errotoreak, uzta-biltzailearen errota)
             bool flying = Type == MachineType.Sprayer && y > 0.3;
             for (int i = 0; i < spinners.Count; i++)
             {
@@ -194,7 +194,7 @@ namespace AgroCore.ControlCenter.Scene
                     speed = flying ? 1400 : (Online && Status != MachineStatus.Charging && Status != MachineStatus.Parked ? 200 : 0);
                     if (i % 2 == 1)
                     {
-                        speed = -speed; // los rotores giran en sentidos alternos
+                        speed = -speed; // errotoreek noranzko txandakatuetan biratzen dute
                     }
                 }
                 else if (Status == MachineStatus.Working)
@@ -220,7 +220,7 @@ namespace AgroCore.ControlCenter.Scene
         }
 
         // ==================================================================
-        // MODELOS LOW-POLY
+        // LOW-POLY EREDUAK
         // ==================================================================
 
         private void AddPart(MeshBuilder builder, Color color)
@@ -238,7 +238,7 @@ namespace AgroCore.ControlCenter.Scene
             group.Children.Add(new GeometryModel3D(light.ToMesh(), Materials.Glow(lightBrush)));
         }
 
-        /// <summary>Rueda: cilindro a lo largo del eje X.</summary>
+        /// <summary>Gurpila: X ardatzean zehar dagoen zilindroa.</summary>
         private static void AddWheel(MeshBuilder wheels, MeshBuilder hubs, double wx, double wz, double radius, double width)
         {
             double side = wx > 0 ? 1 : -1;
@@ -248,7 +248,7 @@ namespace AgroCore.ControlCenter.Scene
             hubs.AddCylinder(outer, new Point3D(outer.X + side * 0.04, radius, wz), radius * 0.45, 8);
         }
 
-        /// <summary>Cosechadora (inspirada en la del modelo low-poly de referencia).</summary>
+        /// <summary>Uzta-biltzailea (erreferentziako low-poly ereduan oinarritua).</summary>
         private void BuildHarvester()
         {
             MeshBuilder body = new MeshBuilder();
@@ -260,21 +260,21 @@ namespace AgroCore.ControlCenter.Scene
             MeshBuilder wheels = new MeshBuilder();
             MeshBuilder hubs = new MeshBuilder();
 
-            body.AddBlock(0, 0.55, -0.3, 2.1, 1.5, 3.3);           // cuerpo principal
-            bodyLight.AddBlock(0, 2.05, -0.8, 1.9, 0.7, 1.7);      // tolva de grano
-            body.AddBlock(0, 2.05, 0.85, 1.55, 0.25, 1.1);         // base de la cabina
-            glass.AddBlock(0, 2.3, 0.85, 1.4, 0.95, 1.0);          // cabina acristalada
-            body.AddBlock(0, 3.25, 0.85, 1.6, 0.12, 1.2);          // techo
-            dark.AddBlock(0, 0.55, 1.55, 1.3, 0.75, 0.7);          // alimentador
-            header.AddBlock(0, 0.2, 2.2, 3.4, 0.55, 0.9);          // cabezal de corte
-            header.AddBlock(-1.65, 0.2, 2.2, 0.12, 0.9, 0.95);     // laterales del cabezal
+            body.AddBlock(0, 0.55, -0.3, 2.1, 1.5, 3.3);           // gorputz nagusia
+            bodyLight.AddBlock(0, 2.05, -0.8, 1.9, 0.7, 1.7);      // ale-tolba
+            body.AddBlock(0, 2.05, 0.85, 1.55, 0.25, 1.1);         // kabinaren oinarria
+            glass.AddBlock(0, 2.3, 0.85, 1.4, 0.95, 1.0);          // kabina beiraztatua
+            body.AddBlock(0, 3.25, 0.85, 1.6, 0.12, 1.2);          // teilatua
+            dark.AddBlock(0, 0.55, 1.55, 1.3, 0.75, 0.7);          // elikagailua
+            header.AddBlock(0, 0.2, 2.2, 3.4, 0.55, 0.9);          // ebaketa-burua
+            header.AddBlock(-1.65, 0.2, 2.2, 0.12, 0.9, 0.95);     // buruaren alboak
             header.AddBlock(1.65, 0.2, 2.2, 0.12, 0.9, 0.95);
-            for (int i = -3; i <= 3; i++)                           // dientes
+            for (int i = -3; i <= 3; i++)                           // hortzak
             {
                 dark.AddBlock(i * 0.42, 0.12, 2.75, 0.08, 0.1, 0.35);
             }
-            metal.AddCylinder(new Point3D(-0.95, 2.45, -1.3), new Point3D(-2.2, 2.65, 0.3), 0.13, 8); // tubo de descarga
-            dark.AddCylinder(new Point3D(0.65, 2.7, -1.5), new Point3D(0.65, 3.4, -1.5), 0.08, 6);    // escape
+            metal.AddCylinder(new Point3D(-0.95, 2.45, -1.3), new Point3D(-2.2, 2.65, 0.3), 0.13, 8); // deskarga-hodia
+            dark.AddCylinder(new Point3D(0.65, 2.7, -1.5), new Point3D(0.65, 3.4, -1.5), 0.08, 6);    // ihes-hodia
 
             AddWheel(wheels, hubs, 1.25, 0.55, 0.75, 0.5);
             AddWheel(wheels, hubs, -1.25, 0.55, 0.75, 0.5);
@@ -290,7 +290,7 @@ namespace AgroCore.ControlCenter.Scene
             AddPart(wheels, Black);
             AddPart(hubs, Materials.Rgb(236, 186, 48));
 
-            // Molinete del cabezal: gira mientras cosecha
+            // Buruaren errota: uzta biltzen ari den bitartean biratzen du
             MeshBuilder reel = new MeshBuilder();
             reel.AddCylinder(new Point3D(-1.55, 0, 0), new Point3D(1.55, 0, 0), 0.08, 6);
             for (int i = 0; i < 4; i++)
@@ -307,7 +307,7 @@ namespace AgroCore.ControlCenter.Scene
             group.Children.Add(reelModel);
             spinners.Add(reelRotation);
 
-            // Polvo/paja detrás mientras trabaja
+            // Hautsa/lastoa atzean lanean ari den bitartean
             MeshBuilder dust = new MeshBuilder();
             dust.AddSphere(new Point3D(0, 0.9, -2.6), 0.9, 6, 4);
             dust.AddSphere(new Point3D(0.4, 0.7, -3.3), 0.6, 6, 4);
@@ -316,7 +316,7 @@ namespace AgroCore.ControlCenter.Scene
             AddStatusLight(0, 3.42, 0.85);
         }
 
-        /// <summary>Sembradora: tractor azul tirando de una sembradora con tolvas.</summary>
+        /// <summary>Ereilea: traktore urdina, tolbadun ereile bati tiraka.</summary>
         private void BuildSeeder()
         {
             MeshBuilder body = new MeshBuilder();
@@ -327,24 +327,24 @@ namespace AgroCore.ControlCenter.Scene
             MeshBuilder wheels = new MeshBuilder();
             MeshBuilder hubs = new MeshBuilder();
 
-            body.AddBlock(0, 0.55, 0.9, 1.0, 0.85, 1.7);            // capó
-            dark.AddBlock(0, 0.55, 1.78, 0.9, 0.6, 0.08);           // rejilla
-            body.AddBlock(0, 0.45, -0.35, 1.3, 0.6, 1.2);           // chasis bajo la cabina
-            glass.AddBlock(0, 1.05, -0.35, 1.25, 1.15, 1.1);        // cabina
-            body.AddBlock(0, 2.2, -0.35, 1.4, 0.12, 1.25);          // techo
-            dark.AddCylinder(new Point3D(0.3, 1.4, 1.4), new Point3D(0.3, 2.0, 1.4), 0.06, 6); // escape
+            body.AddBlock(0, 0.55, 0.9, 1.0, 0.85, 1.7);            // kapota
+            dark.AddBlock(0, 0.55, 1.78, 0.9, 0.6, 0.08);           // sareta
+            body.AddBlock(0, 0.45, -0.35, 1.3, 0.6, 1.2);           // txasisa kabinaren azpian
+            glass.AddBlock(0, 1.05, -0.35, 1.25, 1.15, 1.1);        // kabina
+            body.AddBlock(0, 2.2, -0.35, 1.4, 0.12, 1.25);          // teilatua
+            dark.AddCylinder(new Point3D(0.3, 1.4, 1.4), new Point3D(0.3, 2.0, 1.4), 0.06, 6); // ihes-hodia
 
-            AddWheel(wheels, hubs, 0.95, -0.35, 0.78, 0.45);        // ruedas traseras grandes
+            AddWheel(wheels, hubs, 0.95, -0.35, 0.78, 0.45);        // atzeko gurpil handiak
             AddWheel(wheels, hubs, -0.95, -0.35, 0.78, 0.45);
-            AddWheel(wheels, hubs, 0.7, 1.25, 0.45, 0.3);           // delanteras pequeñas
+            AddWheel(wheels, hubs, 0.7, 1.25, 0.45, 0.3);           // aurreko gurpil txikiak
             AddWheel(wheels, hubs, -0.7, 1.25, 0.45, 0.3);
 
-            dark.AddBlock(0, 0.45, -1.35, 0.2, 0.18, 0.9);          // enganche
-            implement.AddBlock(0, 0.35, -2.0, 3.4, 0.25, 0.4);      // barra de la sembradora
+            dark.AddBlock(0, 0.45, -1.35, 0.2, 0.18, 0.9);          // lotunea
+            implement.AddBlock(0, 0.35, -2.0, 3.4, 0.25, 0.4);      // ereilearen barra
             for (int i = -1; i <= 1; i++)
             {
-                hoppers.AddBlock(i * 1.05, 0.6, -2.0, 0.75, 0.6, 0.65); // tolvas de semilla
-                dark.AddBlock(i * 1.05, 0.05, -2.2, 0.1, 0.35, 0.1);    // rejas
+                hoppers.AddBlock(i * 1.05, 0.6, -2.0, 0.75, 0.6, 0.65); // hazi-tolbak
+                dark.AddBlock(i * 1.05, 0.05, -2.2, 0.1, 0.35, 0.1);    // goldeak
             }
             AddWheel(wheels, hubs, 1.8, -2.0, 0.3, 0.18);
             AddWheel(wheels, hubs, -1.8, -2.0, 0.3, 0.18);
@@ -357,7 +357,7 @@ namespace AgroCore.ControlCenter.Scene
             AddPart(wheels, Black);
             AddPart(hubs, Materials.Rgb(230, 230, 230));
 
-            // Semillas cayendo mientras trabaja
+            // Haziak erortzen lanean ari den bitartean
             MeshBuilder seeds = new MeshBuilder();
             for (int i = -1; i <= 1; i++)
             {
@@ -368,7 +368,7 @@ namespace AgroCore.ControlCenter.Scene
             AddStatusLight(0, 2.36, -0.35);
         }
 
-        /// <summary>Regadora: vehículo con depósito de agua y barra de riego trasera.</summary>
+        /// <summary>Ureztatzailea: ur-depositua eta atzeko ureztatze-barra dituen ibilgailua.</summary>
         private void BuildIrrigator()
         {
             MeshBuilder chassis = new MeshBuilder();
@@ -379,21 +379,21 @@ namespace AgroCore.ControlCenter.Scene
             MeshBuilder wheels = new MeshBuilder();
             MeshBuilder hubs = new MeshBuilder();
 
-            chassis.AddBlock(0, 0.55, -0.2, 1.5, 0.35, 3.8);        // chasis
-            body.AddBlock(0, 0.9, 1.25, 1.45, 0.4, 1.0);            // base de la cabina
-            glass.AddBlock(0, 1.3, 1.25, 1.35, 0.95, 0.95);         // cabina
-            body.AddBlock(0, 2.25, 1.25, 1.5, 0.12, 1.1);           // techo
-            tank.AddCylinder(new Point3D(0, 1.6, -1.8), new Point3D(0, 1.6, 0.55), 0.78, 12); // depósito
-            body.AddCylinder(new Point3D(0, 1.6, -1.2), new Point3D(0, 1.6, -1.05), 0.82, 12); // aros
+            chassis.AddBlock(0, 0.55, -0.2, 1.5, 0.35, 3.8);        // txasisa
+            body.AddBlock(0, 0.9, 1.25, 1.45, 0.4, 1.0);            // kabinaren oinarria
+            glass.AddBlock(0, 1.3, 1.25, 1.35, 0.95, 0.95);         // kabina
+            body.AddBlock(0, 2.25, 1.25, 1.5, 0.12, 1.1);           // teilatua
+            tank.AddCylinder(new Point3D(0, 1.6, -1.8), new Point3D(0, 1.6, 0.55), 0.78, 12); // depositua
+            body.AddCylinder(new Point3D(0, 1.6, -1.2), new Point3D(0, 1.6, -1.05), 0.82, 12); // uztaiak
             body.AddCylinder(new Point3D(0, 1.6, 0.0), new Point3D(0, 1.6, 0.15), 0.82, 12);
-            metal.AddCylinder(new Point3D(0, 2.35, -0.5), new Point3D(0, 2.5, -0.5), 0.25, 8); // tapa
+            metal.AddCylinder(new Point3D(0, 2.35, -0.5), new Point3D(0, 2.5, -0.5), 0.25, 8); // estalkia
 
-            // Barra de riego
+            // Ureztatze-barra
             metal.AddCylinder(new Point3D(-2.6, 1.0, -2.25), new Point3D(2.6, 1.0, -2.25), 0.08, 6);
             metal.AddBlock(0, 0.7, -2.1, 0.25, 0.5, 0.3);
             for (int i = -5; i <= 5; i++)
             {
-                metal.AddBlock(i * 0.5, 0.82, -2.25, 0.06, 0.18, 0.06); // boquillas
+                metal.AddBlock(i * 0.5, 0.82, -2.25, 0.06, 0.18, 0.06); // pitak
             }
 
             AddWheel(wheels, hubs, 0.95, 1.2, 0.62, 0.35);
@@ -409,7 +409,7 @@ namespace AgroCore.ControlCenter.Scene
             AddPart(wheels, Black);
             AddPart(hubs, Materials.Rgb(32, 150, 150));
 
-            // Cortina de agua mientras riega
+            // Ur-gortina ureztatzen ari den bitartean
             MeshBuilder water = new MeshBuilder();
             water.AddBlock(0, 0.05, -2.3, 5.0, 0.75, 0.5);
             workEffect = water.ToModel(Materials.Argb(80, 90, 170, 255));
@@ -417,22 +417,22 @@ namespace AgroCore.ControlCenter.Scene
             AddStatusLight(0, 2.41, 1.25);
         }
 
-        /// <summary>Dron fumigador de 4 rotores.</summary>
+        /// <summary>4 errotoreko fumigazio-dronea.</summary>
         private void BuildDrone()
         {
-            const double lift = 0.75; // el modelo se sube para que los patines queden en y = 0
+            const double lift = 0.75; // eredua igotzen da patinak y = 0 puntuan gera daitezen
 
             MeshBuilder shell = new MeshBuilder();
             MeshBuilder dark = new MeshBuilder();
             MeshBuilder tank = new MeshBuilder();
             MeshBuilder accent = new MeshBuilder();
 
-            shell.AddBox(0, lift, 0, 0.9, 0.35, 1.15);                 // cuerpo
-            dark.AddBox(0, lift + 0.23, 0, 0.6, 0.12, 0.75);           // tapa superior
-            accent.AddBox(0, lift, 0.6, 0.5, 0.18, 0.06);              // frontal (para ver hacia dónde mira)
-            tank.AddCylinder(new Point3D(0, lift - 0.55, 0), new Point3D(0, lift - 0.17, 0), 0.27, 8); // depósito
+            shell.AddBox(0, lift, 0, 0.9, 0.35, 1.15);                 // gorputza
+            dark.AddBox(0, lift + 0.23, 0, 0.6, 0.12, 0.75);           // goiko estalkia
+            accent.AddBox(0, lift, 0.6, 0.5, 0.18, 0.06);              // aurrealdea (nora begira dagoen ikusteko)
+            tank.AddCylinder(new Point3D(0, lift - 0.55, 0), new Point3D(0, lift - 0.17, 0), 0.27, 8); // depositua
             dark.AddCylinder(new Point3D(-0.95, lift - 0.6, 0), new Point3D(0.95, lift - 0.6, 0), 0.04, 6); // barra
-            // patas y patines
+            // hankak eta patinak
             dark.AddBox(0.35, lift - 0.45, 0, 0.06, 0.6, 0.06);
             dark.AddBox(-0.35, lift - 0.45, 0, 0.06, 0.6, 0.06);
             dark.AddCylinder(new Point3D(0.35, 0.04, -0.5), new Point3D(0.35, 0.04, 0.5), 0.04, 6);
@@ -443,10 +443,10 @@ namespace AgroCore.ControlCenter.Scene
             for (int i = 0; i < 4; i++)
             {
                 Point3D end = new Point3D(armX[i], lift + 0.1, armZ[i]);
-                dark.AddCylinder(new Point3D(0, lift + 0.05, 0), end, 0.06, 6);                       // brazo
-                dark.AddCylinder(new Point3D(armX[i], lift, armZ[i]), new Point3D(armX[i], lift + 0.3, armZ[i]), 0.13, 8); // motor
+                dark.AddCylinder(new Point3D(0, lift + 0.05, 0), end, 0.06, 6);                       // besoa
+                dark.AddCylinder(new Point3D(armX[i], lift, armZ[i]), new Point3D(armX[i], lift + 0.3, armZ[i]), 0.13, 8); // motorra
 
-                // Rotor: modelo propio para poder girarlo
+                // Errotorea: eredu propioa, biratu ahal izateko
                 MeshBuilder rotor = new MeshBuilder();
                 rotor.AddBox(0, 0, 0, 1.3, 0.03, 0.13);
                 rotor.AddBox(0, 0, 0, 0.13, 0.03, 1.3);
@@ -463,7 +463,7 @@ namespace AgroCore.ControlCenter.Scene
                 discModel.Transform = new TranslateTransform3D(armX[i], lift + 0.34, armZ[i]);
                 group.Children.Add(rotorModel);
                 spinners.Add(spin);
-                // los discos semitransparentes se añaden al final (ver más abajo)
+                // disko erdi-gardenak amaieran gehitzen dira (ikus beherago)
                 transparentParts.Add(discModel);
             }
 
@@ -474,10 +474,10 @@ namespace AgroCore.ControlCenter.Scene
 
             foreach (GeometryModel3D part in transparentParts)
             {
-                group.Children.Add(part); // lo transparente se dibuja después de lo opaco
+                group.Children.Add(part); // gardena opakoaren ondoren marrazten da
             }
 
-            // Nube de producto fitosanitario mientras fumiga
+            // Produktu fitosanitarioaren hodeia fumigatzen ari den bitartean
             MeshBuilder spray = new MeshBuilder();
             spray.AddCone(new Point3D(0, lift - 2.4, 0), new Point3D(0, lift - 0.6, 0), 1.2, 10);
             workEffect = spray.ToModel(Materials.Argb(70, 170, 230, 150));

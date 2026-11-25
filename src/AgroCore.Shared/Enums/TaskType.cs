@@ -3,7 +3,7 @@ namespace AgroCore.Shared.Enums;
 public enum TaskType
 {
     Sow,
-    /// <summary>Tarea interna del servidor: el crecimiento del cultivo (no la ejecuta ninguna máquina).</summary>
+    /// <summary>Zerbitzariaren barne-zeregina: laborearen hazkuntza (ez du inongo makinak egiten).</summary>
     Growth,
     Irrigate,
     Spray,

@@ -24,7 +24,7 @@ namespace AgroCore.Shared.Messages
         }
     }
 
-    /// <summary>Crea el usuario agricultor + su explotación (campos, máquinas y cargadores).</summary>
+    /// <summary>Nekazari-erabiltzailea + haren ustiategia sortzen ditu (soroak, makinak eta kargagailuak).</summary>
     public class CreateFarmerRequest : NetMessage
     {
         public string FullName { get; set; } = "";
@@ -49,7 +49,7 @@ namespace AgroCore.Shared.Messages
         public int UserId { get; set; }
         public int FarmId { get; set; }
 
-        /// <summary>Clave de flota en claro. Solo se muestra esta vez; el servidor guarda el hash.</summary>
+        /// <summary>Flota-gakoa testu argian. Behin bakarrik erakusten da; zerbitzariak hash-a gordetzen du.</summary>
         public string FleetKey { get; set; }
 
         public CreateFarmerResponse()
@@ -58,7 +58,7 @@ namespace AgroCore.Shared.Messages
         }
     }
 
-    /// <summary>Crea un operador u observador asignado a una explotación.</summary>
+    /// <summary>Ustiategi bati esleitutako operadore edo behatzaile bat sortzen du.</summary>
     public class CreateUserRequest : NetMessage
     {
         public string FullName { get; set; } = "";
@@ -79,7 +79,7 @@ namespace AgroCore.Shared.Messages
         public string FullName { get; set; }
         public string FarmName { get; set; }
 
-        /// <summary>Si no está vacía, se cambia la contraseña.</summary>
+        /// <summary>Hutsik ez badago, pasahitza aldatzen da.</summary>
         public string NewPassword { get; set; }
 
         public UpdateUserRequest()

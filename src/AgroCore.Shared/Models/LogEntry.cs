@@ -4,8 +4,8 @@ using AgroCore.Shared.Enums;
 namespace AgroCore.Shared.Models
 {
     /// <summary>
-    /// Una línea del registro de actividad. Se guarda en formato JSON (una por línea)
-    /// para poder calcular después las estadísticas contando eventos.
+    /// Gertaeren erregistroko lerro bat. JSON formatuan gordetzen da (bat lerroko)
+    /// gero estatistikak gertaerak zenbatuz kalkulatu ahal izateko.
     /// </summary>
     public class LogEntry
     {

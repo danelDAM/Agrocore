@@ -11,22 +11,22 @@ using AgroCore.Shared.Models;
 namespace AgroCore.Server.Tasks
 {
     /// <summary>
-    /// COORDINADOR DE TAREAS de una explotación (hay uno por explotación).
+    /// Ustiategi baten ZEREGIN-KOORDINATZAILEA (ustiategi bakoitzak berea du).
     ///
-    /// Guarda los campos y las tareas, y decide qué máquina hace cada tarea y cuándo.
+    /// Soroak eta zereginak gordetzen ditu, eta erabakitzen du zein makinak egiten duen zeregin bakoitza eta noiz.
     ///
-    /// SINCRONIZACIÓN (la parte importante):
-    ///  - Todo se hace dentro de lock (sync). Solo un hilo a la vez puede tocar campos y tareas.
-    ///  - Cuando una máquina pide trabajo (TASK_REQUEST) y no hay nada que pueda hacer,
-    ///    su hilo del servidor llama a Monitor.Wait(sync): se queda dormido SIN gastar CPU
-    ///    y suelta el lock para que otros hilos puedan trabajar.
-    ///  - Cuando algo cambia (una tarea termina, un cultivo madura, se crea un plan...)
-    ///    se llama a Monitor.PulseAll(sync): se despiertan TODAS las máquinas que esperaban
-    ///    y cada una vuelve a comprobar si ahora puede hacer alguna tarea.
+    /// SINKRONIZAZIOA (zati garrantzitsua):
+    ///  - Dena lock (sync) barruan egiten da. Aldi berean hari bakar batek soilik uki ditzake soroak eta zereginak.
+    ///  - Makina batek lana eskatzen duenean (TASK_REQUEST) eta ezin duenean ezer egin,
+    ///    zerbitzarian duen hariak Monitor.Wait(sync) deitzen du: lo geratzen da CPUrik GASTATU GABE
+    ///    eta lock-a askatzen du beste hariek lan egin dezaten.
+    ///  - Zerbait aldatzen denean (zeregin bat amaitzen da, labore bat heltzen da, plan bat sortzen da...)
+    ///    Monitor.PulseAll(sync) deitzen da: zain zeuden makina GUZTIAK esnatzen dira
+    ///    eta bakoitzak berriro egiaztatzen du orain zereginen bat egin dezakeen.
     /// </summary>
     public class TaskCoordinator
     {
-        // Contador global de tareas: TASK-101, TASK-102... (Interlocked = suma segura entre hilos)
+        // Zereginen kontagailu orokorra: TASK-101, TASK-102... (Interlocked = harien arteko batuketa segurua)
         private static int nextTaskNumber = 100;
 
         private readonly object sync = new object();
@@ -39,7 +39,7 @@ namespace AgroCore.Server.Tasks
         private readonly List<FarmTask> tasks = new List<FarmTask>();
         private readonly List<FarmTask> finishedHistory = new List<FarmTask>();
 
-        /// <summary>Máquinas cuyo hilo está ahora mismo dentro de WaitForTask.</summary>
+        /// <summary>Haria une honetan WaitForTask barruan duten makinak.</summary>
         private readonly List<MachineRuntime> waitingMachines = new List<MachineRuntime>();
 
         public TaskCoordinator(int farmId, FarmLayout layout, List<Field> savedFields,
@@ -62,10 +62,10 @@ namespace AgroCore.Server.Tasks
         }
 
         // ==================================================================
-        // DESPERTAR A LAS MÁQUINAS QUE ESPERAN
+        // ZAIN DAUDEN MAKINAK ESNATU
         // ==================================================================
 
-        /// <summary>Despierta a todos los hilos que esperan (por ejemplo tras un STOP o una emergencia).</summary>
+        /// <summary>Zain dauden hari guztiak esnatzen ditu (adibidez, STOP baten edo larrialdi baten ondoren).</summary>
         public void WakeAll()
         {
             lock (sync)
@@ -75,10 +75,10 @@ namespace AgroCore.Server.Tasks
         }
 
         // ==================================================================
-        // PLANES DE CULTIVO
+        // LABORE-PLANAK
         // ==================================================================
 
-        /// <summary>Crea un plan de cultivo. Devuelve null si va bien o el texto del error.</summary>
+        /// <summary>Labore-plan bat sortzen du. null itzultzen du ondo badoa, edo errorearen testua.</summary>
         public string CreateCropPlan(string fieldId, CropType crop, bool autoReplant, string username)
         {
             lock (sync)
@@ -86,15 +86,15 @@ namespace AgroCore.Server.Tasks
                 Field field = FindField(fieldId);
                 if (field == null)
                 {
-                    return "El campo " + fieldId + " no existe en esta explotación";
+                    return fieldId + " soroa ez dago ustiategi honetan";
                 }
                 if (field.Status != FieldStatus.Empty && field.Status != FieldStatus.Harvested)
                 {
-                    return "El campo " + fieldId + " está ocupado (" + field.Status + ")";
+                    return fieldId + " soroa okupatuta dago (" + field.Status + ")";
                 }
                 if (HasActiveTasks(fieldId))
                 {
-                    return "El campo " + fieldId + " ya tiene un plan en curso";
+                    return fieldId + " soroak badu dagoeneko plan bat martxan";
                 }
 
                 field.PlannedCrop = crop;
@@ -107,21 +107,21 @@ namespace AgroCore.Server.Tasks
                 RefreshTaskStatuses();
 
                 logger.Log(EventKind.CropPlanCreated, LogSeverity.Info,
-                    username + " planificó " + CropName(crop) + " en " + fieldId, farmId, null, username, fieldId, null);
+                    username + " erabiltzaileak " + CropName(crop) + " planifikatu du " + fieldId + " soroan", farmId, null, username, fieldId, null);
 
-                Monitor.PulseAll(sync); // hay tareas nuevas: que las máquinas lo comprueben
+                Monitor.PulseAll(sync); // zeregin berriak daude: makinek egiazta dezatela
                 return null;
             }
         }
 
         /// <summary>
-        /// Genera las tareas de un ciclo de cultivo y sus dependencias:
+        /// Labore-ziklo baten zereginak eta haien mendekotasunak sortzen ditu:
         ///
         ///   SOW ──► GROWTH ──────────────────► HARVEST
         ///    │                                    ▲
-        ///    └──► IRRIGATE / SPRAY (al X% de crecimiento) ─┘
+        ///    └──► IRRIGATE / SPRAY (hazkuntzaren X%-an) ─┘
         ///
-        /// El crecimiento se para en el % de cada cuidado hasta que se hace ese cuidado.
+        /// Hazkuntza zainketa bakoitzaren %-an gelditzen da, zainketa hori egin arte.
         /// </summary>
         private void CreateTasksForField(Field field, CropType crop)
         {
@@ -143,7 +143,7 @@ namespace AgroCore.Server.Tasks
                 harvest.DependsOn.Add(care.Id);
             }
 
-            // Orden de la lista: siembra, crecimiento, cuidados, recolección (más legible en la interfaz)
+            // Zerrendaren ordena: ereitea, hazkuntza, zainketak, uzta-bilketa (irakurgarriagoa interfazean)
             tasks.Remove(harvest);
             tasks.Add(harvest);
         }
@@ -161,10 +161,10 @@ namespace AgroCore.Server.Tasks
             return task;
         }
 
-        /// <summary>Al arrancar el servidor, vuelve a crear las tareas según el estado guardado de cada campo.</summary>
+        /// <summary>Zerbitzaria abiaraztean, zereginak berriro sortzen ditu soro bakoitzaren egoera gordearen arabera.</summary>
         private void RestoreTasksForField(Field field)
         {
-            // Si el servidor se cerró en mitad de una tarea, se vuelve al estado estable anterior.
+            // Zerbitzaria zeregin baten erdian itxi bazen, aurreko egoera egonkorrera itzultzen da.
             if (field.Status == FieldStatus.Sowing)
             {
                 field.Status = FieldStatus.Empty;
@@ -188,7 +188,7 @@ namespace AgroCore.Server.Tasks
                 return;
             }
 
-            // Growing o ReadyToHarvest: el cultivo ya está sembrado
+            // Growing edo ReadyToHarvest: laborea dagoeneko ereinda dago
             CropType crop = field.Crop ?? field.PlannedCrop ?? CropType.Carrot;
             CreateTasksForField(field, crop);
             foreach (FarmTask task in tasks)
@@ -213,12 +213,12 @@ namespace AgroCore.Server.Tasks
         }
 
         // ==================================================================
-        // ESTADO DE LAS TAREAS (dependencias)
+        // ZEREGINEN EGOERA (mendekotasunak)
         // ==================================================================
 
         /// <summary>
-        /// Recalcula si cada tarea está PENDING (lista) o WAITING (esperando algo).
-        /// Devuelve true si alguna tarea ha cambiado de estado.
+        /// Zeregin bakoitza PENDING (prest) edo WAITING (zerbaiten zain) dagoen berriro kalkulatzen du.
+        /// true itzultzen du zereginen batek egoeraz aldatu badu.
         /// </summary>
         private bool RefreshTaskStatuses()
         {
@@ -231,8 +231,8 @@ namespace AgroCore.Server.Tasks
                 }
                 if (task.Type == TaskType.Growth)
                 {
-                    task.BlockReason = "Espera a la siembra";
-                    continue; // el crecimiento lo controla Tick()
+                    task.BlockReason = "Ereitearen zain";
+                    continue; // hazkuntza Tick()-ek kontrolatzen du
                 }
 
                 string reason = GetBlockReason(task);
@@ -247,10 +247,10 @@ namespace AgroCore.Server.Tasks
             return changed;
         }
 
-        /// <summary>Por qué una tarea no puede empezar todavía (null = puede empezar).</summary>
+        /// <summary>Zergatik ezin duen zeregin batek oraindik hasi (null = has daiteke).</summary>
         private string GetBlockReason(FarmTask task)
         {
-            // 1. Dependencias: todas tienen que estar terminadas
+            // 1. Mendekotasunak: guztiek amaituta egon behar dute
             foreach (string dependencyId in task.DependsOn)
             {
                 FarmTask dependency = FindTask(dependencyId);
@@ -259,48 +259,48 @@ namespace AgroCore.Server.Tasks
                     if (dependency.Type == TaskType.Growth)
                     {
                         Field f = FindField(task.FieldId);
-                        return "Esperando crecimiento (" + f.Growth.ToString("0") + "%)";
+                        return "Hazkuntzaren zain (" + f.Growth.ToString("0") + "%)";
                     }
-                    return "Esperando " + dependency.Name;
+                    return "Zain: " + dependency.Name;
                 }
             }
 
             Field field = FindField(task.FieldId);
 
-            // 2. Estado del campo
+            // 2. Soroaren egoera
             if (task.Type == TaskType.Sow && field.Status != FieldStatus.Empty)
             {
-                return "Campo no disponible";
+                return "Soroa ez dago erabilgarri";
             }
             if (task.RequiredGrowth.HasValue && field.Growth < task.RequiredGrowth.Value - 0.01)
             {
-                return "Crecimiento " + field.Growth.ToString("0") + "% < " + task.RequiredGrowth.Value.ToString("0") + "%";
+                return "Hazkuntza " + field.Growth.ToString("0") + "% < " + task.RequiredGrowth.Value.ToString("0") + "%";
             }
             if (task.Type == TaskType.Harvest && field.Status != FieldStatus.ReadyToHarvest)
             {
-                return "Cultivo no maduro";
+                return "Laborea ez dago heldua";
             }
 
-            // 3. En un campo solo trabaja una máquina a la vez
+            // 3. Soro batean makina bakar batek egiten du lan aldi berean
             foreach (FarmTask other in tasks)
             {
                 if (other != task && other.FieldId == task.FieldId &&
                     (other.Status == AgroTaskStatus.Assigned || other.Status == AgroTaskStatus.Running) &&
                     other.Type != TaskType.Growth)
                 {
-                    return "Campo ocupado por " + other.Name;
+                    return "Soroa okupatuta: " + other.Name;
                 }
             }
             return null;
         }
 
         // ==================================================================
-        // PEDIR TRABAJO (aquí está el Monitor.Wait)
+        // LANA ESKATU (hemen dago Monitor.Wait)
         // ==================================================================
 
         /// <summary>
-        /// La llama el hilo del servidor que atiende a una máquina cuando ésta envía TASK_REQUEST.
-        /// Si no hay una tarea adecuada, el hilo se bloquea con Monitor.Wait hasta que algo cambie.
+        /// Makina bat artatzen duen zerbitzariko hariak deitzen du, makinak TASK_REQUEST bidaltzen duenean.
+        /// Zeregin egokirik ez badago, haria Monitor.Wait-ekin blokeatzen da zerbait aldatu arte.
         /// </summary>
         public TaskAssignment WaitForTask(MachineRuntime machine, int maxWaitMs, Func<bool> emergencyActive)
         {
@@ -316,21 +316,21 @@ namespace AgroCore.Server.Tasks
                 {
                     while (true)
                     {
-                        // ¿Hay que dejar de esperar? (STOP, emergencia, RETURN_TO_BASE, desconexión)
+                        // Itxaroteari utzi behar zaio? (STOP, larrialdia, RETURN_TO_BASE, deskonexioa)
                         if (machine.ShouldAbortWait(true) || emergencyActive())
                         {
                             result.Outcome = AssignmentOutcome.Cancelled;
                             return result;
                         }
 
-                        // ¿Hay alguna tarea que esta máquina pueda y deba hacer?
+                        // Ba al dago makina honek egin dezakeen eta egin behar duen zereginik?
                         bool batteryProblem = false;
                         FarmTask chosen = ChooseTaskFor(machine, out batteryProblem);
                         if (chosen != null)
                         {
                             Assign(chosen, machine);
                             FillAssignment(result, chosen);
-                            Monitor.PulseAll(sync); // las demás máquinas vuelven a mirar (esta tarea ya no está libre)
+                            Monitor.PulseAll(sync); // gainerako makinek berriro begiratzen dute (zeregin hau ez dago libre jada)
                             return result;
                         }
                         if (batteryProblem)
@@ -349,15 +349,15 @@ namespace AgroCore.Server.Tasks
                             waitLogged = true;
                             string waitingFor = DescribeWhatMachineWaitsFor(machine);
                             machine.SetNote(waitingFor);
-                            if (waitingFor != null && waitingFor.StartsWith("esperando FIELD"))
+                            if (waitingFor != null && waitingFor.StartsWith("zain FIELD"))
                             {
                                 logger.Log(EventKind.Info, LogSeverity.Info,
                                     machine.Name + " " + waitingFor, farmId, machine.Id);
                             }
                         }
 
-                        // DORMIR hasta que alguien haga PulseAll (o 2 s como red de seguridad).
-                        // Monitor.Wait suelta el lock mientras duerme y lo recupera al despertar.
+                        // LO EGIN norbaitek PulseAll egin arte (edo 2 s, segurtasun-sare gisa).
+                        // Monitor.Wait-ek lock-a askatzen du lo dagoen bitartean, eta esnatzean berreskuratzen du.
                         Monitor.Wait(sync, 2000);
                     }
                 }
@@ -370,8 +370,8 @@ namespace AgroCore.Server.Tasks
         }
 
         /// <summary>
-        /// Elige la tarea para una máquina. Solo se la queda si ES LA MEJOR candidata de todas las
-        /// máquinas de su tipo que están esperando (distancia, velocidad, batería, capacidad, eficiencia).
+        /// Makina baterako zeregina aukeratzen du. Makinak zeregina hartzen du soilik zain dauden bere motako
+        /// makina guztien artean hautagai ONENA BADA (distantzia, abiadura, bateria, edukiera, eraginkortasuna).
         /// </summary>
         private FarmTask ChooseTaskFor(MachineRuntime machine, out bool batteryProblem)
         {
@@ -392,7 +392,7 @@ namespace AgroCore.Server.Tasks
                 Field field = FindField(task.FieldId);
                 if (!HasEnoughBattery(machine, field, task, config))
                 {
-                    batteryProblem = true; // hay trabajo, pero esta máquina no llega
+                    batteryProblem = true; // lana badago, baina makina hau ez da iristen
                     continue;
                 }
 
@@ -412,7 +412,7 @@ namespace AgroCore.Server.Tasks
             return machine.Battery >= needed;
         }
 
-        /// <summary>Compara esta máquina con las demás del mismo tipo que también esperan trabajo.</summary>
+        /// <summary>Makina hau lanaren zain dauden mota bereko gainerako makinekin alderatzen du.</summary>
         private bool IsBestCandidate(MachineRuntime machine, FarmTask task, Field field, SystemConfig config)
         {
             double myScore = Score(machine, task, field);
@@ -431,7 +431,7 @@ namespace AgroCore.Server.Tasks
                 {
                     return false;
                 }
-                // Empate: gana la de Id menor (así nunca se la quedan dos)
+                // Berdinketa: Id txikiena duenak irabazten du (horrela inoiz ez dute biek hartzen)
                 if (Math.Abs(otherScore - myScore) <= 0.001 && string.CompareOrdinal(other.Id, machine.Id) < 0)
                 {
                     return false;
@@ -440,7 +440,7 @@ namespace AgroCore.Server.Tasks
             return true;
         }
 
-        /// <summary>Puntuación (cuanto MENOR, mejor): tiempo de viaje + tiempo de trabajo + penalizaciones.</summary>
+        /// <summary>Puntuazioa (zenbat eta TXIKIAGOA, hobeto): bidaia-denbora + lan-denbora + zigorrak.</summary>
         private double Score(MachineRuntime machine, FarmTask task, Field field)
         {
             MachineProfile profile = machine.Profile;
@@ -460,10 +460,10 @@ namespace AgroCore.Server.Tasks
             task.BlockReason = null;
             machine.SetCurrentTask(task.Id, task.Type, task.FieldId);
             machine.SetNote(null);
-            RefreshTaskStatuses(); // otras tareas del mismo campo pasan a "campo ocupado"
+            RefreshTaskStatuses(); // soro bereko beste zereginak "soroa okupatuta" egoerara pasatzen dira
 
             logger.Log(EventKind.TaskAssigned, LogSeverity.Info,
-                task.Id + " (" + task.Name + ") asignada a " + machine.Name, farmId, machine.Id, null, task.FieldId, task.Type);
+                task.Id + " (" + task.Name + ") " + machine.Name + " makinari esleituta", farmId, machine.Id, null, task.FieldId, task.Type);
         }
 
         private void FillAssignment(TaskAssignment result, FarmTask task)
@@ -478,21 +478,21 @@ namespace AgroCore.Server.Tasks
             result.Progress = task.Progress;
         }
 
-        /// <summary>Texto para el panel: qué está esperando una máquina.</summary>
+        /// <summary>Panelerako testua: zeren zain dagoen makina bat.</summary>
         private string DescribeWhatMachineWaitsFor(MachineRuntime machine)
         {
             foreach (FarmTask task in tasks)
             {
                 if (task.Status == AgroTaskStatus.Waiting && MachineMath.MachineFor(task.Type) == machine.Type)
                 {
-                    return "esperando " + task.FieldId + " (" + task.BlockReason + ")";
+                    return "zain " + task.FieldId + " (" + task.BlockReason + ")";
                 }
             }
-            return "sin tareas pendientes";
+            return "egiteko zereginik ez";
         }
 
         // ==================================================================
-        // AVISOS DE LAS MÁQUINAS
+        // MAKINEN ABISUAK
         // ==================================================================
 
         public void StartTask(MachineRuntime machine, string taskId)
@@ -519,12 +519,12 @@ namespace AgroCore.Server.Tasks
                 }
 
                 logger.Log(EventKind.TaskStarted, LogSeverity.Info,
-                    machine.Name + " empezó " + task.Id + " (" + task.Name + ")", farmId, machine.Id, null, task.FieldId, task.Type);
+                    machine.Name + " makinak hasi du " + task.Id + " (" + task.Name + ")", farmId, machine.Id, null, task.FieldId, task.Type);
                 Monitor.PulseAll(sync);
             }
         }
 
-        /// <summary>TASK_COMPLETED: se actualiza el campo y se despierta a las máquinas que esperaban.</summary>
+        /// <summary>TASK_COMPLETED: soroa eguneratzen da eta zain zeuden makinak esnatzen dira.</summary>
         public void CompleteTask(MachineRuntime machine, string taskId)
         {
             lock (sync)
@@ -548,7 +548,7 @@ namespace AgroCore.Server.Tasks
                 switch (task.Type)
                 {
                     case TaskType.Sow:
-                        // Campo sembrado: empieza a crecer
+                        // Soroa ereinda: hazten hasten da
                         field.Crop = task.Crop;
                         field.Growth = 0;
                         field.PlantedAt = DateTime.Now;
@@ -568,7 +568,7 @@ namespace AgroCore.Server.Tasks
                         field.CompletedCare.Add(task.Type);
                         if (field.GrowthBlockedBy == task.Type)
                         {
-                            field.GrowthBlockedBy = null; // el cultivo puede seguir creciendo
+                            field.GrowthBlockedBy = null; // laboreak hazten jarrai dezake
                         }
                         break;
 
@@ -577,22 +577,22 @@ namespace AgroCore.Server.Tasks
                         field.HarvestedAt = DateTime.Now;
                         SetFieldStatus(field, FieldStatus.Harvested);
                         logger.Log(EventKind.FieldStateChanged, LogSeverity.Success,
-                            field.Id + " recolectado (" + CropName(task.Crop) + ")", farmId, machine.Id, null, field.Id, task.Type);
+                            field.Id + " uzta bilduta (" + CropName(task.Crop) + ")", farmId, machine.Id, null, field.Id, task.Type);
                         break;
                 }
 
                 logger.Log(EventKind.TaskCompleted, LogSeverity.Success,
-                    machine.Name + " completó " + task.Id + " (" + task.Name + ")", farmId, machine.Id, null, task.FieldId, task.Type);
+                    machine.Name + " makinak osatu du " + task.Id + " (" + task.Name + ")", farmId, machine.Id, null, task.FieldId, task.Type);
 
                 MoveToHistory(task);
                 RefreshTaskStatuses();
 
-                // ¡Clave! Ha cambiado el estado: despertar a todas las máquinas que esperaban.
+                // Gakoa! Egoera aldatu da: zain zeuden makina guztiak esnatu.
                 Monitor.PulseAll(sync);
             }
         }
 
-        /// <summary>TASK_ABORTED: la máquina deja la tarea a medias. Vuelve a PENDING conservando el progreso.</summary>
+        /// <summary>TASK_ABORTED: makinak zeregina erdizka uzten du. PENDING-era itzultzen da aurrerapena gordeta.</summary>
         public void AbortTask(MachineRuntime machine, string taskId, double progress, string reason)
         {
             lock (sync)
@@ -607,15 +607,15 @@ namespace AgroCore.Server.Tasks
                 machine.CountTaskAborted();
 
                 logger.Log(EventKind.TaskAborted, LogSeverity.Warning,
-                    machine.Name + " interrumpió " + task.Id + " al " + task.Progress.ToString("0") + "% (" + reason + ")",
+                    machine.Name + " makinak eten du " + task.Id + " " + task.Progress.ToString("0") + "%-an (" + reason + ")",
                     farmId, machine.Id, null, task.FieldId, task.Type);
 
                 RefreshTaskStatuses();
-                Monitor.PulseAll(sync); // otra máquina puede continuarla
+                Monitor.PulseAll(sync); // beste makina batek jarrai dezake
             }
         }
 
-        /// <summary>Si una máquina se desconecta, su tarea queda libre para otra.</summary>
+        /// <summary>Makina bat deskonektatzen bada, bere zeregina libre geratzen da beste batentzat.</summary>
         public void MachineDisconnected(MachineRuntime machine)
         {
             lock (sync)
@@ -626,7 +626,7 @@ namespace AgroCore.Server.Tasks
                     {
                         ReleaseTask(task, machine.TaskProgress);
                         logger.Log(EventKind.TaskAborted, LogSeverity.Warning,
-                            task.Id + " liberada: " + machine.Name + " se ha desconectado", farmId, machine.Id, null, task.FieldId, task.Type);
+                            task.Id + " askatuta: " + machine.Name + " deskonektatu da", farmId, machine.Id, null, task.FieldId, task.Type);
                     }
                 }
                 RefreshTaskStatuses();
@@ -654,12 +654,12 @@ namespace AgroCore.Server.Tasks
         }
 
         // ==================================================================
-        // CANCELAR (operador)
+        // BERTAN BEHERA UTZI (operadorea)
         // ==================================================================
 
         /// <summary>
-        /// Cancela una tarea. Como las demás tareas del campo dependen unas de otras, se cancela
-        /// el plan entero de ese campo. Devuelve el error o null. machineToNotify: máquina que la estaba haciendo.
+        /// Zeregin bat bertan behera uzten du. Soroko zereginak elkarren mendekoak direnez, soro horren
+        /// plan osoa uzten da bertan behera. Errorea edo null itzultzen du. machineToNotify: zeregina egiten ari zen makina.
         /// </summary>
         public string CancelTask(string taskId, string username, out string machineToNotify)
         {
@@ -669,11 +669,11 @@ namespace AgroCore.Server.Tasks
                 FarmTask task = FindTask(taskId);
                 if (task == null)
                 {
-                    return "La tarea " + taskId + " no existe en esta explotación";
+                    return taskId + " zeregina ez dago ustiategi honetan";
                 }
                 if (task.IsFinished())
                 {
-                    return "La tarea ya está terminada";
+                    return "Zeregina amaituta dago jada";
                 }
 
                 Field field = FindField(task.FieldId);
@@ -688,14 +688,14 @@ namespace AgroCore.Server.Tasks
                         machineToNotify = other.AssignedMachineId;
                     }
                     other.Status = AgroTaskStatus.Cancelled;
-                    other.CancelReason = "Cancelada por " + username;
+                    other.CancelReason = username + " erabiltzaileak bertan behera utzia";
                     other.CompletedAt = DateTime.Now;
                     MoveToHistory(other);
                     logger.Log(EventKind.TaskCancelled, LogSeverity.Warning,
-                        username + " canceló " + other.Id + " (" + other.Name + ")", farmId, other.AssignedMachineId, username, other.FieldId, other.Type);
+                        username + " erabiltzaileak bertan behera utzi du " + other.Id + " (" + other.Name + ")", farmId, other.AssignedMachineId, username, other.FieldId, other.Type);
                 }
 
-                // El campo queda libre
+                // Soroa libre geratzen da
                 field.PlannedCrop = null;
                 field.AutoReplant = false;
                 ResetField(field);
@@ -707,7 +707,7 @@ namespace AgroCore.Server.Tasks
         }
 
         // ==================================================================
-        // CRECIMIENTO (lo llama el hilo GrowthService cada medio segundo)
+        // HAZKUNTZA (GrowthService hariak deitzen du segundo erdiro)
         // ==================================================================
 
         public void Tick(double seconds)
@@ -724,7 +724,7 @@ namespace AgroCore.Server.Tasks
                         changed |= Grow(field, seconds);
                     }
 
-                    // Un campo recolectado queda libre al cabo de unos segundos
+                    // Uzta bildutako soroa libre geratzen da segundo batzuen buruan
                     if (field.Status == FieldStatus.Harvested && field.HarvestedAt.HasValue &&
                         (DateTime.Now - field.HarvestedAt.Value).TotalSeconds >= config.HarvestedResetSeconds)
                     {
@@ -732,7 +732,7 @@ namespace AgroCore.Server.Tasks
                         ResetField(field);
                         if (replant.HasValue)
                         {
-                            CreateTasksForField(field, replant.Value); // replantar automáticamente
+                            CreateTasksForField(field, replant.Value); // automatikoki birlandatu
                         }
                         else
                         {
@@ -749,19 +749,19 @@ namespace AgroCore.Server.Tasks
 
                 if (changed)
                 {
-                    Monitor.PulseAll(sync); // p. ej. un cultivo ha madurado: despertar a las recolectoras
+                    Monitor.PulseAll(sync); // adib. labore bat heldu da: uzta-biltzaileak esnatu
                 }
             }
         }
 
-        /// <summary>Hace crecer un campo. Devuelve true si ha cambiado algo importante.</summary>
+        /// <summary>Soro bat hazarazten du. true itzultzen du zerbait garrantzitsua aldatu bada.</summary>
         private bool Grow(Field field, double seconds)
         {
             CropDefinition definition = GetCrop(field.Crop.Value);
             double increment = seconds / (definition.GrowthMinutes * 60.0) * 100.0;
             double newGrowth = field.Growth + increment;
 
-            // ¿Hay algún cuidado pendiente antes de este punto? Entonces el crecimiento se para ahí.
+            // Ba al dago egiteko zainketaren bat puntu honen aurretik? Orduan hazkuntza hor gelditzen da.
             CareStep blocking = null;
             foreach (CareStep step in definition.CareSteps)
             {
@@ -781,9 +781,9 @@ namespace AgroCore.Server.Tasks
                 if (field.GrowthBlockedBy != blocking.Task)
                 {
                     field.GrowthBlockedBy = blocking.Task;
-                    string need = blocking.Task == TaskType.Irrigate ? "riego" : "fumigación";
+                    string need = blocking.Task == TaskType.Irrigate ? "ureztatzea" : "fumigazioa";
                     logger.Log(EventKind.FieldStateChanged, LogSeverity.Info,
-                        field.Id + " necesita " + need + " (" + newGrowth.ToString("0") + "%)", farmId, null, null, field.Id, blocking.Task);
+                        field.Id + " soroak " + need + " behar du (" + newGrowth.ToString("0") + "%)", farmId, null, null, field.Id, blocking.Task);
                     changed = true;
                 }
             }
@@ -793,7 +793,7 @@ namespace AgroCore.Server.Tasks
             if (growthTask != null)
             {
                 growthTask.Progress = field.Growth;
-                growthTask.BlockReason = field.GrowthBlockedBy.HasValue ? "Necesita " + field.GrowthBlockedBy.Value.ToString().ToUpper() : null;
+                growthTask.BlockReason = field.GrowthBlockedBy.HasValue ? "Behar da: " + field.GrowthBlockedBy.Value.ToString().ToUpper() : null;
             }
 
             if (field.Growth >= 100)
@@ -808,14 +808,14 @@ namespace AgroCore.Server.Tasks
                     MoveToHistory(growthTask);
                 }
                 logger.Log(EventKind.FieldStateChanged, LogSeverity.Success,
-                    field.Id + " listo para recolectar (" + CropName(field.Crop.Value) + ")", farmId, null, null, field.Id, TaskType.Growth);
+                    field.Id + " uzta biltzeko prest (" + CropName(field.Crop.Value) + ")", farmId, null, null, field.Id, TaskType.Growth);
                 changed = true;
             }
             return changed;
         }
 
         // ==================================================================
-        // CONSULTAS (copias para enviar al centro de control)
+        // KONTSULTAK (kontrol zentrora bidaltzeko kopiak)
         // ==================================================================
 
         public List<Field> GetFieldsSnapshot()
@@ -831,7 +831,7 @@ namespace AgroCore.Server.Tasks
             }
         }
 
-        /// <summary>Tareas activas + las últimas terminadas.</summary>
+        /// <summary>Zeregin aktiboak + amaitutako azkenak.</summary>
         public List<FarmTask> GetTasksSnapshot(int finishedCount)
         {
             lock (sync)
@@ -850,7 +850,7 @@ namespace AgroCore.Server.Tasks
             }
         }
 
-        /// <summary>Tareas terminadas en un periodo (para el informe PDF).</summary>
+        /// <summary>Aldi batean amaitutako zereginak (PDF txostenerako).</summary>
         public List<FarmTask> GetFinishedTasks(DateTime from, DateTime to)
         {
             lock (sync)
@@ -884,7 +884,7 @@ namespace AgroCore.Server.Tasks
         }
 
         // ==================================================================
-        // AYUDAS
+        // LAGUNTZAILEAK
         // ==================================================================
 
         private void SetFieldStatus(Field field, FieldStatus status)
@@ -983,7 +983,7 @@ namespace AgroCore.Server.Tasks
                     return crop;
                 }
             }
-            // por si la configuración no lo tiene: valores por defecto
+            // konfigurazioak ez badu: balio lehenetsiak
             foreach (CropDefinition crop in CropDefinition.Defaults())
             {
                 if (crop.Type == type)

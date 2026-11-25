@@ -6,8 +6,8 @@ using AgroCore.Shared.Networking;
 namespace AgroCore.Server.Security
 {
     /// <summary>
-    /// Sesión de un usuario conectado desde un centro de control WPF.
-    /// La crea el servidor tras un login correcto y la borra al cerrar sesión o desconectarse.
+    /// WPF Kontrol Zentro batetik konektatutako erabiltzaile baten saioa.
+    /// Zerbitzariak sortzen du saioa ondo hasi ondoren, eta saioa ixtean edo deskonektatzean ezabatzen du.
     /// </summary>
     public class UserSession
     {
@@ -17,20 +17,20 @@ namespace AgroCore.Server.Security
         public string FullName { get; set; } = "";
         public UserRole Role { get; set; }
 
-        /// <summary>Explotación del usuario (la única que puede ver si no es administrador).</summary>
+        /// <summary>Erabiltzailearen ustiategia (administratzailea ez bada, ikus dezakeen bakarra).</summary>
         public int FarmId { get; set; }
         public string FarmName { get; set; } = "";
 
         /// <summary>
-        /// Explotación que está viendo ahora. Para agricultor/operador/observador es SIEMPRE su FarmId.
-        /// El administrador puede cambiarla con SELECT_FARM.
+        /// Orain ikusten ari den ustiategia. Nekazari/operadore/behatzailearentzat BETI bere FarmId da.
+        /// Administratzaileak SELECT_FARM bidez alda dezake.
         /// </summary>
         public int ViewFarmId { get; set; }
 
-        /// <summary>Conexión TCP del centro de control (para enviarle el estado y las alertas).</summary>
+        /// <summary>Kontrol Zentroaren TCP konexioa (egoera eta alertak bidaltzeko).</summary>
         public Connection Connection { get; set; }
 
-        /// <summary>Dónde enviarle la telemetría por UDP (null hasta que manda UDP_SUBSCRIBE).</summary>
+        /// <summary>Telemetria UDP bidez nora bidali (null, UDP_SUBSCRIBE bidali arte).</summary>
         public IPEndPoint UdpEndPoint { get; set; }
 
         public DateTime LoginTime { get; set; } = DateTime.Now;

@@ -10,11 +10,11 @@ using AgroCore.Shared.Models;
 namespace AgroCore.Server.Statistics
 {
     /// <summary>
-    /// Calcula las estadísticas de una explotación.
-    ///  - Contadores de eventos (campos sembrados, tareas completadas, conflictos, emergencias...):
-    ///    se obtienen CONTANDO entradas del log en el periodo pedido.
-    ///  - Datos de cada máquina (distancia, tiempo activo, carga...): contadores acumulados
-    ///    que el servidor calcula a partir de la telemetría.
+    /// Ustiategi baten estatistikak kalkulatzen ditu.
+    ///  - Gertaeren kontagailuak (ereindako soroak, osatutako zereginak, gatazkak, larrialdiak...):
+    ///    eskatutako aldiko erregistro-sarrerak ZENBATUZ lortzen dira.
+    ///  - Makina bakoitzaren datuak (distantzia, denbora aktiboa, karga...): kontagailu metatuak,
+    ///    zerbitzariak telemetriatik abiatuta kalkulatzen dituenak.
     /// </summary>
     public class StatisticsService
     {
@@ -35,7 +35,7 @@ namespace AgroCore.Server.Statistics
             stats.From = from;
             stats.To = to;
 
-            // 1. Contar eventos del log
+            // 1. Erregistroko gertaerak zenbatu
             foreach (LogEntry entry in logger.GetEntries(farm.Id, from, to))
             {
                 switch (entry.Kind)
@@ -75,7 +75,7 @@ namespace AgroCore.Server.Statistics
                 }
             }
 
-            // 2. Sumar los datos de cada máquina
+            // 2. Makina bakoitzaren datuak batu
             foreach (MachineRuntime machine in farm.GetMachines())
             {
                 MachineStatistics m = machine.GetStatistics();
@@ -89,7 +89,7 @@ namespace AgroCore.Server.Statistics
             return stats;
         }
 
-        /// <summary>Estadísticas de todas las explotaciones (solo administrador).</summary>
+        /// <summary>Ustiategi guztien estatistikak (administratzailea soilik).</summary>
         public List<FarmStatistics> BuildGlobal(DateTime from, DateTime to)
         {
             List<FarmStatistics> list = new List<FarmStatistics>();

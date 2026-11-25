@@ -6,15 +6,15 @@ using AgroCore.Shared.Networking;
 namespace AgroCore.ControlCenter.Services
 {
     /// <summary>
-    /// Conexión TCP del Centro de Control con el servidor.
+    /// Kontrol Zentroaren TCP konexioa zerbitzariarekin.
     ///
-    /// Funciona igual que el ejemplo de clase:
-    ///  - Connect(): abre el socket (TcpClient + StreamReader/StreamWriter dentro de Connection).
-    ///  - Login(): envía LOGIN_REQUEST y lee la respuesta con ReadLine (todavía sin hilos).
-    ///  - StartReading(): arranca UN HILO que hace ReadLine en bucle y avisa con el evento MessageReceived.
+    /// Klaseko adibidearen berdin funtzionatzen du:
+    ///  - Connect(): socketa irekitzen du (TcpClient + StreamReader/StreamWriter Connection barruan).
+    ///  - Login(): LOGIN_REQUEST bidaltzen du eta erantzuna ReadLine-rekin irakurtzen du (oraindik harigabe).
+    ///  - StartReading(): HARI BAT abiarazten du, ReadLine begizta batean egiten duena eta MessageReceived gertaerarekin abisatzen duena.
     ///
-    /// IMPORTANTE: el evento se lanza desde el hilo lector, NO desde el hilo de la interfaz.
-    /// Quien lo reciba tiene que usar Dispatcher.BeginInvoke para tocar controles WPF.
+    /// GARRANTZITSUA: gertaera hari irakurletik jaurtitzen da, EZ interfazearen haritik.
+    /// Jasotzen duenak Dispatcher.BeginInvoke erabili behar du WPF kontrolak ukitzeko.
     /// </summary>
     public class ServerConnection
     {
@@ -25,10 +25,10 @@ namespace AgroCore.ControlCenter.Services
         public string Host { get; private set; }
         public int Port { get; private set; }
 
-        /// <summary>Llega un mensaje del servidor: (tipo, json completo).</summary>
+        /// <summary>Zerbitzariaren mezu bat iristen da: (mota, json osoa).</summary>
         public event Action<string, string> MessageReceived;
 
-        /// <summary>Se ha perdido la conexión (el servidor se cerró o se cayó la red).</summary>
+        /// <summary>Konexioa galdu da (zerbitzaria itxi da edo sarea erori da).</summary>
         public event Action ConnectionLost;
 
         public ServerConnection(string host, int port)
@@ -42,15 +42,15 @@ namespace AgroCore.ControlCenter.Services
             get { return connection != null && !connection.IsClosed; }
         }
 
-        /// <summary>Abre la conexión TCP. Lanza excepción si el servidor no responde.</summary>
+        /// <summary>TCP konexioa irekitzen du. Salbuespena jaurtitzen du zerbitzariak erantzuten ez badu.</summary>
         public void Connect()
         {
             connection = Connection.Connect(Host, Port);
         }
 
         /// <summary>
-        /// Envía usuario y contraseña y espera la respuesta (se llama ANTES de arrancar el hilo lector).
-        /// Devuelve null si el servidor cierra la conexión.
+        /// Erabiltzailea eta pasahitza bidaltzen ditu eta erantzunaren zain geratzen da (hari irakurlea abiarazi AURRETIK deitzen da).
+        /// null itzultzen du zerbitzariak konexioa ixten badu.
         /// </summary>
         public LoginResponse Login(string username, string password)
         {
@@ -67,12 +67,12 @@ namespace AgroCore.ControlCenter.Services
             return MessageSerializer.FromJson<LoginResponse>(line);
         }
 
-        /// <summary>Arranca el hilo que recibe los mensajes del servidor.</summary>
+        /// <summary>Zerbitzariaren mezuak jasotzen dituen haria abiarazten du.</summary>
         public void StartReading()
         {
             readerThread = new Thread(ReadLoop);
             readerThread.IsBackground = true;
-            readerThread.Name = "Lector TCP";
+            readerThread.Name = "TCP irakurlea";
             readerThread.Start();
         }
 
@@ -85,7 +85,7 @@ namespace AgroCore.ControlCenter.Services
                     string line = connection.ReadLine();
                     if (line == null)
                     {
-                        break; // el servidor ha cerrado la conexión
+                        break; // zerbitzariak konexioa itxi du
                     }
 
                     string type = MessageSerializer.ReadType(line);
@@ -97,7 +97,7 @@ namespace AgroCore.ControlCenter.Services
             }
             catch (Exception)
             {
-                // error de red: se trata igual que un cierre
+                // sare-errorea: itxiera baten berdin tratatzen da
             }
 
             if (!closing && ConnectionLost != null)
@@ -106,7 +106,7 @@ namespace AgroCore.ControlCenter.Services
             }
         }
 
-        /// <summary>Envía un mensaje al servidor. Devuelve false si no se pudo.</summary>
+        /// <summary>Mezu bat bidaltzen dio zerbitzariari. false itzultzen du ezin izan bada.</summary>
         public bool Send(object message)
         {
             if (connection == null)
@@ -116,7 +116,7 @@ namespace AgroCore.ControlCenter.Services
             return connection.TrySend(message);
         }
 
-        /// <summary>Cierra la conexión (al cerrar sesión). No avisa con ConnectionLost.</summary>
+        /// <summary>Konexioa ixten du (saioa ixtean). Ez du ConnectionLost bidez abisatzen.</summary>
         public void Close()
         {
             closing = true;

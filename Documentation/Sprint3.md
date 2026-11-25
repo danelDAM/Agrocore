@@ -1,53 +1,53 @@
-# Sprint 3 — Centro de Control WPF y vista 3D
+# Sprint 3 — WPF Kontrol Zentroa eta 3D ikuspegia
 
-## Qué se ha construido (`AgroCore.ControlCenter`, .NET 8 WPF)
+## Zer eraiki da (`AgroCore.ControlCenter`, .NET 8 WPF)
 
-### Login contra el servidor
-- Ventana de login con usuario, contraseña y servidor (`host` o `host:puerto`).
-- La conexión se hace en un **hilo secundario** y el resultado vuelve a la interfaz con
-  `Dispatcher.BeginInvoke` (la ventana no se congela).
-- Mensajes claros: credenciales incorrectas, cuenta bloqueada, servidor apagado.
-  Enlace "¿Problemas de acceso?".
-- **Sesión local** en `%APPDATA%\AgroCore\session.json` (nunca la contraseña ni el token).
-  Al cerrar sesión se elimina y se vuelve al login.
+### Saioa hasi zerbitzariaren aurka
+- Saio-hasierako leihoa erabiltzailea, pasahitza eta zerbitzaria eremuekin (`host` edo `host:ataka`).
+- Konexioa **bigarren mailako hari batean** egiten da eta emaitza interfazera itzultzen da
+  `Dispatcher.BeginInvoke` bidez (leihoa ez da izozten).
+- Mezu argiak: kredentzial okerrak ("Erabiltzailea edo pasahitza okerrak dira"), kontu blokeatua
+  ("Saiakera gehiegi..."), zerbitzaria itzalita. "Sarbide-arazoak?" esteka.
+- **Saio lokala** `%APPDATA%\AgroCore\session.json` fitxategian (inoiz ez pasahitza ez tokena).
+  Saioa ixtean ezabatu egiten da eta saio-hasierako leihora itzultzen da.
 
-### Comunicación (mismo esquema que el ejemplo de clase)
-- `ServerConnection`: `TcpClient` + `StreamReader`/`StreamWriter`; **un hilo lector** con
-  `ReadLine()` en bucle. Cada mensaje se pasa al hilo de la interfaz y allí un `switch` según `type`.
-- `TelemetryReceiver`: `UdpClient` en un puerto libre + hilo receptor. El puerto se comunica al
-  servidor con `UDP_SUBSCRIBE`; la telemetría llega cada 200 ms.
-- Sin lógica de reconexión: si se pierde la conexión se avisa y se vuelve al login.
+### Komunikazioa (klaseko adibidearen eskema bera)
+- `ServerConnection`: `TcpClient` + `StreamReader`/`StreamWriter`; **irakurle-hari bat**
+  `ReadLine()` begiztan duela. Mezu bakoitza interfazeko harira pasatzen da eta han `switch` bat egiten da `type`-ren arabera.
+- `TelemetryReceiver`: `UdpClient` ataka libre batean + hartzaile-haria. Ataka zerbitzariari
+  `UDP_SUBSCRIBE` bidez jakinarazten zaio; telemetria 200 ms-ro iristen da.
+- Birkonexio-logikarik gabe: konexioa galtzen bada, abisua ematen da eta saio-hasierara itzultzen da.
 
-### Panel principal personalizado
-- KPIs de la explotación del usuario: máquinas, campos, batería media, trabajando, cargando, disponibles.
-- **Vista 3D low-poly** hecha con `Viewport3D` (sin librerías ni modelos descargados):
-  - Cosechadora (inspirada en el modelo de referencia), sembradora (tractor + sembradora),
-    regadora con depósito y barra de riego, y **fumigadoras como drones de 4 rotores**.
-  - Animaciones: rotores girando, molinete de la cosechadora, nube de fumigación, agua, polvo.
-  - Los cultivos cambian según el crecimiento (zanahoria, maíz con mazorcas, tomateras con
-    tomates verdes→rojos); durante la siembra/cosecha solo se ve la parte ya trabajada.
-  - Movimiento interpolado entre paquetes de telemetría (sin teletransporte).
-  - Cargadores con luz verde/naranja, granero, silo, árboles, caminos.
-  - Etiquetas 2D con nombre y batería; cámara orbital; clic para seleccionar una máquina;
-    "seguir selección"; ver zonas reservadas (anticolisión).
-- Ficha de la máquina seleccionada con START / STOP / RESUME / A LA BASE.
-- Alertas (batería baja, esperas, interbloqueos evitados...).
-- Órdenes a toda la flota: DETENER TODAS, REANUDAR TODAS, TODAS A LA BASE, PARADA DE EMERGENCIA
-  (con confirmación).
+### Aginte-panel pertsonalizatua
+- Erabiltzailearen ustiategiaren KPIak: makinak, soroak, batez besteko bateria, lanean, kargatzen, erabilgarri.
+- **Low-poly 3D ikuspegia**, `Viewport3D`-rekin egina (liburutegirik eta deskargatutako eredurik gabe):
+  - Uzta-biltzailea (erreferentziako ereduan oinarritua), ereilea (traktorea + ereilea),
+    ureztatzailea depositu eta ureztatze-barrarekin, eta **fumigazio-droneak 4 errotorerekin**.
+  - Animazioak: errotoreak biraka, uzta-biltzailearen errota, fumigazio-hodeia, ura, hautsa.
+  - Laboreak hazkuntzaren arabera aldatzen dira (azenarioa, artoa buruekin, tomate-landareak
+    tomate berdeak→gorriak); ereitean/uzta biltzean landutako zatia bakarrik ikusten da.
+  - Telemetria-paketeen arteko mugimendu interpolatua (teletransportik gabe).
+  - Kargagailuak argi berde/laranjarekin, ukuilua, siloa, zuhaitzak, bideak.
+  - 2D etiketak izenarekin eta bateriarekin; kamera orbitala; klik makina bat hautatzeko;
+    "jarraitu hautapenari"; erreserbatutako guneak ikusi (talkak saihestea).
+- Hautatutako makinaren fitxa START / STOP / RESUME / BASERA ITZULI botoiekin.
+- Alertak (bateria baxua, itxaronaldiak, saihestutako elkarblokeoak...).
+- Flota osorako aginduak: GELDITU GUZTIAK, BERREKIN GUZTIAK, GUZTIAK BASERA, LARRIALDIKO GELDIALDIA
+  (berrespenarekin).
 
-### Otras páginas
-- **Máquinas**: tabla en tiempo real + órdenes por máquina + ficha técnica (capacidades distintas).
-- **Campos (planificador)**: elegir cultivo → el servidor genera las tareas; resiembra automática;
-  cancelar plan.
-- **Tareas**: estados PENDING/WAITING/ASSIGNED/RUNNING/COMPLETED/CANCELLED, motivo de espera,
-  progreso, interrupciones, cancelar.
+### Beste orri batzuk
+- **Makinak**: denbora errealeko taula + makina bakoitzeko aginduak + fitxa teknikoa (gaitasun desberdinak).
+- **Soroak (planifikatzailea)**: laborea aukeratu → zerbitzariak zereginak sortzen ditu; birlandaketa automatikoa;
+  labore-plana bertan behera utzi.
+- **Zereginak**: PENDING/WAITING/ASSIGNED/RUNNING/COMPLETED/CANCELLED egoerak (Egiteko, Zain, Esleituta,
+  Martxan, Osatuta, Bertan behera utzita), itxaronaldiaren arrazoia, aurrerapena, etenaldiak, bertan behera utzi.
 
-### Roles
-Los botones se ocultan según `RolePermissions` (el observador solo ve), pero **el servidor vuelve a
-comprobar siempre** el permiso y que la máquina sea de la explotación del usuario.
-El administrador tiene un selector para ver cualquier explotación.
+### Rolak
+Botoiak `RolePermissions`-en arabera ezkutatzen dira (behatzaileak ikusi bakarrik egiten du), baina **zerbitzariak
+beti egiaztatzen du berriro** baimena eta makina erabiltzailearen ustiategikoa dela.
+Administratzaileak hautatzaile bat du edozein ustiategi ikusteko.
 
-## Cómo probarlo
+## Nola probatu
 
 ```
 dotnet run --project src/AgroCore.Server
@@ -55,4 +55,4 @@ dotnet run --project src/AgroCore.MachineClient -- --fleet --farm 1 --key AGRO-D
 dotnet run --project src/AgroCore.ControlCenter
 ```
 
-Entrar como `juan / juan123` (solo ve Finca La Esperanza) o `admin / admin123` (todas).
+Sartu `juan / juan123` gisa (Esperantza baserria bakarrik ikusten du) edo `admin / admin123` gisa (guztiak).

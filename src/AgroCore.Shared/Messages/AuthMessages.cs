@@ -2,7 +2,7 @@ using AgroCore.Shared.Enums;
 
 namespace AgroCore.Shared.Messages
 {
-    /// <summary>WPF -> servidor. El servidor comprueba usuario y contraseña (nunca el WPF).</summary>
+    /// <summary>WPF -> zerbitzaria. Zerbitzariak egiaztatzen ditu erabiltzailea eta pasahitza (inoiz ez WPFak).</summary>
     public class LoginRequest : NetMessage
     {
         public string Username { get; set; } = "";
@@ -14,7 +14,7 @@ namespace AgroCore.Shared.Messages
         }
     }
 
-    /// <summary>Servidor -> WPF. Respuesta al login.</summary>
+    /// <summary>Zerbitzaria -> WPF. Saio-hasierari erantzuna.</summary>
     public class LoginResponse : ResponseMessage
     {
         public int UserId { get; set; }
@@ -24,7 +24,7 @@ namespace AgroCore.Shared.Messages
         public int FarmId { get; set; }
         public string FarmName { get; set; }
 
-        /// <summary>Identificador de la sesión creada en el servidor.</summary>
+        /// <summary>Zerbitzarian sortutako saioaren identifikatzailea.</summary>
         public string SessionToken { get; set; }
 
         public LoginResponse()
@@ -52,7 +52,7 @@ namespace AgroCore.Shared.Messages
         }
     }
 
-    /// <summary>Servidor -> WPF: se cierra la sesión (usuario desactivado o eliminado).</summary>
+    /// <summary>Zerbitzaria -> WPF: saioa ixten da (erabiltzailea desaktibatuta edo ezabatuta).</summary>
     public class ForceLogoutNotice : NetMessage
     {
         public string Reason { get; set; } = "";

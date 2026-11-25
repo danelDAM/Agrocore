@@ -1,10 +1,10 @@
 namespace AgroCore.Shared.Messages
 {
     /// <summary>
-    /// Orden para una máquina. El mismo mensaje viaja:
-    ///   WPF -> servidor   (el servidor comprueba rol y explotación)
-    ///   servidor -> máquina (la máquina la ejecuta)
-    /// Type puede ser START, STOP, RESUME, RETURN_TO_BASE o EMERGENCY_STOP.
+    /// Makina baterako agindua. Mezu bera bidaiatzen du:
+    ///   WPF -> zerbitzaria   (zerbitzariak rola eta ustiategia egiaztatzen ditu)
+    ///   zerbitzaria -> makina (makinak exekutatzen du)
+    /// Type izan daiteke START, STOP, RESUME, RETURN_TO_BASE edo EMERGENCY_STOP.
     /// </summary>
     public class MachineCommand : NetMessage
     {
@@ -23,9 +23,9 @@ namespace AgroCore.Shared.Messages
     }
 
     /// <summary>
-    /// Orden para toda la flota de la explotación:
-    /// STOP_ALL, RESUME_ALL, RETURN_ALL_TO_BASE o EMERGENCY_STOP.
-    /// FarmId solo lo usa el administrador; para los demás el servidor usa SU explotación.
+    /// Ustiategiko flota osorako agindua:
+    /// STOP_ALL, RESUME_ALL, RETURN_ALL_TO_BASE edo EMERGENCY_STOP.
+    /// FarmId administratzaileak bakarrik erabiltzen du; besteentzat zerbitzariak BERE ustiategia erabiltzen du.
     /// </summary>
     public class FarmCommand : NetMessage
     {

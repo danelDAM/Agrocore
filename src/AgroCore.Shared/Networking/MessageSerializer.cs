@@ -5,8 +5,8 @@ using System.Text.Json.Serialization;
 namespace AgroCore.Shared.Networking
 {
     /// <summary>
-    /// Convierte mensajes a JSON y de JSON a mensajes.
-    /// Todos los programas usan estas mismas opciones, así hablan exactamente el mismo "idioma".
+    /// Mezuak JSON bihurtzen ditu eta JSONa mezu.
+    /// Programa guztiek aukera berberak erabiltzen dituzte; horrela "hizkuntza" bera hitz egiten dute.
     /// </summary>
     public static class MessageSerializer
     {
@@ -16,30 +16,30 @@ namespace AgroCore.Shared.Networking
         private static JsonSerializerOptions CreateOptions(bool indented)
         {
             JsonSerializerOptions options = new JsonSerializerOptions();
-            options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;          // "farmId" en vez de "FarmId"
+            options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;          // "farmId" "FarmId"-ren ordez
             options.PropertyNameCaseInsensitive = true;
-            options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull; // no se envían los campos vacíos
+            options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull; // eremu hutsak ez dira bidaltzen
             options.WriteIndented = indented;
-            // Los enums se escriben como texto: UserRole.Farmer -> "FARMER", MachineStatus.ReturningToBase -> "RETURNING_TO_BASE"
+            // Enum-ak testu gisa idazten dira: UserRole.Farmer -> "FARMER", MachineStatus.ReturningToBase -> "RETURNING_TO_BASE"
             options.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.SnakeCaseUpper));
             return options;
         }
 
-        /// <summary>Objeto -> JSON en una sola línea.</summary>
+        /// <summary>Objektua -> JSON lerro bakarrean.</summary>
         public static string ToJson(object message)
         {
             return JsonSerializer.Serialize(message, message.GetType(), Options);
         }
 
-        /// <summary>JSON -> objeto de la clase T.</summary>
+        /// <summary>JSON -> T klaseko objektua.</summary>
         public static T FromJson<T>(string json)
         {
             return JsonSerializer.Deserialize<T>(json, Options);
         }
 
         /// <summary>
-        /// Lee solo el campo "type" de un mensaje JSON para saber qué clase es.
-        /// Devuelve "" si el texto no es un JSON válido.
+        /// JSON mezu baten "type" eremua bakarrik irakurtzen du zein klase den jakiteko.
+        /// "" itzultzen du testua JSON baliozkoa ez bada.
         /// </summary>
         public static string ReadType(string json)
         {
@@ -56,7 +56,7 @@ namespace AgroCore.Shared.Networking
             }
             catch (JsonException)
             {
-                // no es JSON válido
+                // ez da JSON baliozkoa
             }
             return "";
         }

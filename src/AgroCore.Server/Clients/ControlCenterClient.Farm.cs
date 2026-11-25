@@ -13,19 +13,19 @@ using AgroCore.Shared.Security;
 namespace AgroCore.Server.Clients
 {
     /// <summary>
-    /// Parte del ControlCenterClient con los mensajes de la explotación:
-    /// estado, órdenes a máquinas, planes de cultivo, tareas, estadísticas e informes.
+    /// ControlCenterClient-aren zatia, ustiategiaren mezuekin:
+    /// egoera, makinentzako aginduak, labore-planak, zereginak, estatistikak eta txostenak.
     ///
-    /// AISLAMIENTO DE DATOS: antes de hacer nada se comprueba que la máquina, el campo o la tarea
-    /// pertenecen a la explotación del usuario. Ejemplo:
+    /// DATUEN ISOLAMENDUA: ezer egin aurretik, makina, soroa edo zeregina
+    /// erabiltzailearen ustiategikoak direla egiaztatzen da. Adibidea:
     ///
     ///   Juan (FarmId 1) -> STOP F2-Harvester-01
-    ///   ¿Existe la máquina?            sí
-    ///   ¿Pertenece a la explotación 1? NO  -> DENEGADO (y se registra en el log de seguridad)
+    ///   Makina existitzen da?           bai
+    ///   1. ustiategikoa da?             EZ  -> UKATUTA (eta segurtasun-erregistroan gordetzen da)
     /// </summary>
     public partial class ControlCenterClient
     {
-        /// <summary>Devuelve true si el mensaje era de esta parte y se ha atendido.</summary>
+        /// <summary>true itzultzen du mezua zati honetakoa bazen eta artatu bada.</summary>
         private bool HandleFarmMessage(string type, string json)
         {
             switch (type)
@@ -93,11 +93,11 @@ namespace AgroCore.Server.Clients
             FarmRuntime farm = context.Farms.Get(request.FarmId);
             if (farm == null)
             {
-                connection.Send(OperationResult.Fail(request.Type, "La explotación no existe"));
+                connection.Send(OperationResult.Fail(request.Type, "Ustiategia ez da existitzen"));
                 return;
             }
             session.ViewFarmId = farm.Id;
-            connection.Send(OperationResult.Ok(request.Type, "Viendo " + farm.Farm.Name));
+            connection.Send(OperationResult.Ok(request.Type, "Ikusten: " + farm.Farm.Name));
             SendStateNow();
         }
 
@@ -107,14 +107,14 @@ namespace AgroCore.Server.Clients
             {
                 return;
             }
-            // La telemetría se envía a la misma IP desde la que se conectó por TCP
+            // Telemetria TCP bidez konektatu zen IP berera bidaltzen da
             IPAddress address = connection.RemoteAddress ?? IPAddress.Loopback;
             session.UdpEndPoint = new IPEndPoint(address, request.UdpPort);
-            connection.Send(OperationResult.Ok(request.Type, "Telemetría UDP activada"));
+            connection.Send(OperationResult.Ok(request.Type, "UDP telemetria aktibatuta"));
             SendStateNow();
         }
 
-        /// <summary>Envía el estado enseguida (sin esperar al siguiente segundo).</summary>
+        /// <summary>Egoera berehala bidaltzen du (hurrengo segundoaren zain egon gabe).</summary>
         private void SendStateNow()
         {
             FarmRuntime farm = context.Farms.Get(session.ViewFarmId);
@@ -125,7 +125,7 @@ namespace AgroCore.Server.Clients
         }
 
         // ------------------------------------------------------------------
-        // ÓRDENES
+        // AGINDUAK
         // ------------------------------------------------------------------
 
         private void HandleMachineCommand(MachineCommand command)
@@ -135,18 +135,18 @@ namespace AgroCore.Server.Clients
                 return;
             }
 
-            // ¿Existe la máquina?
+            // Makina existitzen da?
             MachineRuntime machine = context.Farms.FindMachine(command.MachineId);
             if (machine == null)
             {
-                connection.Send(OperationResult.Fail(command.Type, "La máquina " + command.MachineId + " no existe"));
+                connection.Send(OperationResult.Fail(command.Type, command.MachineId + " makina ez da existitzen"));
                 return;
             }
 
-            // ¿Pertenece a la explotación del usuario?
+            // Erabiltzailearen ustiategikoa da?
             if (!session.IsAdmin && machine.FarmId != session.FarmId)
             {
-                DenyOtherFarm(command.Type, "la máquina " + command.MachineId);
+                DenyOtherFarm(command.Type, command.MachineId + " makina");
                 return;
             }
 
@@ -158,7 +158,7 @@ namespace AgroCore.Server.Clients
             }
             else
             {
-                connection.Send(OperationResult.Ok(command.Type, command.Type + " enviado a " + machine.Name));
+                connection.Send(OperationResult.Ok(command.Type, command.Type + " bidalita: " + machine.Name));
             }
         }
 
@@ -178,7 +178,7 @@ namespace AgroCore.Server.Clients
             FarmRuntime farm = context.Farms.Get(farmId);
             if (farm == null)
             {
-                connection.Send(OperationResult.Fail(command.Type, "La explotación no existe"));
+                connection.Send(OperationResult.Fail(command.Type, "Ustiategia ez da existitzen"));
                 return;
             }
 
@@ -189,12 +189,12 @@ namespace AgroCore.Server.Clients
             }
             else
             {
-                connection.Send(OperationResult.Ok(command.Type, command.Type + " ejecutado en " + farm.Farm.Name));
+                connection.Send(OperationResult.Ok(command.Type, command.Type + " exekutatuta: " + farm.Farm.Name));
             }
         }
 
         // ------------------------------------------------------------------
-        // PLANES Y TAREAS
+        // PLANAK ETA ZEREGINAK
         // ------------------------------------------------------------------
 
         private void HandleCropPlan(CropPlanRequest request)
@@ -203,11 +203,11 @@ namespace AgroCore.Server.Clients
             {
                 return;
             }
-            // El campo se busca SOLO en la explotación que está viendo el usuario (la suya si no es admin)
+            // Soroa erabiltzailea ikusten ari den ustiategian BAKARRIK bilatzen da (berea, administratzailea ez bada)
             FarmRuntime farm = context.Farms.Get(session.IsAdmin ? session.ViewFarmId : session.FarmId);
             if (farm == null)
             {
-                connection.Send(OperationResult.Fail(request.Type, "Explotación no encontrada"));
+                connection.Send(OperationResult.Fail(request.Type, "Ez da ustiategia aurkitu"));
                 return;
             }
 
@@ -217,7 +217,7 @@ namespace AgroCore.Server.Clients
                 connection.Send(OperationResult.Fail(request.Type, error));
                 return;
             }
-            connection.Send(OperationResult.Ok(request.Type, "Plan creado: " + request.Crop + " en " + request.FieldId));
+            connection.Send(OperationResult.Ok(request.Type, "Plana sortuta: " + request.Crop + " (" + request.FieldId + ")"));
             SendStateNow();
         }
 
@@ -230,14 +230,14 @@ namespace AgroCore.Server.Clients
             FarmRuntime farm = context.Farms.Get(session.IsAdmin ? session.ViewFarmId : session.FarmId);
             if (farm == null || !farm.Tasks.HasTask(request.TaskId))
             {
-                // No se dice si existe en otra explotación: simplemente no es suya
+                // Ez da esaten beste ustiategi batean dagoen: besterik gabe, ez da berea
                 if (!session.IsAdmin)
                 {
-                    DenyOtherFarm(request.Type, "la tarea " + request.TaskId);
+                    DenyOtherFarm(request.Type, request.TaskId + " zeregina");
                 }
                 else
                 {
-                    connection.Send(OperationResult.Fail(request.Type, "La tarea no existe en esta explotación"));
+                    connection.Send(OperationResult.Fail(request.Type, "Zeregina ez dago ustiategi honetan"));
                 }
                 return;
             }
@@ -250,7 +250,7 @@ namespace AgroCore.Server.Clients
                 return;
             }
 
-            // Si una máquina la estaba haciendo, se le avisa para que la abandone
+            // Makina bat egiten ari bazen, abisatu egiten zaio utz dezan
             if (machineToNotify != null)
             {
                 MachineRuntime machine = context.Farms.FindMachine(machineToNotify);
@@ -258,17 +258,17 @@ namespace AgroCore.Server.Clients
                 {
                     TaskCancelledNotice notice = new TaskCancelledNotice();
                     notice.TaskId = machine.CurrentTaskId ?? request.TaskId;
-                    notice.Reason = "Cancelada por " + session.Username;
+                    notice.Reason = "Bertan behera utzita, egilea: " + session.Username;
                     machine.Connection.TrySend(notice);
                     machine.SetCurrentTask(null, null, null);
                 }
             }
-            connection.Send(OperationResult.Ok(request.Type, "Plan del campo cancelado"));
+            connection.Send(OperationResult.Ok(request.Type, "Soroaren plana bertan behera utzita"));
             SendStateNow();
         }
 
         // ------------------------------------------------------------------
-        // ESTADÍSTICAS E INFORMES
+        // ESTATISTIKAK ETA TXOSTENAK
         // ------------------------------------------------------------------
 
         private void HandleStatistics(StatisticsRequest request)
@@ -285,7 +285,7 @@ namespace AgroCore.Server.Clients
             FarmRuntime farm = context.Farms.Get(farmId);
             if (farm == null)
             {
-                connection.Send(OperationResult.Fail(request.Type, "Explotación no encontrada"));
+                connection.Send(OperationResult.Fail(request.Type, "Ez da ustiategia aurkitu"));
                 return;
             }
             StatisticsResponse response = new StatisticsResponse();
@@ -294,8 +294,8 @@ namespace AgroCore.Server.Clients
         }
 
         /// <summary>
-        /// Datos del informe PDF. Un agricultor solo puede pedir el de SU explotación:
-        /// nunca se generan por defecto datos de otras explotaciones.
+        /// PDF txostenaren datuak. Nekazari batek BERE ustiategiarena bakarrik eska dezake:
+        /// ez dira inoiz lehenespenez beste ustiategi batzuen datuak sortzen.
         /// </summary>
         private void HandleReport(ReportRequest request)
         {
@@ -311,7 +311,7 @@ namespace AgroCore.Server.Clients
             FarmRuntime farm = context.Farms.Get(farmId);
             if (farm == null)
             {
-                connection.Send(OperationResult.Fail(request.Type, "Explotación no encontrada"));
+                connection.Send(OperationResult.Fail(request.Type, "Ez da ustiategia aurkitu"));
                 return;
             }
 
@@ -334,7 +334,7 @@ namespace AgroCore.Server.Clients
             report.Statistics = context.Statistics.Build(farm, from, to);
             report.Tasks = farm.Tasks.GetFinishedTasks(from, to);
 
-            // Incidencias: avisos, errores y eventos de seguridad del periodo
+            // Gorabeherak: aldiko abisuak, erroreak eta segurtasun-gertaerak
             List<LogEntry> incidents = new List<LogEntry>();
             foreach (LogEntry entry in context.Logger.GetEntries(farm.Id, from, to))
             {
@@ -354,7 +354,7 @@ namespace AgroCore.Server.Clients
             connection.Send(response);
 
             context.Logger.Log(EventKind.Info, LogSeverity.Info,
-                session.FullName + " generó el informe de " + farm.Farm.Name + " (" + from.ToShortDateString() + " - " + to.ToShortDateString() + ")",
+                session.FullName + " erabiltzaileak " + farm.Farm.Name + " ustiategiaren txostena sortu du (" + from.ToShortDateString() + " - " + to.ToShortDateString() + ")",
                 farm.Id, null, session.Username, null, null);
         }
     }

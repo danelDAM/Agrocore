@@ -6,10 +6,10 @@ using AgroCore.Shared.Models;
 namespace AgroCore.MachineClient.Battery
 {
     /// <summary>
-    /// Batería de la máquina: consumo al moverse y trabajar, carga, y DECISIONES:
-    ///  - ¿Tengo batería baja?
-    ///  - ¿Puedo terminar la tarea y aún volver a la base?
-    ///  - ¿Tengo batería suficiente para volver a la base?
+    /// Makinaren bateria: mugitzean eta lan egitean kontsumoa, karga eta ERABAKIAK:
+    ///  - Bateria baxua dut?
+    ///  - Zeregina amaitu eta oraindik basera itzul naiteke?
+    ///  - Basera itzultzeko bateria nahikoa dut?
     /// </summary>
     public class BatteryManager
     {
@@ -61,7 +61,7 @@ namespace AgroCore.MachineClient.Battery
             return state.Battery <= config.LowBatteryThreshold;
         }
 
-        /// <summary>Devuelve true UNA vez cuando la batería pasa a estar baja (para avisar al servidor).</summary>
+        /// <summary>true itzultzen du BEHIN, bateria baxu bihurtzen denean (zerbitzariari abisatzeko).</summary>
         public bool JustBecameLow()
         {
             if (IsLow() && !lowBatteryReported)
@@ -76,27 +76,27 @@ namespace AgroCore.MachineClient.Battery
             return false;
         }
 
-        /// <summary>% necesario para volver desde una posición a la base, con margen de seguridad.</summary>
+        /// <summary>Posizio batetik basera itzultzeko behar den %, segurtasun-tartearekin.</summary>
         public double CostToReturn(Position from)
         {
             double distance = MachineMath.TravelDistance(type, from, MachineMath.BaseGate(layout)) + 12;
             return MachineMath.MoveCost(profile, config, distance) + config.ReturnReserve;
         }
 
-        /// <summary>¿Puede volver a la base con la batería que le queda?</summary>
+        /// <summary>Geratzen zaion bateriarekin basera itzul daiteke?</summary>
         public bool CanReturnToBase(Position from)
         {
             return state.Battery >= CostToReturn(from);
         }
 
-        /// <summary>¿Puede terminar el trabajo que le falta y después volver a la base?</summary>
+        /// <summary>Falta zaion lana amaitu eta gero basera itzul daiteke?</summary>
         public bool CanFinishAndReturn(Position from, double progressPercent)
         {
             double work = MachineMath.WorkCost(profile, config, MachineMath.WorkSeconds(profile, layout.FieldSize, progressPercent));
             return state.Battery >= work + CostToReturn(from);
         }
 
-        /// <summary>Actualiza el indicador BATTERY_OK / LOW_BATTERY (los demás los pone la rutina de carga).</summary>
+        /// <summary>BATTERY_OK / LOW_BATTERY adierazlea eguneratzen du (besteak karga-errutinak jartzen ditu).</summary>
         private void UpdateStatus()
         {
             BatteryStatus current = state.BatteryStatus;

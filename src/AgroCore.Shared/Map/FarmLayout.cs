@@ -5,31 +5,31 @@ using AgroCore.Shared.Models;
 namespace AgroCore.Shared.Map
 {
     /// <summary>
-    /// Plano de una explotación. El terreno se divide en celdas cuadradas (una cuadrícula).
+    /// Ustiategi baten planoa. Lursaila gelaxka karratuetan banatzen da (sare bat).
     ///
-    ///   columna:  0  1  2  3  4  5  6  7  8  9 10 11 ...
-    ///             [ BASE ][L][C][ CAMPO ][C][ CAMPO ][C]
+    ///   zutabea:  0  1  2  3  4  5  6  7  8  9 10 11 ...
+    ///             [ BASEA][L][C][ SOROA ][C][ SOROA ][C]
     ///
-    ///   - Columnas 0 y 1: la base (cargadores y aparcamientos).
-    ///   - Columna 2: el "carril de la base" (L), por donde se mueven las máquinas dentro de la base.
-    ///   - Columnas 3, 7, 11, 15: caminos verticales (C).
-    ///   - Filas 0, 4, 8: caminos horizontales.
-    ///   - Entre los caminos hay campos de 3x3 celdas.
-    ///   - La base solo se conecta con los caminos por la PUERTA (fila GateRow).
+    ///   - 0 eta 1 zutabeak: basea (kargagailuak eta aparkalekuak).
+    ///   - 2. zutabea: "basearen errei" (L), makinak basearen barruan mugitzen diren bidea.
+    ///   - 3, 7, 11, 15 zutabeak: bide bertikalak (C).
+    ///   - 0, 4, 8 errenkadak: bide horizontalak.
+    ///   - Bideen artean 3x3 gelaxkako soroak daude.
+    ///   - Basea ATETIK bakarrik konektatzen da bideekin (GateRow errenkada).
     ///
-    /// Cada celda de camino o de carril es una ZONA. Para entrar en una zona, la máquina debe
-    /// reservarla en el servidor (sistema anticolisión). Las celdas de los campos no son zonas:
-    /// en un campo solo trabaja una máquina a la vez (lo garantiza el coordinador de tareas).
+    /// Bideko edo erreiko gelaxka bakoitza GUNE bat da. Gune batean sartzeko, makinak
+    /// zerbitzarian erreserbatu behar du (talken aurkako sistema). Soroetako gelaxkak ez dira guneak:
+    /// soro batean makina bakar batek egiten du lan aldi berean (zereginen koordinatzaileak bermatzen du).
     ///
-    /// Esta clase está en Shared porque el servidor, las máquinas y el centro de control
-    /// tienen que usar exactamente el mismo plano.
+    /// Klase hau Shared-en dago zerbitzariak, makinek eta Kontrol Zentroak
+    /// plano bera erabili behar dutelako.
     /// </summary>
     public class FarmLayout
     {
-        /// <summary>Tamaño de cada celda en unidades del mundo 3D.</summary>
+        /// <summary>Gelaxka bakoitzaren tamaina, 3D munduko unitateetan.</summary>
         public const double CellSize = 6.0;
 
-        /// <summary>Columna del carril de la base.</summary>
+        /// <summary>Basearen erreiaren zutabea.</summary>
         public const int BaseLaneCol = 2;
 
         public int FieldCount { get; private set; }
@@ -40,7 +40,7 @@ namespace AgroCore.Shared.Map
         public int Cols { get; private set; }
         public int Rows { get; private set; }
 
-        /// <summary>Fila por la que se sale de la base al camino.</summary>
+        /// <summary>Basetik bidera irteteko errenkada.</summary>
         public int GateRow { get; private set; }
 
         public FarmLayout(int fieldCount, int chargerCount, int machineSlotCount)
@@ -49,11 +49,11 @@ namespace AgroCore.Shared.Map
             ChargerCount = Math.Max(1, chargerCount);
             MachineSlotCount = Math.Max(1, machineSlotCount);
 
-            FieldCols = Math.Min(3, FieldCount);                 // como mucho 3 campos por fila
-            FieldRows = (FieldCount + FieldCols - 1) / FieldCols; // filas de campos necesarias
+            FieldCols = Math.Min(3, FieldCount);                 // gehienez 3 soro errenkadako
+            FieldRows = (FieldCount + FieldCols - 1) / FieldCols; // behar diren soro-errenkadak
             Cols = 4 + 4 * FieldCols;
             Rows = 1 + 4 * FieldRows;
-            GateRow = 4 * (FieldRows / 2);                        // un camino horizontal en el centro
+            GateRow = 4 * (FieldRows / 2);                        // bide horizontal bat erdian
         }
 
         public double Width
@@ -67,7 +67,7 @@ namespace AgroCore.Shared.Map
         }
 
         // ------------------------------------------------------------------
-        // Celdas y zonas
+        // Gelaxkak eta guneak
         // ------------------------------------------------------------------
 
         public bool IsInside(int col, int row)
@@ -75,7 +75,7 @@ namespace AgroCore.Shared.Map
             return col >= 0 && col < Cols && row >= 0 && row < Rows;
         }
 
-        /// <summary>¿Es una celda de camino?</summary>
+        /// <summary>Bideko gelaxka bat da?</summary>
         public bool IsRoad(int col, int row)
         {
             if (!IsInside(col, row) || col < 3)
@@ -87,26 +87,26 @@ namespace AgroCore.Shared.Map
             return verticalRoad || horizontalRoad;
         }
 
-        /// <summary>¿Es una celda del carril interior de la base?</summary>
+        /// <summary>Basearen barneko erreiko gelaxka bat da?</summary>
         public bool IsBaseLane(int col, int row)
         {
             return col == BaseLaneCol && row >= 0 && row < Rows;
         }
 
-        /// <summary>¿Puede circular una máquina de tierra por esta celda?</summary>
+        /// <summary>Lurreko makina batek gelaxka honetatik zirkula dezake?</summary>
         public bool IsDrivable(int col, int row)
         {
             return IsRoad(col, row) || IsBaseLane(col, row);
         }
 
-        /// <summary>¿Se puede pasar directamente de una celda a otra vecina?</summary>
+        /// <summary>Gelaxka batetik ondokora zuzenean pasa daiteke?</summary>
         public bool CanConnect(int col1, int row1, int col2, int row2)
         {
             if (!IsDrivable(col1, row1) || !IsDrivable(col2, row2))
             {
                 return false;
             }
-            // Entre el carril de la base y el camino solo se pasa por la puerta.
+            // Basearen erreiaren eta bidearen artean atetik bakarrik pasatzen da.
             bool oneIsLane = col1 == BaseLaneCol || col2 == BaseLaneCol;
             bool oneIsRoad = col1 == 3 || col2 == 3;
             if (oneIsLane && oneIsRoad)
@@ -121,7 +121,7 @@ namespace AgroCore.Shared.Map
             return "Z" + col.ToString("00") + "-" + row.ToString("00");
         }
 
-        /// <summary>Convierte "Z07-04" en columna 7, fila 4.</summary>
+        /// <summary>"Z07-04" 7. zutabe eta 4. errenkada bihurtzen du.</summary>
         public static bool TryParseZone(string zoneId, out int col, out int row)
         {
             col = 0;
@@ -148,14 +148,14 @@ namespace AgroCore.Shared.Map
             return (int)Math.Floor(z / CellSize);
         }
 
-        /// <summary>Coordenada X del centro del carril de la base.</summary>
+        /// <summary>Basearen erreiaren erdiko X koordenatua.</summary>
         public double BaseLaneX
         {
             get { return (BaseLaneCol + 0.5) * CellSize; }
         }
 
         // ------------------------------------------------------------------
-        // Campos
+        // Soroak
         // ------------------------------------------------------------------
 
         public static string FieldId(int index)
@@ -167,7 +167,7 @@ namespace AgroCore.Shared.Map
         public static string FieldName(int index)
         {
             char letter = (char)('A' + index);
-            return "Campo " + letter;
+            return letter + " soroa";
         }
 
         public int FieldMinCol(int index)
@@ -190,13 +190,13 @@ namespace AgroCore.Shared.Map
             return FieldMinRow(index) * CellSize;
         }
 
-        /// <summary>Un campo mide 3x3 celdas.</summary>
+        /// <summary>Soro batek 3x3 gelaxka neurtzen ditu.</summary>
         public double FieldSize
         {
             get { return 3 * CellSize; }
         }
 
-        /// <summary>Celda de camino desde la que se entra al campo (a su izquierda, en el centro).</summary>
+        /// <summary>Sorora sartzeko bideko gelaxka (ezkerrean, erdian).</summary>
         public int FieldEntranceCol(int index)
         {
             return FieldMinCol(index) - 1;
@@ -213,9 +213,9 @@ namespace AgroCore.Shared.Map
         }
 
         // ------------------------------------------------------------------
-        // Base: cargadores y aparcamientos.
-        // Cada cargador y cada plaza tiene una Z distinta, así los "ramales" que van del carril
-        // a cada plaza nunca se cruzan entre sí.
+        // Basea: kargagailuak eta aparkalekuak.
+        // Kargagailu eta aparkaleku bakoitzak Z desberdina du; horrela, erreitik
+        // aparkaleku bakoitzera doazen "adarrak" ez dira inoiz elkarren artean gurutzatzen.
         // ------------------------------------------------------------------
 
         private double SlotZ(int slot)
@@ -236,12 +236,12 @@ namespace AgroCore.Shared.Map
         }
 
         // ------------------------------------------------------------------
-        // Búsqueda de caminos (BFS = búsqueda en anchura) por las celdas circulables.
+        // Bide-bilaketa (BFS = zabalerako bilaketa) gelaxka zirkulagarrietan zehar.
         // ------------------------------------------------------------------
 
         /// <summary>
-        /// Devuelve la lista de celdas {col, row} desde el inicio hasta el destino (ambas incluidas),
-        /// o una lista vacía si no hay camino.
+        /// {col, row} gelaxken zerrenda itzultzen du hasieratik helmugaraino (biak barne),
+        /// edo zerrenda huts bat bidea ez badago.
         /// </summary>
         public List<int[]> FindPath(int startCol, int startRow, int endCol, int endRow)
         {
@@ -297,7 +297,7 @@ namespace AgroCore.Shared.Map
                 return path;
             }
 
-            // Reconstruir el camino yendo hacia atrás desde el destino.
+            // Bidea berreraiki helmugatik atzera eginez.
             int c = endCol;
             int r = endRow;
             while (c != -1)

@@ -9,7 +9,7 @@ using AgroCore.Shared.Security;
 
 namespace AgroCore.ControlCenter.Views
 {
-    /// <summary>Lista de tareas con su estado (PENDING, WAITING, ASSIGNED, RUNNING, COMPLETED, CANCELLED).</summary>
+    /// <summary>Zereginen zerrenda bere egoerarekin (PENDING, WAITING, ASSIGNED, RUNNING, COMPLETED, CANCELLED).</summary>
     public partial class TasksPage : UserControl
     {
         private readonly MainWindow main;
@@ -20,7 +20,7 @@ namespace AgroCore.ControlCenter.Views
             InitializeComponent();
             this.main = main;
 
-            // Vista filtrada de la colección: por defecto oculta las tareas terminadas
+            // Bildumaren ikuspegi iragazia: lehenetsita amaitutako zereginak ezkutatzen ditu
             view = CollectionViewSource.GetDefaultView(main.TaskRows);
             view.Filter = Filter;
             TasksGrid.ItemsSource = view;
@@ -48,12 +48,12 @@ namespace AgroCore.ControlCenter.Views
                 if (row.Status == AgroTaskStatus.Completed) completed++;
                 if (row.Status == AgroTaskStatus.Cancelled) cancelled++;
             }
-            CountsText.Text = "En curso: " + running + "    Pendientes / en espera: " + waiting
-                              + "    Completadas: " + completed + "    Canceladas: " + cancelled;
+            CountsText.Text = "Martxan: " + running + "    Egiteko / zain: " + waiting
+                              + "    Osatuta: " + completed + "    Bertan behera utzita: " + cancelled;
 
             if (IsVisible)
             {
-                view.Refresh(); // vuelve a aplicar el filtro (alguna tarea puede haber terminado)
+                view.Refresh(); // iragazkia berriro aplikatzen du (zereginen bat amaitu egin daiteke)
             }
         }
 
@@ -66,9 +66,9 @@ namespace AgroCore.ControlCenter.Views
         {
             TaskRow row = (TaskRow)((Button)sender).DataContext;
             MessageBoxResult answer = MessageBox.Show(Window.GetWindow(this),
-                "¿Cancelar " + row.Id + " (" + row.TypeText + " en " + row.FieldText + ")?\n" +
-                "Se cancelará el plan de cultivo completo de ese campo.",
-                "Cancelar tarea", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                row.Id + " (" + row.TypeText + ", " + row.FieldText + ") bertan behera utzi?\n" +
+                "Soro horren labore-plan osoa bertan behera geratuko da.",
+                "Zeregina bertan behera utzi", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (answer == MessageBoxResult.Yes)
             {
                 CancelTaskRequest request = new CancelTaskRequest();

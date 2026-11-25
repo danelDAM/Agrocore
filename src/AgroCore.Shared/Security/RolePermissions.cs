@@ -2,7 +2,7 @@ using AgroCore.Shared.Enums;
 
 namespace AgroCore.Shared.Security
 {
-    /// <summary>Acciones que necesitan permiso.</summary>
+    /// <summary>Baimena behar duten ekintzak.</summary>
     public enum Permission
     {
         ViewFarm,
@@ -22,8 +22,8 @@ namespace AgroCore.Shared.Security
     }
 
     /// <summary>
-    /// Qué puede hacer cada rol. El SERVIDOR usa esta tabla para aceptar o rechazar cada petición.
-    /// El centro de control la usa solo para esconder botones (eso no es seguridad, es comodidad).
+    /// Rol bakoitzak zer egin dezakeen. ZERBITZARIAK taula hau erabiltzen du eskaera bakoitza onartu edo ukatzeko.
+    /// Kontrol Zentroak botoiak ezkutatzeko soilik erabiltzen du (hori ez da segurtasuna, erosotasuna baizik).
     /// </summary>
     public static class RolePermissions
     {
@@ -63,7 +63,7 @@ namespace AgroCore.Shared.Security
         {
             if (role == UserRole.Admin)
             {
-                return true; // el administrador puede hacerlo todo
+                return true; // administratzaileak dena egin dezake
             }
 
             Permission[] allowed;
@@ -94,10 +94,10 @@ namespace AgroCore.Shared.Security
         {
             switch (role)
             {
-                case UserRole.Admin: return "Administrador";
-                case UserRole.Farmer: return "Agricultor";
-                case UserRole.Operator: return "Operador";
-                case UserRole.Viewer: return "Observador";
+                case UserRole.Admin: return "Administratzailea";
+                case UserRole.Farmer: return "Nekazaria";
+                case UserRole.Operator: return "Operadorea";
+                case UserRole.Viewer: return "Behatzailea";
                 default: return role.ToString();
             }
         }

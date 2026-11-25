@@ -11,11 +11,11 @@ using AgroCore.Shared.Networking;
 namespace AgroCore.Server.Clients
 {
     /// <summary>
-    /// Atiende a UNA máquina autónoma. Se ejecuta en el hilo propio de esa máquina.
+    /// Makina autonomo BAT artatzen du. Makina horren hari propioan exekutatzen da.
     ///
-    /// Cuando la máquina pide trabajo, zona o cargador, ESTE hilo es el que se queda bloqueado
-    /// en Monitor.Wait() dentro del coordinador correspondiente: "el servidor mantiene la máquina
-    /// esperando". La máquina, mientras tanto, está esperando la respuesta.
+    /// Makinak lana, gunea edo kargagailua eskatzen duenean, hari HAU geratzen da blokeatuta
+    /// dagokion koordinatzailearen Monitor.Wait() barruan: "zerbitzariak makina zain mantentzen du".
+    /// Bitartean, makina erantzunaren zain dago.
     /// </summary>
     public class MachineClientHandler
     {
@@ -45,7 +45,7 @@ namespace AgroCore.Server.Clients
                     string line = connection.ReadLine();
                     if (line == null)
                     {
-                        break; // la máquina se ha desconectado
+                        break; // makina deskonektatu egin da
                     }
                     HandleMessage(MessageSerializer.ReadType(line), line);
                 }
@@ -57,7 +57,7 @@ namespace AgroCore.Server.Clients
         }
 
         // ==================================================================
-        // AUTENTICACIÓN DE LA MÁQUINA
+        // MAKINAREN AUTENTIFIKAZIOA
         // ==================================================================
 
         private bool Authenticate(MachineAuthRequest request)
@@ -71,19 +71,19 @@ namespace AgroCore.Server.Clients
             string error = null;
             if (registration == null || farmData == null || runtime == null)
             {
-                error = "Máquina no registrada";
+                error = "Makina ez dago erregistratuta";
             }
             else if (!PasswordHasher.Verify(request.FleetKey, farmData.FleetKeyHash))
             {
-                error = "Clave de flota incorrecta";
+                error = "Flota-gakoa okerra da";
             }
             else if (registration.Type != request.MachineType)
             {
-                error = "El tipo de máquina no coincide con el registrado";
+                error = "Makina mota ez dator bat erregistratutakoarekin";
             }
             else if (runtime.Machines[registration.Id].Online)
             {
-                error = "Ya hay una máquina conectada con ese identificador";
+                error = "Badago identifikatzaile hori duen makina bat konektatuta";
             }
 
             if (error != null)
@@ -92,7 +92,7 @@ namespace AgroCore.Server.Clients
                 response.Message = error;
                 connection.TrySend(response);
                 context.Logger.Log(EventKind.MachineAuthFailed, LogSeverity.Security,
-                    "Máquina rechazada '" + request.MachineId + "' desde " + connection.RemoteText + ": " + error,
+                    "'" + request.MachineId + "' makina baztertuta (" + connection.RemoteText + "): " + error,
                     registration != null ? registration.FarmId : (int?)null, request.MachineId);
                 return false;
             }
@@ -103,10 +103,10 @@ namespace AgroCore.Server.Clients
             string token = PasswordHasher.GenerateToken();
             double battery = Math.Clamp(request.InitialBattery, 0, 100);
             machine.MarkConnected(connection, token, request.Profile, battery, farm.Layout.ParkingPosition(registration.SlotIndex));
-            machine.Halted = farm.EmergencyActive; // si hay emergencia, arranca detenida
+            machine.Halted = farm.EmergencyActive; // larrialdia badago, geldituta abiatzen da
 
             response.Success = true;
-            response.Message = "Bienvenida a " + farmData.Name;
+            response.Message = "Ongi etorri " + farmData.Name + " ustiategira";
             response.MachineId = machine.Id;
             response.MachineName = machine.Name;
             response.FarmId = farm.Id;
@@ -122,8 +122,8 @@ namespace AgroCore.Server.Clients
             connection.Send(response);
 
             context.Logger.Log(EventKind.MachineAuthenticated, LogSeverity.Success,
-                machine.Name + " conectada y autenticada (" + farmData.Name + ") - velocidad " + request.Profile.Speed +
-                ", capacidad " + request.Profile.Capacity + ", batería " + battery.ToString("0") + "%",
+                machine.Name + " konektatuta eta autentifikatuta (" + farmData.Name + ") - abiadura " + request.Profile.Speed +
+                ", edukiera " + request.Profile.Capacity + ", bateria " + battery.ToString("0") + "%",
                 farm.Id, machine.Id);
 
             if (farm.EmergencyActive)
@@ -147,7 +147,7 @@ namespace AgroCore.Server.Clients
         }
 
         // ==================================================================
-        // MENSAJES DE LA MÁQUINA
+        // MAKINAREN MEZUAK
         // ==================================================================
 
         private void HandleMessage(string type, string json)
@@ -157,7 +157,7 @@ namespace AgroCore.Server.Clients
                 case MessageTypes.TaskRequest:
                     {
                         TaskRequest request = MessageSerializer.FromJson<TaskRequest>(json);
-                        // Puede bloquearse aquí (Monitor.Wait) hasta que haya trabajo
+                        // Hemen blokea daiteke (Monitor.Wait) lana egon arte
                         TaskAssignment assignment = farm.Tasks.WaitForTask(machine, request.MaxWaitMs, () => farm.EmergencyActive);
                         connection.Send(assignment);
                         break;
@@ -189,7 +189,7 @@ namespace AgroCore.Server.Clients
                         ZoneRequest request = MessageSerializer.FromJson<ZoneRequest>(json);
                         ZoneResponse response = new ZoneResponse();
                         response.ZoneId = request.ZoneId;
-                        // Puede bloquearse aquí (Monitor.Wait) si la zona está ocupada
+                        // Hemen blokea daiteke (Monitor.Wait) gunea okupatuta badago
                         response.Outcome = farm.Zones.Acquire(machine, request.ZoneId);
                         response.Success = response.Outcome == ZoneOutcome.Granted;
                         connection.Send(response);
@@ -207,7 +207,7 @@ namespace AgroCore.Server.Clients
                     {
                         ChargerResponse response = new ChargerResponse();
                         Charger charger;
-                        // Puede bloquearse aquí (Monitor.Wait) si todos los cargadores están ocupados
+                        // Hemen blokea daiteke (Monitor.Wait) kargagailu guztiak okupatuta badaude
                         response.Outcome = farm.Chargers.Acquire(machine, out charger);
                         response.Success = response.Outcome == ChargerOutcome.Granted;
                         if (charger != null)
@@ -235,13 +235,13 @@ namespace AgroCore.Server.Clients
 
                 default:
                     context.Logger.Log(EventKind.Error, LogSeverity.Warning,
-                        machine.Name + " envió un mensaje desconocido: " + type, farm.Id, machine.Id);
+                        machine.Name + " makinak mezu ezezagun bat bidali du: " + type, farm.Id, machine.Id);
                     break;
             }
         }
 
         // ==================================================================
-        // DESCONEXIÓN
+        // DESKONEXIOA
         // ==================================================================
 
         private void Disconnect()
@@ -252,14 +252,14 @@ namespace AgroCore.Server.Clients
             farm.Chargers.ReleaseAll(machine);
             farm.WakeAllWaiters();
             context.Logger.Log(EventKind.ClientDisconnected, LogSeverity.Warning,
-                machine.Name + " desconectada", farm.Id, machine.Id);
+                machine.Name + " deskonektatuta", farm.Id, machine.Id);
         }
 
         // ==================================================================
-        // LANZADOR DE FLOTA
+        // FLOTA-ABIARAZLEA
         // ==================================================================
 
-        /// <summary>Responde a FLEET_QUERY con la lista de máquinas de la explotación (si la clave es correcta).</summary>
+        /// <summary>FLEET_QUERY-ri ustiategiko makinen zerrendarekin erantzuten dio (gakoa zuzena bada).</summary>
         public static void HandleFleetQuery(ServerContext context, Connection connection, string json)
         {
             FleetQueryRequest request = MessageSerializer.FromJson<FleetQueryRequest>(json);
@@ -269,9 +269,9 @@ namespace AgroCore.Server.Clients
             if (farm == null || !PasswordHasher.Verify(request.FleetKey, farm.FleetKeyHash))
             {
                 response.Success = false;
-                response.Message = "Explotación o clave de flota incorrecta";
+                response.Message = "Ustiategia edo flota-gakoa okerra da";
                 context.Logger.Log(EventKind.MachineAuthFailed, LogSeverity.Security,
-                    "FLEET_QUERY rechazado para la explotación " + request.FarmId + " desde " + connection.RemoteText);
+                    "FLEET_QUERY baztertuta " + request.FarmId + ". ustiategirako (" + connection.RemoteText + ")");
             }
             else
             {

@@ -4,9 +4,9 @@ using System.Windows.Controls;
 namespace AgroCore.ControlCenter.Views
 {
     /// <summary>
-    /// Ventanita para pedir un texto (o una contraseña). Se crea por código para que sea sencilla:
-    ///   string value = InputDialog.Ask(owner, "Título", "Pregunta", "valor inicial", false);
-    /// Devuelve null si se cancela.
+    /// Testu bat (edo pasahitz bat) eskatzeko leiho txikia. Kodez sortzen da, sinplea izan dadin:
+    ///   string value = InputDialog.Ask(owner, "Izenburua", "Galdera", "hasierako balioa", false);
+    /// null itzultzen du bertan behera uzten bada.
     /// </summary>
     public class InputDialog : Window
     {
@@ -49,12 +49,12 @@ namespace AgroCore.ControlCenter.Views
             buttons.Margin = new Thickness(0, 16, 0, 0);
 
             Button ok = new Button();
-            ok.Content = "ACEPTAR";
+            ok.Content = "ONARTU";
             ok.IsDefault = true;
             ok.Click += (s, e) => { DialogResult = true; };
 
             Button cancel = new Button();
-            cancel.Content = "CANCELAR";
+            cancel.Content = "UTZI";
             cancel.IsCancel = true;
             cancel.Style = (Style)Application.Current.FindResource("GhostButton");
             cancel.Margin = new Thickness(0);

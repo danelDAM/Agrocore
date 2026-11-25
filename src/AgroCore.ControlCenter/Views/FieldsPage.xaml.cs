@@ -9,14 +9,14 @@ using AgroCore.Shared.Security;
 namespace AgroCore.ControlCenter.Views
 {
     /// <summary>
-    /// Campos de la explotación. El PLANIFICADOR: el usuario elige un cultivo para un campo y el
-    /// servidor genera automáticamente las tareas (siembra, cuidados, crecimiento y cosecha).
+    /// Ustiategiaren soroak. PLANIFIKATZAILEA: erabiltzaileak labore bat aukeratzen du soro baterako eta
+    /// zerbitzariak automatikoki sortzen ditu zereginak (ereitea, zainketak, hazkuntza eta uzta-bilketa).
     /// </summary>
     public partial class FieldsPage : UserControl
     {
         private readonly MainWindow main;
 
-        /// <summary>Los controles del plan solo se ven si el rol puede gestionar cultivos.</summary>
+        /// <summary>Planaren kontrolak rolak laboreak kudea ditzakeenean bakarrik ikusten dira.</summary>
         public Visibility PlanControlsVisibility { get; private set; }
 
         public FieldsPage(MainWindow main)
@@ -32,14 +32,14 @@ namespace AgroCore.ControlCenter.Views
 
         private void OnStateUpdated(FarmStateMessage state)
         {
-            // Resumen de los cultivos configurados en el servidor
-            string text = "Cultivos:  ";
+            // Zerbitzarian konfiguratutako laboreen laburpena
+            string text = "Laboreak:  ";
             foreach (CropDefinition crop in state.Crops)
             {
                 string care = "";
                 foreach (CareStep step in crop.CareSteps)
                 {
-                    care = care + ", " + Texts.TaskType(step.Task).ToLower() + " al " + step.AtGrowth.ToString("0") + "%";
+                    care = care + ", " + Texts.TaskType(step.Task).ToLower() + " (%" + step.AtGrowth.ToString("0") + ")";
                 }
                 text = text + Texts.Crop(crop.Type) + " (" + crop.GrowthMinutes.ToString("0.#") + " min" + care + ")     ";
             }
@@ -65,7 +65,7 @@ namespace AgroCore.ControlCenter.Views
                 return;
             }
 
-            // Cancelar cualquier tarea pendiente del campo cancela el plan entero
+            // Soroaren egiteko dagoen edozein zeregin bertan behera uzteak plan osoa bertan behera uzten du
             string taskId = null;
             foreach (FarmTask task in main.LastState.Tasks)
             {
@@ -76,13 +76,13 @@ namespace AgroCore.ControlCenter.Views
             }
             if (taskId == null)
             {
-                main.ShowStatus(row.Name + " no tiene ningún plan activo", false);
+                main.ShowStatus(row.Name + ": ez dago plan aktiborik", false);
                 return;
             }
 
             MessageBoxResult answer = MessageBox.Show(Window.GetWindow(this),
-                "¿Cancelar el plan de cultivo de " + row.Name + "? Se cancelarán todas sus tareas pendientes.",
-                "Cancelar plan", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                row.Name + ": labore-plana bertan behera utzi? Egiteko dituen zeregin guztiak bertan behera geratuko dira.",
+                "Plana bertan behera utzi", MessageBoxButton.YesNo, MessageBoxImage.Question);
             if (answer == MessageBoxResult.Yes)
             {
                 CancelTaskRequest request = new CancelTaskRequest();

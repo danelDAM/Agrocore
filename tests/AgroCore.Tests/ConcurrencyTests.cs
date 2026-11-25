@@ -13,7 +13,7 @@ using Xunit;
 
 namespace AgroCore.Tests
 {
-    /// <summary>Pruebas de la sincronización con lock / Monitor.Wait / Monitor.PulseAll.</summary>
+    /// <summary>lock / Monitor.Wait / Monitor.PulseAll bidezko sinkronizazioaren probak.</summary>
     public class ConcurrencyTests
     {
         private static MachineRuntime NewMachine(string name, MachineType type, double battery)
@@ -42,10 +42,10 @@ namespace AgroCore.Tests
             Thread other = new Thread(() => irrigatorResult = zones.Acquire(irrigator, "Z03-04"));
             other.Start();
 
-            // La regadora está bloqueada esperando (Monitor.Wait)
+            // Ureztatzailea blokeatuta dago zain (Monitor.Wait)
             Assert.False(other.Join(500));
 
-            // La sembradora sale de la zona -> PulseAll -> la regadora entra
+            // Ereilea gunetik irteten da -> PulseAll -> ureztatzailea sartzen da
             zones.Release(seeder, "Z03-04");
             Assert.True(other.Join(2000));
             Assert.Equal(ZoneOutcome.Granted, irrigatorResult);
@@ -63,16 +63,16 @@ namespace AgroCore.Tests
             zones.Acquire(a, "Z03-01");
             zones.Acquire(b, "Z03-02");
 
-            // A quiere la zona de B: espera
+            // A-k B-ren gunea nahi du: zain geratzen da
             Thread waiting = new Thread(() => zones.Acquire(a, "Z03-02"));
             waiting.Start();
             Thread.Sleep(300);
 
-            // B quiere la zona de A: sería un ciclo -> se deniega
+            // B-k A-ren gunea nahi du: ziklo bat litzateke -> ukatu egiten da
             Assert.Equal(ZoneOutcome.DeniedDeadlock, zones.Acquire(b, "Z03-01"));
             Assert.Equal(1, zones.DeadlocksAvoided);
 
-            // B cede el paso liberando su zona -> A puede continuar
+            // B-k bidea uzten du bere gunea askatuz -> A-k jarraitu dezake
             zones.Release(b, "Z03-02");
             Assert.True(waiting.Join(2000));
         }
@@ -122,17 +122,17 @@ namespace AgroCore.Tests
                 });
                 threads.Add(t);
                 t.Start();
-                Thread.Sleep(100); // llegan en orden
+                Thread.Sleep(100); // ordenan iristen dira
             }
 
             Thread.Sleep(300);
             lock (orderLock)
             {
-                Assert.Equal(3, order.Count); // 3 cargando
+                Assert.Equal(3, order.Count); // 3 kargatzen
             }
-            Assert.Equal(2, chargers.QueueLength); // 2 esperando
+            Assert.Equal(2, chargers.QueueLength); // 2 zain
 
-            // Se libera un cargador: entra la siguiente de la cola (la 4)
+            // Kargagailu bat askatzen da: ilarako hurrengoa sartzen da (4.a)
             chargers.Release(machines[0], null);
             Thread.Sleep(300);
             lock (orderLock)
@@ -171,32 +171,32 @@ namespace AgroCore.Tests
             MachineRuntime irrigator = NewMachine("Irrigator-01", MachineType.Irrigator, 100);
             MachineRuntime harvester = NewMachine("Harvester-01", MachineType.Harvester, 100);
 
-            // La recolectora pide trabajo: no hay nada maduro -> se bloquea en Monitor.Wait
+            // Uzta-biltzaileak lana eskatzen du: ez dago ezer heldurik -> Monitor.Wait-en blokeatzen da
             TaskAssignment harvestResult = null;
             Thread harvesterThread = new Thread(() => harvestResult = coordinator.WaitForTask(harvester, 0, () => false));
             harvesterThread.Start();
             Assert.False(harvesterThread.Join(300));
 
-            // Sembrar
+            // Erein
             TaskAssignment sow = coordinator.WaitForTask(seeder, 1000, () => false);
             Assert.Equal(AssignmentOutcome.Assigned, sow.Outcome);
             Assert.Equal(TaskType.Sow, sow.TaskType);
             coordinator.StartTask(seeder, sow.TaskId);
             coordinator.CompleteTask(seeder, sow.TaskId);
 
-            // La regadora aún no puede (crecimiento menor que el 35% que necesita la zanahoria)
+            // Ureztatzaileak oraindik ezin du (hazkuntza azenarioak behar duen % 35a baino txikiagoa da)
             Assert.Equal(AssignmentOutcome.NoTask, coordinator.WaitForTask(irrigator, 200, () => false).Outcome);
 
-            // Simular el paso del tiempo: el crecimiento se para en el 35% esperando riego
+            // Denboraren igarotzea simulatu: hazkuntza % 35ean gelditzen da ureztatzearen zain
             coordinator.Tick(5 * 60);
             TaskAssignment irrigate = coordinator.WaitForTask(irrigator, 1000, () => false);
             Assert.Equal(TaskType.Irrigate, irrigate.TaskType);
-            Assert.False(harvesterThread.Join(200)); // todavía no está maduro
+            Assert.False(harvesterThread.Join(200)); // oraindik ez dago heldu
 
             coordinator.StartTask(irrigator, irrigate.TaskId);
             coordinator.CompleteTask(irrigator, irrigate.TaskId);
 
-            // Termina de crecer -> PulseAll -> la recolectora se despierta y recibe la tarea
+            // Hazten amaitzen du -> PulseAll -> uzta-biltzailea esnatu eta zeregina jasotzen du
             coordinator.Tick(5 * 60);
             Assert.True(harvesterThread.Join(3000));
             Assert.Equal(AssignmentOutcome.Assigned, harvestResult.Outcome);
@@ -207,7 +207,7 @@ namespace AgroCore.Tests
         public void Tareas_SeEligeLaMaquinaMasAdecuada()
         {
             ServerContext context = TestHelpers.CreateContext();
-            // Campo sin plan: al principio no hay ninguna tarea
+            // Planik gabeko soroa: hasieran ez dago zereginik
             FarmLayout layout = new FarmLayout(1, 1, 4);
             Field field = new Field();
             field.Id = "FIELD-A";
@@ -222,7 +222,7 @@ namespace AgroCore.Tests
             fastProfile.Speed = 8;
             fast.Profile = fastProfile;
 
-            // Las dos se quedan esperando (Monitor.Wait)
+            // Biak zain geratzen dira (Monitor.Wait)
             TaskAssignment slowResult = null;
             TaskAssignment fastResult = null;
             Thread t1 = new Thread(() => slowResult = coordinator.WaitForTask(slow, 1500, () => false));
@@ -231,7 +231,7 @@ namespace AgroCore.Tests
             t2.Start();
             Thread.Sleep(300);
 
-            // Se crea el plan -> PulseAll -> las dos comparan y solo la más rápida se queda la siembra
+            // Plana sortzen da -> PulseAll -> biek alderatzen dute eta azkarrenak bakarrik hartzen du ereitea
             Assert.Null(coordinator.CreateCropPlan("FIELD-A", CropType.Corn, false, "test"));
             t1.Join();
             t2.Join();

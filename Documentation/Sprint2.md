@@ -1,81 +1,82 @@
-# Sprint 2 — Coordinación en el servidor y máquinas autónomas
+# Sprint 2 — Zerbitzariko koordinazioa eta makina autonomoak
 
-## Qué se ha construido
+## Zer eraiki da
 
-### Máquina autónoma (`AgroCore.MachineClient`)
+### Makina autonomoa (`AgroCore.MachineClient`)
 
-- **Cada máquina es un proceso independiente.** Se conecta por TCP, se autentica con
-  `MACHINE_AUTH` (id + clave de flota de su explotación) y a partir de ahí trabaja sola.
-- **Lanzador de flota**: `--fleet --farm 1 --key AGRO-DEMO-1` pide al servidor la lista de máquinas
-  de esa explotación y arranca **un proceso por máquina** (con `--windows`, cada una en su ventana).
-- **Hilos de la máquina**:
-  - hilo principal: bucle "pedir tarea → ir al campo → trabajar → volver";
-  - hilo lector (`ServerLink`): recibe las respuestas y las órdenes (STOP, RESUME, RETURN_TO_BASE...);
-  - hilo de telemetría: cada 200 ms envía por **UDP** posición, batería, temperatura, estado y progreso.
-- **Peticiones síncronas sencillas**: `link.Request<T>(mensaje, tipoRespuesta)` envía y espera la
-  respuesta con `Monitor.Wait`; el hilo lector la deja en un "buzón" y hace `Monitor.PulseAll`.
-- **Movimiento visible** (20 veces por segundo, sin teletransporte) por caminos del plano.
-- **Trabajo en el campo** por pasadas (serpentina). Antes de cada pasada comprueba si le queda
-  batería para terminarla y volver; si no, guarda el progreso y vuelve a cargar.
-- **Recolectoras** con capacidad: cuando la tolva se llena paran a descargar.
-- **Fumigadoras = drones**: vuelan en línea recta a su altura de crucero (no usan carreteras ni zonas).
-- **Perfiles distintos** por máquina (`machine-profiles.json`): velocidad, consumo, capacidad, eficiencia.
+- **Makina bakoitza prozesu independente bat da.** TCP bidez konektatzen da, `MACHINE_AUTH` bidez
+  autentifikatzen da (id-a + bere ustiategiaren flota-gakoa) eta handik aurrera bakarrik lan egiten du.
+- **Flota-abiarazlea**: `--fleet --farm 1 --key AGRO-DEMO-1` aukerak ustiategi horretako makinen zerrenda
+  eskatzen dio zerbitzariari eta **prozesu bat makina bakoitzeko** abiarazten du (`--windows` aukerarekin, bakoitza bere leihoan).
+- **Makinaren hariak**:
+  - hari nagusia: "zeregina eskatu → sorora joan → lan egin → itzuli" begizta;
+  - irakurle-haria (`ServerLink`): erantzunak eta aginduak jasotzen ditu (STOP, RESUME, RETURN_TO_BASE...);
+  - telemetria-haria: 200 ms-ro posizioa, bateria, tenperatura, egoera eta aurrerapena bidaltzen ditu **UDP** bidez.
+- **Eskaera sinkrono sinpleak**: `link.Request<T>(mezua, erantzunMota)` metodoak bidali eta erantzunaren
+  zain geratzen da `Monitor.Wait` bidez; irakurle-hariak "postontzi" batean uzten du eta `Monitor.PulseAll` egiten du.
+- **Mugimendu ikusgarria** (segundoko 20 aldiz, teletransportik gabe) planoaren bideetatik.
+- **Soroko lana** pasaldika (sigi-saga). Pasaldi bakoitzaren aurretik, hura amaitu eta itzultzeko
+  adina bateria duen egiaztatzen du; ez badu, aurrerapena gorde eta kargatzera itzultzen da.
+- **Uzta-biltzaileak** edukierarekin: depositua betetzen denean, gelditu egiten dira hustutzeko.
+- **Fumigazio-droneak**: zuzen hegan egiten dute beren hegaldi-altueran (ez dute errepiderik ez gunerik erabiltzen).
+- **Profil desberdinak** makina bakoitzeko (`machine-profiles.json`): abiadura, kontsumoa, edukiera, eraginkortasuna.
 
-### Coordinación en el servidor (una instancia por explotación: `FarmRuntime`)
+### Zerbitzariko koordinazioa (instantzia bat ustiategi bakoitzeko: `FarmRuntime`)
 
-Cada clase tiene su propio objeto `sync` y usa **`lock` + `Monitor.Wait` + `Monitor.PulseAll`**:
+Klase bakoitzak bere `sync` objektua du eta **`lock` + `Monitor.Wait` + `Monitor.PulseAll`** erabiltzen ditu:
 
-| Clase | Qué coordina | Quién espera | Quién despierta (PulseAll) |
+| Klasea | Zer koordinatzen du | Nor dago zain | Nork esnatzen du (PulseAll) |
 |---|---|---|---|
-| `TaskCoordinator` | Tareas y dependencias | Máquina sin tarea disponible | Tarea completada, cultivo que crece, nuevo plan, máquina liberada |
-| `ZoneManager` | Celdas del plano (anticolisión) | Máquina cuya siguiente celda está ocupada | Máquina que sale de una celda |
-| `ChargingStationManager` | Cargadores (cola FIFO) | Máquina sin cargador libre | Máquina que libera un cargador |
+| `TaskCoordinator` | Zereginak eta mendekotasunak | Zeregin erabilgarririk ez duen makina | Osatutako zeregina, hazten ari den laborea, labore-plan berria, askatutako makina |
+| `ZoneManager` | Planoaren gelaxkak (talkak saihestea) | Hurrengo gelaxka okupatuta duen makina | Gelaxka batetik ateratzen den makina |
+| `ChargingStationManager` | Kargagailuak (FIFO ilara) | Kargagailu librerik gabeko makina | Kargagailu bat askatzen duen makina |
 
-- **Dependencias de tareas**: `SOW → GROWTH → HARVEST`. Los cuidados (`IRRIGATE`, `SPRAY`) dependen
-  de la siembra y de un % de crecimiento; el crecimiento se detiene en ese % hasta que se hacen.
-- **Estados de tarea**: `PENDING`, `WAITING`, `ASSIGNED`, `RUNNING`, `COMPLETED`, `CANCELLED`.
-- **Elección de la mejor máquina**: entre las que esperan, se puntúa (tiempo de viaje + trabajo,
-  penalización por batería, bonus de capacidad en la cosecha) y se queda la tarea la mejor.
-- **Batería**: el servidor no asigna una tarea que la máquina no pueda terminar y volver
-  (`NEEDS_CHARGE`); 3 cargadores con cola FIFO (`WAITING_FOR_CHARGER`).
-- **Anticolisión por zonas**: el plano es una cuadrícula; cada celda de carretera es una zona que
-  solo puede ocupar una máquina. **Interbloqueos**: antes de esperar se recorre la cadena
-  "A espera a B que espera a C..."; si vuelve a la máquina que pide, se deniega (`DENIED_DEADLOCK`)
-  y la máquina se aparta al arcén, libera su celda y vuelve a intentarlo.
-- **Órdenes**: STOP / RESUME / RETURN_TO_BASE / EMERGENCY_STOP / STOP_ALL / RESUME_ALL /
-  RETURN_ALL_TO_BASE, comprobando siempre que la máquina pertenece a la explotación del usuario.
-- **Desconexión de una máquina**: se liberan sus zonas, su cargador y su tarea (que conserva el progreso).
-- **Telemetría UDP**: máquinas → servidor (puerto 5001) y servidor → centro de control cada 200 ms
-  (solo la de la explotación que está viendo ese usuario).
-- **Estado completo** (`FARM_STATE`) por TCP cada segundo a los centros de control.
+- **Zereginen mendekotasunak**: `SOW → GROWTH → HARVEST`. Zainketak (`IRRIGATE`, `SPRAY`) ereitearen eta
+  hazkuntza-ehuneko baten mende daude; hazkuntza ehuneko horretan gelditzen da zainketak egin arte.
+- **Zereginen egoerak**: `PENDING`, `WAITING`, `ASSIGNED`, `RUNNING`, `COMPLETED`, `CANCELLED`
+  (Egiteko, Zain, Esleituta, Martxan, Osatuta, Bertan behera utzita).
+- **Makinarik egokiena aukeratzea**: zain daudenen artean puntuazio bat kalkulatzen da (bidaia- eta lan-denbora,
+  bateriagatiko zigorra, uzta-bilketan edukieragatiko saria) eta onenak hartzen du zeregina.
+- **Bateria**: zerbitzariak ez dio makinari esleitzen amaitu eta itzultzeko gai ez den zereginik
+  (`NEEDS_CHARGE`); 3 kargagailu FIFO ilararekin (`WAITING_FOR_CHARGER`).
+- **Talkak saihestea guneen bidez**: planoa sareta bat da; errepideko gelaxka bakoitza makina bakar batek
+  okupa dezakeen gune bat da. **Elkarblokeoak**: zain geratu aurretik "A B-ren zain, B C-ren zain..." katea
+  zeharkatzen da; eskatzen duen makinara itzultzen bada, ukatu egiten da (`DENIED_DEADLOCK`)
+  eta makina bide-bazterrera aldentzen da, bere gelaxka askatzen du eta berriro saiatzen da.
+- **Aginduak**: STOP / RESUME / RETURN_TO_BASE / EMERGENCY_STOP / STOP_ALL / RESUME_ALL /
+  RETURN_ALL_TO_BASE, makina erabiltzailearen ustiategikoa dela beti egiaztatuta.
+- **Makina bat deskonektatzean**: bere guneak, kargagailua eta zeregina askatzen dira (zereginak aurrerapena gordetzen du).
+- **UDP telemetria**: makinak → zerbitzaria (5001 ataka) eta zerbitzaria → Kontrol Zentroa 200 ms-ro
+  (erabiltzaile horrek ikusten ari den ustiategikoa bakarrik).
+- **Egoera osoa** (`FARM_STATE`) TCP bidez segundoro Kontrol Zentroetara.
 
-## Pruebas automáticas (21)
+## Proba automatikoak (21)
 
-Además de las del Sprint 1, `ConcurrencyTests` comprueba:
+Sprint 1ekoez gain, `ConcurrencyTests` klaseak hau egiaztatzen du:
 
-- una máquina espera a que se libere una zona (y no antes);
-- se detecta y evita un interbloqueo entre dos máquinas;
-- STOP cancela una espera;
-- cola FIFO de cargadores: 3 cargando, 2 esperando, entran en orden de llegada;
-- la recolectora se queda esperando hasta que el cultivo madura (riego incluido);
-- de dos sembradoras esperando, la tarea se la queda la más rápida;
-- sin batería suficiente el servidor responde `NEEDS_CHARGE`.
+- makina bat gune bat askatu arte itxaroten du (eta ez lehenago);
+- bi makinaren arteko elkarblokeo bat detektatu eta saihesten da;
+- STOP aginduak itxaronaldi bat bertan behera uzten du;
+- kargagailuen FIFO ilara: 3 kargatzen, 2 zain, iritsi diren ordenan sartzen dira;
+- uzta-biltzailea zain geratzen da laborea heldu arte (ureztatzea barne);
+- zain dauden bi ereileetatik, azkarrenak hartzen du zeregina;
+- bateria nahikorik gabe, zerbitzariak `NEEDS_CHARGE` erantzuten du.
 
-## Cómo probarlo
+## Nola probatu
 
 ```
 dotnet build AgroCore.sln
 dotnet test AgroCore.sln
 
-# Terminal 1: servidor
+# 1. terminala: zerbitzaria
 dotnet run --project src/AgroCore.Server
 
-# Terminal 2: flota de Juan (11 máquinas, 11 procesos)
+# 2. terminala: Juanen flota (11 makina, 11 prozesu)
 dotnet run --project src/AgroCore.MachineClient -- --fleet --farm 1 --key AGRO-DEMO-1 --windows
 
-# Terminal 3 (opcional): flota de María
+# 3. terminala (aukerakoa): Mariaren flota
 dotnet run --project src/AgroCore.MachineClient -- --fleet --farm 2 --key AGRO-DEMO-2
 ```
 
-En la consola del servidor `status` muestra el estado y `debug` muestra las reservas de zonas.
-Cada línea del log lleva `[F1]`, `[F2]`... para saber de qué explotación es.
+Zerbitzariaren kontsolan `status` aginduak egoera erakusten du eta `debug` aginduak guneen erreserbak.
+Erregistroko lerro bakoitzak `[F1]`, `[F2]`... darama, zein ustiategitakoa den jakiteko.

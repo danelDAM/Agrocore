@@ -31,7 +31,7 @@
             <Border Style="{StaticResource Card}" Margin="0,0,10,0">
                 <Grid>
                     <StackPanel>
-                        <TextBlock Text="MÁQUINAS" Style="{StaticResource SectionText}" Margin="0" />
+                        <TextBlock Text="MAKINAK" Style="{StaticResource SectionText}" Margin="0" />
                         <TextBlock x:Name="KpiMachines" Text="—" Style="{StaticResource KpiValue}" />
                         <TextBlock x:Name="KpiMachinesSub" Style="{StaticResource MutedText}" />
                     </StackPanel>
@@ -41,7 +41,7 @@
             <Border Style="{StaticResource Card}" Margin="0,0,10,0">
                 <Grid>
                     <StackPanel>
-                        <TextBlock Text="CAMPOS" Style="{StaticResource SectionText}" Margin="0" />
+                        <TextBlock Text="SOROAK" Style="{StaticResource SectionText}" Margin="0" />
                         <TextBlock x:Name="KpiFields" Text="—" Style="{StaticResource KpiValue}" />
                         <TextBlock x:Name="KpiFieldsSub" Style="{StaticResource MutedText}" />
                     </StackPanel>
@@ -51,7 +51,7 @@
             <Border Style="{StaticResource Card}" Margin="0,0,10,0">
                 <Grid>
                     <StackPanel>
-                        <TextBlock Text="BATERÍA MEDIA" Style="{StaticResource SectionText}" Margin="0" />
+                        <TextBlock Text="BATEZ BESTEKO BATERIA" Style="{StaticResource SectionText}" Margin="0" />
                         <TextBlock x:Name="KpiBattery" Text="—" Style="{StaticResource KpiValue}" />
                         <ProgressBar x:Name="KpiBatteryBar" Maximum="100" Margin="0,6,0,0" />
                     </StackPanel>
@@ -61,7 +61,7 @@
             <Border Style="{StaticResource Card}" Margin="0,0,10,0">
                 <Grid>
                     <StackPanel>
-                        <TextBlock Text="TRABAJANDO" Style="{StaticResource SectionText}" Margin="0" />
+                        <TextBlock Text="LANEAN" Style="{StaticResource SectionText}" Margin="0" />
                         <TextBlock x:Name="KpiWorking" Text="—" Style="{StaticResource KpiValue}" Foreground="{StaticResource AccentBrush}" />
                         <TextBlock x:Name="KpiWorkingSub" Style="{StaticResource MutedText}" />
                     </StackPanel>
@@ -71,7 +71,7 @@
             <Border Style="{StaticResource Card}" Margin="0,0,10,0">
                 <Grid>
                     <StackPanel>
-                        <TextBlock Text="CARGANDO" Style="{StaticResource SectionText}" Margin="0" />
+                        <TextBlock Text="KARGATZEN" Style="{StaticResource SectionText}" Margin="0" />
                         <TextBlock x:Name="KpiCharging" Text="—" Style="{StaticResource KpiValue}" Foreground="#FF40D2C8" />
                         <TextBlock x:Name="KpiChargingSub" Style="{StaticResource MutedText}" />
                     </StackPanel>
@@ -81,7 +81,7 @@
             <Border Style="{StaticResource Card}">
                 <Grid>
                     <StackPanel>
-                        <TextBlock Text="DISPONIBLES" Style="{StaticResource SectionText}" Margin="0" />
+                        <TextBlock Text="ERABILGARRI" Style="{StaticResource SectionText}" Margin="0" />
                         <TextBlock x:Name="KpiAvailable" Text="—" Style="{StaticResource KpiValue}" />
                         <TextBlock x:Name="KpiAvailableSub" Style="{StaticResource MutedText}" />
                     </StackPanel>
@@ -90,7 +90,7 @@
             </Border>
         </UniformGrid>
 
-        <!-- ================= VISTA 3D + PANEL DERECHO ================= -->
+        <!-- ================= 3D IKUSPEGIA + ESKUINEKO PANELA ================= -->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
@@ -99,7 +99,7 @@
 
             <Border CornerRadius="8" ClipToBounds="True" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
                 <Grid>
-                    <!-- Fondo (cielo) que también recoge los clics del ratón -->
+                    <!-- Hondoa (zerua), saguaren klikak ere jasotzen dituena -->
                     <Border x:Name="SceneHost">
                         <Border.Background>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
@@ -113,43 +113,43 @@
                         </Grid>
                     </Border>
 
-                    <!-- Barra de herramientas de la vista -->
+                    <!-- Ikuspegiaren tresna-barra -->
                     <Border VerticalAlignment="Top" HorizontalAlignment="Left" Margin="10" Padding="8,6" CornerRadius="6" Background="#B0141A17">
                         <StackPanel Orientation="Horizontal">
-                            <Button Content="Vista general" Style="{StaticResource SmallButton}" Click="ResetView_Click" />
-                            <Button Content="Vista cenital" Style="{StaticResource SmallButton}" Click="TopView_Click" />
-                            <CheckBox x:Name="LabelsCheck" Content="Etiquetas" IsChecked="True" Style="{StaticResource OverlayCheck}" Click="ViewOptions_Click" />
-                            <CheckBox x:Name="ZonesCheck" Content="Zonas reservadas" Style="{StaticResource OverlayCheck}" Click="ViewOptions_Click" />
-                            <CheckBox x:Name="FollowCheck" Content="Seguir selección" Style="{StaticResource OverlayCheck}" Click="ViewOptions_Click" />
+                            <Button Content="Ikuspegi orokorra" Style="{StaticResource SmallButton}" Click="ResetView_Click" />
+                            <Button Content="Goiko ikuspegia" Style="{StaticResource SmallButton}" Click="TopView_Click" />
+                            <CheckBox x:Name="LabelsCheck" Content="Etiketak" IsChecked="True" Style="{StaticResource OverlayCheck}" Click="ViewOptions_Click" />
+                            <CheckBox x:Name="ZonesCheck" Content="Gune erreserbatuak" Style="{StaticResource OverlayCheck}" Click="ViewOptions_Click" />
+                            <CheckBox x:Name="FollowCheck" Content="Hautapena jarraitu" Style="{StaticResource OverlayCheck}" Click="ViewOptions_Click" />
                         </StackPanel>
                     </Border>
 
                     <Border VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="10" Padding="8,5" CornerRadius="6" Background="#99141A17">
                         <TextBlock Foreground="#FFD0DAD4" FontSize="11"
-                                   Text="Arrastrar: girar  ·  Botón derecho: desplazar  ·  Rueda: zoom  ·  Clic en una máquina: seleccionar" />
+                                   Text="Arrastatu: biratu  ·  Eskuineko botoia: desplazatu  ·  Gurpila: zooma  ·  Klik makina batean: hautatu" />
                     </Border>
 
                     <Border x:Name="WaitingPanel" Background="#CC111714">
                         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                            <TextBlock Text="Cargando la explotación..." FontSize="16" HorizontalAlignment="Center" />
-                            <TextBlock Text="Esperando datos del servidor" Style="{StaticResource MutedText}" HorizontalAlignment="Center" Margin="0,4,0,0" />
+                            <TextBlock Text="Ustiategia kargatzen..." FontSize="16" HorizontalAlignment="Center" />
+                            <TextBlock Text="Zerbitzariaren datuen zain" Style="{StaticResource MutedText}" HorizontalAlignment="Center" Margin="0,4,0,0" />
                         </StackPanel>
                     </Border>
                 </Grid>
             </Border>
 
-            <!-- Panel derecho -->
+            <!-- Eskuineko panela -->
             <Grid Grid.Column="1" Margin="14,0,0,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
-                <!-- Máquina seleccionada -->
+                <!-- Hautatutako makina -->
                 <Border Style="{StaticResource Card}" Margin="0,0,0,12">
                     <StackPanel>
-                        <TextBlock Text="MÁQUINA SELECCIONADA" Style="{StaticResource SectionText}" />
-                        <TextBlock x:Name="NoSelectionText" Text="Haga clic sobre una máquina en la vista 3D" Style="{StaticResource MutedText}" TextWrapping="Wrap" />
+                        <TextBlock Text="HAUTATUTAKO MAKINA" Style="{StaticResource SectionText}" />
+                        <TextBlock x:Name="NoSelectionText" Text="Egin klik makina baten gainean 3D ikuspegian" Style="{StaticResource MutedText}" TextWrapping="Wrap" />
                         <StackPanel x:Name="SelectionPanel" Visibility="Collapsed">
                             <Grid>
                                 <StackPanel>
@@ -169,41 +169,41 @@
                                 <Grid.RowDefinitions>
                                     <RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition /><RowDefinition />
                                 </Grid.RowDefinitions>
-                                <TextBlock Text="Batería" Style="{StaticResource MutedText}" Margin="0,3" />
+                                <TextBlock Text="Bateria" Style="{StaticResource MutedText}" Margin="0,3" />
                                 <Grid Grid.Column="1" Margin="0,3">
                                     <ProgressBar x:Name="SelBatteryBar" Maximum="100" VerticalAlignment="Center" Margin="0,0,44,0" />
                                     <TextBlock x:Name="SelBattery" HorizontalAlignment="Right" FontSize="12" />
                                 </Grid>
-                                <TextBlock Grid.Row="1" Text="Tarea" Style="{StaticResource MutedText}" Margin="0,3" />
+                                <TextBlock Grid.Row="1" Text="Zeregina" Style="{StaticResource MutedText}" Margin="0,3" />
                                 <TextBlock Grid.Row="1" Grid.Column="1" x:Name="SelTask" FontSize="12" Margin="0,3" TextTrimming="CharacterEllipsis" />
-                                <TextBlock Grid.Row="2" Text="Progreso" Style="{StaticResource MutedText}" Margin="0,3" />
+                                <TextBlock Grid.Row="2" Text="Aurrerapena" Style="{StaticResource MutedText}" Margin="0,3" />
                                 <Grid Grid.Row="2" Grid.Column="1" Margin="0,3">
                                     <ProgressBar x:Name="SelProgressBar" Maximum="100" VerticalAlignment="Center" Margin="0,0,44,0" Foreground="{StaticResource InfoBrush}" />
                                     <TextBlock x:Name="SelProgress" HorizontalAlignment="Right" FontSize="12" />
                                 </Grid>
-                                <TextBlock Grid.Row="3" Text="Velocidad" Style="{StaticResource MutedText}" Margin="0,3" />
+                                <TextBlock Grid.Row="3" Text="Abiadura" Style="{StaticResource MutedText}" Margin="0,3" />
                                 <TextBlock Grid.Row="3" Grid.Column="1" x:Name="SelSpeed" FontSize="12" Margin="0,3" />
-                                <TextBlock Grid.Row="4" Text="Temperatura" Style="{StaticResource MutedText}" Margin="0,3" />
+                                <TextBlock Grid.Row="4" Text="Tenperatura" Style="{StaticResource MutedText}" Margin="0,3" />
                                 <TextBlock Grid.Row="4" Grid.Column="1" x:Name="SelTemperature" FontSize="12" Margin="0,3" />
-                                <TextBlock Grid.Row="5" Text="Detalle" Style="{StaticResource MutedText}" Margin="0,3" />
+                                <TextBlock Grid.Row="5" Text="Xehetasuna" Style="{StaticResource MutedText}" Margin="0,3" />
                                 <TextBlock Grid.Row="5" Grid.Column="1" x:Name="SelNote" FontSize="12" Margin="0,3" TextWrapping="Wrap" />
                             </Grid>
 
                             <WrapPanel x:Name="SelButtons" Margin="0,12,0,0">
-                                <Button Content="START" Style="{StaticResource SmallButton}" Background="{StaticResource AccentDarkBrush}" Foreground="White" Click="SelCommand_Click" Tag="START" Margin="0,0,4,4" />
-                                <Button Content="STOP" Style="{StaticResource SmallButton}" Background="#FFB83A33" Foreground="White" Click="SelCommand_Click" Tag="STOP" Margin="0,0,4,4" />
-                                <Button Content="RESUME" Style="{StaticResource SmallButton}" Click="SelCommand_Click" Tag="RESUME" Margin="0,0,4,4" />
-                                <Button Content="A LA BASE" Style="{StaticResource SmallButton}" Background="#FF2F77B0" Foreground="White" Click="SelCommand_Click" Tag="RETURN_TO_BASE" Margin="0,0,4,4" />
+                                <Button Content="HASI" Style="{StaticResource SmallButton}" Background="{StaticResource AccentDarkBrush}" Foreground="White" Click="SelCommand_Click" Tag="START" Margin="0,0,4,4" />
+                                <Button Content="GELDITU" Style="{StaticResource SmallButton}" Background="#FFB83A33" Foreground="White" Click="SelCommand_Click" Tag="STOP" Margin="0,0,4,4" />
+                                <Button Content="BERREKIN" Style="{StaticResource SmallButton}" Click="SelCommand_Click" Tag="RESUME" Margin="0,0,4,4" />
+                                <Button Content="BASERA" Style="{StaticResource SmallButton}" Background="#FF2F77B0" Foreground="White" Click="SelCommand_Click" Tag="RETURN_TO_BASE" Margin="0,0,4,4" />
                             </WrapPanel>
                         </StackPanel>
                     </StackPanel>
                 </Border>
 
-                <!-- Alertas -->
+                <!-- Alertak -->
                 <Border Grid.Row="1" Style="{StaticResource Card}">
                     <DockPanel>
-                        <TextBlock DockPanel.Dock="Top" Text="ALERTAS" Style="{StaticResource SectionText}" />
-                        <TextBlock x:Name="NoAlertsText" DockPanel.Dock="Top" Text="Sin alertas" Style="{StaticResource MutedText}" />
+                        <TextBlock DockPanel.Dock="Top" Text="ALERTAK" Style="{StaticResource SectionText}" />
+                        <TextBlock x:Name="NoAlertsText" DockPanel.Dock="Top" Text="Alertarik ez" Style="{StaticResource MutedText}" />
                         <ListBox x:Name="AlertsList" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                             <ListBox.ItemContainerStyle>
                                 <Style TargetType="ListBoxItem">
@@ -237,16 +237,16 @@
             </Grid>
         </Grid>
 
-        <!-- ================= ÓRDENES A TODA LA FLOTA ================= -->
+        <!-- ================= AGINDUAK FLOTA OSOARI ================= -->
         <Border x:Name="FleetCommands" Grid.Row="2" Style="{StaticResource Card}" Margin="0,14,0,0" Padding="14,10">
             <DockPanel>
-                <TextBlock Text="CONTROL DE LA FLOTA" Style="{StaticResource SectionText}" VerticalAlignment="Center" Margin="0,0,18,0" />
-                <Button x:Name="EmergencyButton" DockPanel.Dock="Right" Content="⚠  PARADA DE EMERGENCIA" Style="{StaticResource DangerButton}"
+                <TextBlock Text="FLOTAREN KONTROLA" Style="{StaticResource SectionText}" VerticalAlignment="Center" Margin="0,0,18,0" />
+                <Button x:Name="EmergencyButton" DockPanel.Dock="Right" Content="⚠  LARRIALDIKO GELDIALDIA" Style="{StaticResource DangerButton}"
                         Margin="0" Padding="18,9" FontSize="13" Click="Emergency_Click" />
                 <StackPanel x:Name="GlobalButtons" Orientation="Horizontal">
-                    <Button Content="DETENER TODAS" Style="{StaticResource WarningButton}" Click="StopAll_Click" />
-                    <Button Content="REANUDAR TODAS" Click="ResumeAll_Click" />
-                    <Button Content="TODAS A LA BASE" Style="{StaticResource InfoButton}" Click="ReturnAll_Click" />
+                    <Button Content="GUZTIAK GELDITU" Style="{StaticResource WarningButton}" Click="StopAll_Click" />
+                    <Button Content="GUZTIAK BERREKIN" Click="ResumeAll_Click" />
+                    <Button Content="GUZTIAK BASERA" Style="{StaticResource InfoButton}" Click="ReturnAll_Click" />
                 </StackPanel>
             </DockPanel>
         </Border>

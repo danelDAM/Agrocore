@@ -2,20 +2,20 @@ using AgroCore.Shared.Enums;
 
 namespace AgroCore.Shared.Models
 {
-    /// <summary>Alta de una máquina en una explotación (se guarda en el servidor).</summary>
+    /// <summary>Makina bat ustiategi batean erregistratzea (zerbitzarian gordetzen da).</summary>
     public class MachineRegistration
     {
-        /// <summary>Identificador único en todo el sistema, por ejemplo "F1-Harvester-01".</summary>
+        /// <summary>Sistema osoan identifikatzaile bakarra, adibidez "F1-Harvester-01".</summary>
         public string Id { get; set; } = "";
 
         public int FarmId { get; set; }
 
-        /// <summary>Nombre que se ve en la explotación, por ejemplo "Harvester-01".</summary>
+        /// <summary>Ustiategian ikusten den izena, adibidez "Harvester-01".</summary>
         public string Name { get; set; } = "";
 
         public MachineType Type { get; set; }
 
-        /// <summary>Número de plaza de aparcamiento en la base.</summary>
+        /// <summary>Basean duen aparkalekuaren zenbakia.</summary>
         public int SlotIndex { get; set; }
     }
 }

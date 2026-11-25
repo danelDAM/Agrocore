@@ -11,12 +11,12 @@ using AgroCore.Shared.Models;
 namespace AgroCore.MachineClient.Tasks
 {
     /// <summary>
-    /// Ejecuta una tarea asignada por el servidor:
-    ///   1. Ir hasta el campo.
-    ///   2. Avisar TASK_STARTED.
-    ///   3. Recorrer el campo en pasadas de ida y vuelta (como un tractor real).
-    ///   4. Tras cada pasada, comprobar batería, cancelación y orden de volver.
-    ///   5. Avisar TASK_COMPLETED (o TASK_ABORTED si se interrumpe).
+    /// Zerbitzariak esleitutako zeregin bat exekutatzen du:
+    ///   1. Sororaino joan.
+    ///   2. TASK_STARTED abisatu.
+    ///   3. Soroa joan-etorriko pasaldietan zeharkatu (benetako traktore batek bezala).
+    ///   4. Pasaldi bakoitzaren ondoren, bateria, bertan behera uztea eta itzultzeko agindua egiaztatu.
+    ///   5. TASK_COMPLETED abisatu (edo TASK_ABORTED, eteten bada).
     /// </summary>
     public class TaskExecutor
     {
@@ -48,11 +48,11 @@ namespace AgroCore.MachineClient.Tasks
 
         public void Execute(TaskAssignment task)
         {
-            log("Tarea " + task.TaskId + ": " + task.TaskType + " en " + task.FieldId + " (progreso inicial " + task.Progress.ToString("0") + "%)");
+            log(task.TaskId + " zeregina: " + task.TaskType + " " + task.FieldId + " soroan (hasierako aurrerapena: %" + task.Progress.ToString("0") + ")");
             state.TaskProgress = task.Progress;
 
-            // ---- 1. Ir al campo ----
-            state.Set(MachineStatus.MovingToField, "hacia " + task.FieldId);
+            // ---- 1. Sorora joan ----
+            state.Set(MachineStatus.MovingToField, task.FieldId + " sororantz");
             bool arrived = navigator.GoToField(task.FieldIndex, () => GetAbortReason(task) != null);
             if (!arrived)
             {
@@ -60,7 +60,7 @@ namespace AgroCore.MachineClient.Tasks
                 return;
             }
 
-            // ---- 2. Empezar ----
+            // ---- 2. Hasi ----
             TaskStarted started = new TaskStarted();
             started.MachineId = machineId;
             started.TaskId = task.TaskId;
@@ -68,7 +68,7 @@ namespace AgroCore.MachineClient.Tasks
             link.Send(started);
             state.Set(MachineStatus.Working, WorkName(task.TaskType) + " " + task.FieldId);
 
-            // ---- 3. Pasadas sobre el campo ----
+            // ---- 3. Pasaldiak soroan ----
             int lanes = MachineMath.LaneCount(profile, layout.FieldSize);
             double laneWidth = layout.FieldSize / lanes;
             double minX = layout.FieldMinX(task.FieldIndex);
@@ -91,13 +91,13 @@ namespace AgroCore.MachineClient.Tasks
                 double progress = (lane + 1) * 100.0 / lanes;
                 state.TaskProgress = progress;
 
-                // Recolectoras: si la tolva se llena, descargar (pausa)
+                // Uzta-biltzaileak: tolba betetzen bada, hustu (etenaldia)
                 if (task.TaskType == TaskType.Harvest)
                 {
                     load += yieldPerLane;
                     if (load >= profile.Capacity && lane < lanes - 1)
                     {
-                        state.Set(MachineStatus.Working, "descargando tolva (" + profile.Capacity.ToString("0") + " kg)");
+                        state.Set(MachineStatus.Working, "tolba husten (" + profile.Capacity.ToString("0") + " kg)");
                         Thread.Sleep(2000);
                         load = 0;
                         state.Set(MachineStatus.Working, WorkName(task.TaskType) + " " + task.FieldId);
@@ -115,7 +115,7 @@ namespace AgroCore.MachineClient.Tasks
                 }
             }
 
-            // ---- 5. Terminada ----
+            // ---- 5. Amaituta ----
             TaskCompleted completed = new TaskCompleted();
             completed.MachineId = machineId;
             completed.TaskId = task.TaskId;
@@ -123,18 +123,18 @@ namespace AgroCore.MachineClient.Tasks
             link.Send(completed);
             state.TaskProgress = 0;
             state.Set(MachineStatus.Idle, null);
-            log("Tarea " + task.TaskId + " completada");
+            log(task.TaskId + " zeregina osatuta");
         }
 
         /// <summary>
-        /// ¿Hay que dejar la tarea? Devuelve el motivo, o null si se puede seguir.
-        /// Batería: primero mira si puede terminar y volver; si no, la deja a medias para volver a tiempo.
+        /// Zeregina utzi behar da? Arrazoia itzultzen du, edo null jarraitu badaiteke.
+        /// Bateria: lehenik begiratzen du amaitu eta itzul daitekeen; bestela, erdizka uzten du garaiz itzultzeko.
         /// </summary>
         private string GetAbortReason(TaskAssignment task)
         {
             if (control.IsTaskCancelled(task.TaskId))
             {
-                return "CANCELADA";
+                return "BERTAN BEHERA UTZITA";
             }
             if (control.ReturnRequested)
             {
@@ -143,7 +143,7 @@ namespace AgroCore.MachineClient.Tasks
             Position position = state.GetPosition();
             if (!battery.CanFinishAndReturn(position, state.TaskProgress))
             {
-                return "BATERÍA BAJA";
+                return "BATERIA BAXUA";
             }
             return null;
         }
@@ -152,11 +152,11 @@ namespace AgroCore.MachineClient.Tasks
         {
             if (reason == null)
             {
-                reason = "desconocido";
+                reason = "ezezaguna";
             }
-            log("Tarea " + task.TaskId + " interrumpida al " + state.TaskProgress.ToString("0") + "%: " + reason);
+            log(task.TaskId + " zeregina %" + state.TaskProgress.ToString("0") + "an etenda: " + reason);
 
-            // Si la canceló el operador el servidor ya lo sabe; si no, hay que avisarle
+            // Operadoreak bertan behera utzi badu, zerbitzariak badaki; bestela, abisatu egin behar zaio
             if (!control.IsTaskCancelled(task.TaskId))
             {
                 TaskAborted aborted = new TaskAborted();
@@ -175,11 +175,11 @@ namespace AgroCore.MachineClient.Tasks
         {
             switch (taskType)
             {
-                case TaskType.Sow: return "sembrando";
-                case TaskType.Irrigate: return "regando";
-                case TaskType.Spray: return "fumigando";
-                case TaskType.Harvest: return "recolectando";
-                default: return "trabajando";
+                case TaskType.Sow: return "ereiten";
+                case TaskType.Irrigate: return "ureztatzen";
+                case TaskType.Spray: return "fumigatzen";
+                case TaskType.Harvest: return "uzta biltzen";
+                default: return "lanean";
             }
         }
 

@@ -7,8 +7,8 @@ using AgroCore.Shared.Networking;
 namespace AgroCore.Server.Configuration
 {
     /// <summary>
-    /// Carga y guarda la configuración del servidor (server-config.json).
-    /// Si el archivo no existe, se crea con los valores por defecto.
+    /// Zerbitzariaren konfigurazioa kargatu eta gordetzen du (server-config.json).
+    /// Fitxategia existitzen ez bada, balio lehenetsiekin sortzen da.
     /// </summary>
     public class ConfigStore
     {
@@ -22,7 +22,7 @@ namespace AgroCore.Server.Configuration
             Load();
         }
 
-        /// <summary>Configuración actual. Se devuelve el objeto: no modificarlo directamente, usar Update.</summary>
+        /// <summary>Uneko konfigurazioa. Objektua bera itzultzen da: ez aldatu zuzenean, erabili Update.</summary>
         public SystemConfig Current
         {
             get
@@ -45,7 +45,7 @@ namespace AgroCore.Server.Configuration
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("No se pudo leer " + path + ": " + ex.Message + ". Se usan valores por defecto.");
+                    Console.WriteLine("Ezin izan da " + path + " irakurri: " + ex.Message + ". Balio lehenetsiak erabiltzen dira.");
                 }
             }
 
@@ -60,7 +60,7 @@ namespace AgroCore.Server.Configuration
         {
             lock (configLock)
             {
-                // Los puertos solo cambian al reiniciar el servidor: se conservan los actuales.
+                // Atakak zerbitzaria berrabiaraztean bakarrik aldatzen dira: unekoak mantentzen dira.
                 newConfig.TcpPort = config.TcpPort;
                 newConfig.UdpPort = config.UdpPort;
                 config = newConfig;

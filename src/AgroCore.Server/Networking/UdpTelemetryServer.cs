@@ -14,13 +14,13 @@ using AgroCore.Shared.Networking;
 namespace AgroCore.Server.Networking
 {
     /// <summary>
-    /// Telemetría por UDP (rápida, sin conexión; si se pierde un paquete llega el siguiente).
+    /// UDP bidezko telemetria (azkarra, konexiorik gabea; pakete bat galtzen bada, hurrengoa iristen da).
     ///
-    /// Dos hilos:
-    ///  - Receptor: recibe POSITION_UPDATE de las máquinas y actualiza su estado.
-    ///    Comprueba el token de sesión para descartar datagramas falsos.
-    ///  - Emisor: cada 200 ms envía a cada centro de control un TELEMETRY_BATCH SOLO con las
-    ///    máquinas de la explotación que ese usuario tiene permiso para ver.
+    /// Bi hari:
+    ///  - Hartzailea: makinen POSITION_UPDATE mezuak jaso eta haien egoera eguneratzen du.
+    ///    Saioaren tokena egiaztatzen du datagrama faltsuak baztertzeko.
+    ///  - Igorlea: 200 ms-ro, Kontrol Zentro bakoitzari TELEMETRY_BATCH bat bidaltzen dio, erabiltzaile
+    ///    horrek ikusteko baimena duen ustiategiko makinekin BAKARRIK.
     /// </summary>
     public class UdpTelemetryServer
     {
@@ -38,15 +38,15 @@ namespace AgroCore.Server.Networking
         public void Start()
         {
             udp = new UdpClient(port);
-            // En Windows, si un cliente UDP se cierra, Receive lanzaría errores "conexión restablecida".
-            // Con esta opción se ignoran (SIO_UDP_CONNRESET = -1744830452).
+            // Windows-en, UDP bezero bat ixten bada, Receive-k "konexioa berrezarri da" erroreak jaurtiko lituzke.
+            // Aukera honekin ez ikusi egiten zaie (SIO_UDP_CONNRESET = -1744830452).
             try
             {
                 udp.Client.IOControl(-1744830452, new byte[] { 0 }, null);
             }
             catch (Exception)
             {
-                // en otros sistemas no existe esta opción
+                // beste sistemetan ez dago aukera hau
             }
             running = true;
 
@@ -60,7 +60,7 @@ namespace AgroCore.Server.Networking
             sender.Name = "UDP-Send";
             sender.Start();
 
-            context.Logger.Log(EventKind.ServerStarted, LogSeverity.Success, "Servidor UDP de telemetría en el puerto " + port);
+            context.Logger.Log(EventKind.ServerStarted, LogSeverity.Success, "UDP telemetria-zerbitzaria, ataka: " + port);
         }
 
         public void Stop()
@@ -76,7 +76,7 @@ namespace AgroCore.Server.Networking
                 try
                 {
                     IPEndPoint remote = new IPEndPoint(IPAddress.Any, 0);
-                    byte[] data = udp.Receive(ref remote); // bloqueante
+                    byte[] data = udp.Receive(ref remote); // blokeatzailea
                     string json = Encoding.UTF8.GetString(data);
 
                     if (MessageSerializer.ReadType(json) != MessageTypes.PositionUpdate)
@@ -87,7 +87,7 @@ namespace AgroCore.Server.Networking
                     PositionUpdate update = MessageSerializer.FromJson<PositionUpdate>(json);
                     MachineRuntime machine = context.Farms.FindMachine(update.MachineId);
 
-                    // Seguridad: solo se acepta si el token coincide con la sesión de esa máquina
+                    // Segurtasuna: tokena makina horren saioarekin bat badator bakarrik onartzen da
                     if (machine == null || !machine.Online || machine.SessionToken != update.SessionToken)
                     {
                         continue;
@@ -104,7 +104,7 @@ namespace AgroCore.Server.Networking
                 }
                 catch (Exception)
                 {
-                    // datagrama mal formado: se ignora
+                    // gaizki osatutako datagrama: ez ikusi egiten zaio
                 }
             }
         }
@@ -115,7 +115,7 @@ namespace AgroCore.Server.Networking
             {
                 Thread.Sleep(context.Config.Current.TelemetryIntervalMs);
 
-                // Se prepara un lote por explotación (solo una vez aunque la vean varios usuarios)
+                // Sorta bat prestatzen da ustiategi bakoitzeko (behin bakarrik, hainbat erabiltzailek ikusi arren)
                 Dictionary<int, byte[]> batches = new Dictionary<int, byte[]>();
 
                 foreach (UserSession session in context.Sessions.GetAll())
@@ -149,7 +149,7 @@ namespace AgroCore.Server.Networking
                     }
                     catch (Exception)
                     {
-                        // si falla un envío UDP no pasa nada
+                        // UDP bidalketa batek huts egiten badu, ez da ezer gertatzen
                     }
                 }
             }

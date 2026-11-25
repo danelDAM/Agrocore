@@ -10,7 +10,7 @@ using AgroCore.Server.Security;
 
 namespace AgroCore.Tests
 {
-    /// <summary>Crea un servidor completo en una carpeta temporal para las pruebas.</summary>
+    /// <summary>Zerbitzari oso bat sortzen du aldi baterako karpeta batean probetarako.</summary>
     public static class TestHelpers
     {
         public static ServerContext CreateContext()

@@ -6,7 +6,7 @@ using AgroCore.Shared.Models;
 
 namespace AgroCore.Shared.Messages
 {
-    /// <summary>Solo administrador: elegir qué explotación ver.</summary>
+    /// <summary>Administratzailea soilik: zein ustiategi ikusi aukeratu.</summary>
     public class SelectFarmRequest : NetMessage
     {
         public int FarmId { get; set; }
@@ -17,7 +17,7 @@ namespace AgroCore.Shared.Messages
         }
     }
 
-    /// <summary>WPF -> servidor: puerto UDP donde quiere recibir la telemetría.</summary>
+    /// <summary>WPF -> zerbitzaria: telemetria jaso nahi duen UDP ataka.</summary>
     public class UdpSubscribeRequest : NetMessage
     {
         public int UdpPort { get; set; }
@@ -28,7 +28,7 @@ namespace AgroCore.Shared.Messages
         }
     }
 
-    /// <summary>Servidor -> WPF (cada segundo): estado completo de UNA explotación.</summary>
+    /// <summary>Zerbitzaria -> WPF (segundoro): ustiategi BATEN egoera osoa.</summary>
     public class FarmStateMessage : NetMessage
     {
         public int FarmId { get; set; }
@@ -52,7 +52,7 @@ namespace AgroCore.Shared.Messages
         }
     }
 
-    /// <summary>Plan de cultivo: el servidor crea solo todas las tareas y sus dependencias.</summary>
+    /// <summary>Labore-plana: zerbitzariak berak sortzen ditu zeregin guztiak eta haien mendekotasunak.</summary>
     public class CropPlanRequest : NetMessage
     {
         public string FieldId { get; set; } = "";

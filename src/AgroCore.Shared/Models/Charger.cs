@@ -1,6 +1,6 @@
 namespace AgroCore.Shared.Models
 {
-    /// <summary>Estación de carga de la base.</summary>
+    /// <summary>Basearen karga-estazioa.</summary>
     public class Charger
     {
         /// <summary>CHARGER-01, CHARGER-02...</summary>
@@ -9,10 +9,10 @@ namespace AgroCore.Shared.Models
         public int Index { get; set; }
         public Position Position { get; set; } = new Position();
 
-        /// <summary>Máquina que está cargando (null si está libre).</summary>
+        /// <summary>Kargatzen ari den makina (null libre badago).</summary>
         public string OccupiedBy { get; set; }
 
-        /// <summary>Máquinas esperando cargador (solo para mostrarlo).</summary>
+        /// <summary>Kargagailuaren zain dauden makinak (erakusteko soilik).</summary>
         public int QueueLength { get; set; }
 
         public Charger Clone()

@@ -20,10 +20,10 @@ namespace AgroCore.Server
             Console.OutputEncoding = System.Text.Encoding.UTF8;
             Console.Title = "AGROCORE SERVER";
             Console.WriteLine("==============================================");
-            Console.WriteLine("   AGROCORE SERVER - Coordinación agrícola");
+            Console.WriteLine("   AGROCORE ZERBITZARIA - Nekazaritza-koordinazioa");
             Console.WriteLine("==============================================");
 
-            // Las carpetas data/ y logs/ se crean junto al ejecutable (o en la indicada con --data)
+            // data/ eta logs/ karpetak exekutagarriaren ondoan sortzen dira (edo --data bidez adierazitakoan)
             string baseFolder = AppContext.BaseDirectory;
             for (int i = 0; i < args.Length - 1; i++)
             {
@@ -33,7 +33,7 @@ namespace AgroCore.Server
                 }
             }
 
-            // 1. Crear los servicios
+            // 1. Zerbitzuak sortu
             ServerContext context = new ServerContext();
             context.Config = new ConfigStore(Path.Combine(baseFolder, "data", "server-config.json"));
             context.Logger = new EventLogger(Path.Combine(baseFolder, "logs"));
@@ -50,14 +50,14 @@ namespace AgroCore.Server
             context.Statistics = new StatisticsService(context.Logger, context.Farms);
             context.StateBuilder = new FarmStateBuilder(context.Logger, () => context.Config.Current);
 
-            // Si el administrador crea o borra una explotación, se pone en marcha o se detiene
+            // Administratzaileak ustiategi bat sortzen edo ezabatzen badu, martxan jartzen edo gelditzen da
             context.Users.FarmCreated += farm => context.Farms.AddFarm(farm);
             context.Users.FarmDeleted += farmId => context.Farms.RemoveFarm(farmId);
 
             context.Logger.Log(EventKind.ServerStarted, LogSeverity.Success,
-                "Servidor AGROCORE iniciado con " + context.Farms.GetAll().Count + " explotaciones");
+                "AGROCORE zerbitzaria abian, " + context.Farms.GetAll().Count + " ustiategirekin");
 
-            // 2. Arrancar los hilos del servidor
+            // 2. Zerbitzariaren hariak abiarazi
             TcpServer tcpServer = new TcpServer(context, context.Config.Current.TcpPort);
             UdpTelemetryServer udpServer = new UdpTelemetryServer(context, context.Config.Current.UdpPort);
             try
@@ -68,8 +68,8 @@ namespace AgroCore.Server
             catch (System.Net.Sockets.SocketException)
             {
                 Console.WriteLine();
-                Console.WriteLine("ERROR: los puertos " + context.Config.Current.TcpPort + "/" + context.Config.Current.UdpPort
-                                  + " ya están en uso. ¿Hay otro servidor AGROCORE arrancado?");
+                Console.WriteLine("ERROREA: " + context.Config.Current.TcpPort + "/" + context.Config.Current.UdpPort
+                                  + " atakak erabiltzen ari dira jada. Beste AGROCORE zerbitzari bat martxan al dago?");
                 context.Logger.Stop();
                 Environment.ExitCode = 1;
                 return;
@@ -81,14 +81,14 @@ namespace AgroCore.Server
             StateBroadcaster broadcaster = new StateBroadcaster(context);
             broadcaster.Start();
 
-            // 3. Consola: comandos sencillos para el administrador del servidor
-            Console.WriteLine("Comandos: 'status' = ver estado, 'debug' = ver/ocultar reservas de zonas, 'exit' = salir");
+            // 3. Kontsola: zerbitzariaren administratzailearentzako komando errazak
+            Console.WriteLine("Komandoak: 'status' = egoera ikusi, 'debug' = guneen erreserbak erakutsi/ezkutatu, 'exit' = irten");
             while (true)
             {
                 string command = Console.ReadLine();
                 if (command == null)
                 {
-                    // Sin consola (ejecutado en segundo plano): esperar para siempre
+                    // Kontsolarik gabe (atzeko planoan exekutatuta): betiko itxaron
                     System.Threading.Thread.Sleep(System.Threading.Timeout.Infinite);
                 }
                 command = command.Trim().ToLower();
@@ -99,17 +99,17 @@ namespace AgroCore.Server
                 }
                 if (command == "status")
                 {
-                    Console.WriteLine("Sesiones abiertas: " + context.Sessions.Count);
+                    Console.WriteLine("Saio irekiak: " + context.Sessions.Count);
                 }
                 if (command == "debug")
                 {
                     context.Logger.ShowDebugInConsole = !context.Logger.ShowDebugInConsole;
-                    Console.WriteLine("Mensajes de depuración: " + (context.Logger.ShowDebugInConsole ? "SÍ" : "NO"));
+                    Console.WriteLine("Arazketa-mezuak: " + (context.Logger.ShowDebugInConsole ? "BAI" : "EZ"));
                 }
             }
 
-            // 4. Apagado ordenado
-            context.Logger.Log(EventKind.ServerStopped, LogSeverity.Info, "Servidor detenido");
+            // 4. Itzaltze ordenatua
+            context.Logger.Log(EventKind.ServerStopped, LogSeverity.Info, "Zerbitzaria geldituta");
             broadcaster.Stop();
             growth.Stop();
             udpServer.Stop();

@@ -5,12 +5,12 @@ using System.Windows.Media.Media3D;
 namespace AgroCore.ControlCenter.Scene
 {
     /// <summary>
-    /// Construye mallas 3D "low-poly" a base de piezas simples (cajas, cilindros, conos...).
+    /// "Low-poly" 3D sareak eraikitzen ditu pieza sinpleekin (kutxak, zilindroak, konoak...).
     ///
-    /// Cada triángulo tiene sus PROPIOS vértices y su normal: así cada cara se ilumina con un
-    /// solo color (sombreado plano), que es lo que da el aspecto "low-poly".
-    /// Todas las piezas que se añaden al mismo MeshBuilder acaban en UNA sola malla
-    /// (pocas mallas = mejor rendimiento).
+    /// Triangelu bakoitzak bere erpin PROPIOAK eta bere normala ditu: horrela aurpegi bakoitza
+    /// kolore bakarrarekin argiztatzen da (itzaldura laua), eta horrek ematen dio itxura "low-poly".
+    /// MeshBuilder berari gehitzen zaizkion pieza guztiak sare BAKAR batean amaitzen dira
+    /// (sare gutxi = errendimendu hobea).
     /// </summary>
     public class MeshBuilder
     {
@@ -21,7 +21,7 @@ namespace AgroCore.ControlCenter.Scene
             get { return mesh.Positions.Count == 0; }
         }
 
-        /// <summary>Triángulo en sentido antihorario visto desde fuera.</summary>
+        /// <summary>Triangelua erlojuaren orratzen aurkako noranzkoan, kanpotik ikusita.</summary>
         public void AddTriangle(Point3D a, Point3D b, Point3D c)
         {
             Vector3D normal = Vector3D.CrossProduct(b - a, c - a);
@@ -49,14 +49,14 @@ namespace AgroCore.ControlCenter.Scene
             AddTriangle(a, c, d);
         }
 
-        /// <summary>Caja centrada en (cx, cy, cz) con tamaño sx (ancho X), sy (alto Y), sz (largo Z).</summary>
+        /// <summary>(cx, cy, cz) puntuan zentratutako kutxa, tamaina hau duena: sx (zabalera X), sy (altuera Y), sz (luzera Z).</summary>
         public void AddBox(double cx, double cy, double cz, double sx, double sy, double sz)
         {
             double x0 = cx - sx / 2, x1 = cx + sx / 2;
             double y0 = cy - sy / 2, y1 = cy + sy / 2;
             double z0 = cz - sz / 2, z1 = cz + sz / 2;
 
-            // arriba, abajo, delante (+Z), detrás (-Z), derecha (+X), izquierda (-X)
+            // goian, behean, aurrean (+Z), atzean (-Z), eskuinean (+X), ezkerrean (-X)
             AddQuad(new Point3D(x0, y1, z1), new Point3D(x1, y1, z1), new Point3D(x1, y1, z0), new Point3D(x0, y1, z0));
             AddQuad(new Point3D(x0, y0, z0), new Point3D(x1, y0, z0), new Point3D(x1, y0, z1), new Point3D(x0, y0, z1));
             AddQuad(new Point3D(x0, y0, z1), new Point3D(x1, y0, z1), new Point3D(x1, y1, z1), new Point3D(x0, y1, z1));
@@ -65,13 +65,13 @@ namespace AgroCore.ControlCenter.Scene
             AddQuad(new Point3D(x0, y0, z0), new Point3D(x0, y0, z1), new Point3D(x0, y1, z1), new Point3D(x0, y1, z0));
         }
 
-        /// <summary>Caja apoyada en el suelo: (x, z) es el centro y y0 la altura de la base.</summary>
+        /// <summary>Lurrean bermatutako kutxa: (x, z) erdigunea da eta y0 oinarriaren altuera.</summary>
         public void AddBlock(double x, double y0, double z, double sx, double sy, double sz)
         {
             AddBox(x, y0 + sy / 2, z, sx, sy, sz);
         }
 
-        /// <summary>Cilindro entre dos puntos (sirve para ruedas, tubos, depósitos...).</summary>
+        /// <summary>Bi punturen arteko zilindroa (gurpiletarako, hodietarako, depositoetarako... balio du).</summary>
         public void AddCylinder(Point3D start, Point3D end, double radius, int segments)
         {
             Vector3D u, v;
@@ -90,13 +90,13 @@ namespace AgroCore.ControlCenter.Scene
             for (int i = 0; i < segments; i++)
             {
                 int next = (i + 1) % segments;
-                AddQuad(bottom[i], bottom[next], top[next], top[i]); // lateral
-                AddTriangle(end, top[i], top[next]);                 // tapa final
-                AddTriangle(start, bottom[next], bottom[i]);         // tapa inicial
+                AddQuad(bottom[i], bottom[next], top[next], top[i]); // alboa
+                AddTriangle(end, top[i], top[next]);                 // amaierako estalkia
+                AddTriangle(start, bottom[next], bottom[i]);         // hasierako estalkia
             }
         }
 
-        /// <summary>Cono desde una base circular hasta una punta.</summary>
+        /// <summary>Konoa, oinarri zirkular batetik punta bateraino.</summary>
         public void AddCone(Point3D baseCenter, Point3D tip, double radius, int segments)
         {
             Vector3D u, v;
@@ -116,7 +116,7 @@ namespace AgroCore.ControlCenter.Scene
             }
         }
 
-        /// <summary>Esfera de pocas caras (para arbustos, tomates, copas de árboles).</summary>
+        /// <summary>Aurpegi gutxiko esfera (zuhaixketarako, tomateetarako, zuhaitz-adaburuetarako).</summary>
         public void AddSphere(Point3D center, double radius, int slices, int stacks)
         {
             for (int i = 0; i < stacks; i++)
@@ -136,7 +136,7 @@ namespace AgroCore.ControlCenter.Scene
             }
         }
 
-        /// <summary>Prisma triangular a lo largo de Z (tejados a dos aguas).</summary>
+        /// <summary>Prisma triangeluarra Z ardatzean zehar (bi isurialdeko teilatuak).</summary>
         public void AddRoof(double cx, double y0, double cz, double width, double height, double length)
         {
             double x0 = cx - width / 2, x1 = cx + width / 2;
@@ -144,10 +144,10 @@ namespace AgroCore.ControlCenter.Scene
             double yTop = y0 + height;
             Point3D a0 = new Point3D(x0, y0, z0), b0 = new Point3D(x1, y0, z0), t0 = new Point3D(cx, yTop, z0);
             Point3D a1 = new Point3D(x0, y0, z1), b1 = new Point3D(x1, y0, z1), t1 = new Point3D(cx, yTop, z1);
-            AddTriangle(a1, b1, t1);           // frontal (+Z)
-            AddTriangle(b0, a0, t0);           // trasero (-Z)
-            AddQuad(b1, b0, t0, t1);           // faldón derecho
-            AddQuad(a0, a1, t1, t0);           // faldón izquierdo
+            AddTriangle(a1, b1, t1);           // aurrealdea (+Z)
+            AddTriangle(b0, a0, t0);           // atzealdea (-Z)
+            AddQuad(b1, b0, t0, t1);           // eskuineko isurialdea
+            AddQuad(a0, a1, t1, t0);           // ezkerreko isurialdea
         }
 
         public MeshGeometry3D ToMesh()
@@ -156,7 +156,7 @@ namespace AgroCore.ControlCenter.Scene
             return mesh;
         }
 
-        /// <summary>Crea el modelo 3D con un color (material mate).</summary>
+        /// <summary>3D eredua sortzen du kolore batekin (material matea).</summary>
         public GeometryModel3D ToModel(Color color)
         {
             return new GeometryModel3D(ToMesh(), Materials.Solid(color));
@@ -171,7 +171,7 @@ namespace AgroCore.ControlCenter.Scene
                                c.Z + r * Math.Sin(phi) * Math.Sin(theta));
         }
 
-        /// <summary>Calcula dos vectores perpendiculares al eje (u x v = eje).</summary>
+        /// <summary>Ardatzarekiko perpendikularrak diren bi bektore kalkulatzen ditu (u x v = ardatza).</summary>
         private static void Basis(Vector3D axis, out Vector3D u, out Vector3D v)
         {
             axis.Normalize();
@@ -183,7 +183,7 @@ namespace AgroCore.ControlCenter.Scene
         }
     }
 
-    /// <summary>Materiales reutilizables (congelados para que sean más rápidos).</summary>
+    /// <summary>Material berrerabilgarriak (izoztuta, azkarragoak izan daitezen).</summary>
     public static class Materials
     {
         public static Material Solid(Color color)
@@ -195,7 +195,7 @@ namespace AgroCore.ControlCenter.Scene
             return material;
         }
 
-        /// <summary>Material con brillo propio (luces de estado de las máquinas y cargadores).</summary>
+        /// <summary>Distira propioa duen materiala (makinen eta kargagailuen egoera-argiak).</summary>
         public static Material Glow(SolidColorBrush brush)
         {
             MaterialGroup group = new MaterialGroup();

@@ -14,14 +14,14 @@ using AgroCore.Shared.Models;
 namespace AgroCore.ControlCenter.Scene
 {
     /// <summary>
-    /// Vista 3D de la explotación (Viewport3D de WPF, sin librerías externas).
+    /// Ustiategiaren 3D ikuspegia (WPFren Viewport3D, kanpoko liburutegirik gabe).
     ///
-    ///  - Escenario fijo: suelo, caminos, base, cargadores, granero, silo y árboles.
-    ///  - Campos (FieldVisual) que cambian con el cultivo.
-    ///  - Máquinas (MachineVisual) que se mueven con la telemetría UDP.
-    ///  - Etiquetas 2D encima de cada máquina y de cada campo.
-    ///  - Cámara orbital: arrastrar con el botón izquierdo = girar, botón derecho = desplazar,
-    ///    rueda = acercar/alejar, clic sobre una máquina = seleccionarla.
+    ///  - Agertoki finkoa: lurra, bideak, basea, kargagailuak, ukuilua, siloa eta zuhaitzak.
+    ///  - Soroak (FieldVisual), laborearekin aldatzen direnak.
+    ///  - Makinak (MachineVisual), UDP telemetriarekin mugitzen direnak.
+    ///  - 2D etiketak makina eta soro bakoitzaren gainean.
+    ///  - Kamera orbitala: ezkerreko botoiarekin arrastatu = biratu, eskuineko botoia = desplazatu,
+    ///    gurpila = hurbildu/urrundu, makina baten gainean klik = hautatu.
     /// </summary>
     public class FarmScene
     {
@@ -43,7 +43,7 @@ namespace AgroCore.ControlCenter.Scene
         private string selectedId;
         private DateTime lastFrame = DateTime.Now;
 
-        // Cámara orbital
+        // Kamera orbitala
         private Point3D target = new Point3D(0, 0, 0);
         private double yaw = 35;
         private double pitch = 48;
@@ -57,7 +57,7 @@ namespace AgroCore.ControlCenter.Scene
         public bool FollowSelected { get; set; }
         public bool ShowLabels { get; set; } = true;
 
-        /// <summary>El usuario ha hecho clic sobre una máquina (null = clic en el vacío).</summary>
+        /// <summary>Erabiltzaileak makina baten gainean klik egin du (null = klik hutsean).</summary>
         public event Action<string> MachineClicked;
 
         public FarmScene(Viewport3D viewport, Canvas labels, FrameworkElement mouseArea)
@@ -70,7 +70,7 @@ namespace AgroCore.ControlCenter.Scene
             camera.FarPlaneDistance = 1500;
             viewport.Camera = camera;
 
-            // Luces: ambiente + sol + luz de relleno
+            // Argiak: giro-argia + eguzkia + betegarri-argia
             ModelVisual3D lights = new ModelVisual3D();
             Model3DGroup lightGroup = new Model3DGroup();
             lightGroup.Children.Add(new AmbientLight(Color.FromRgb(105, 105, 110)));
@@ -91,14 +91,14 @@ namespace AgroCore.ControlCenter.Scene
             UpdateCamera();
         }
 
-        /// <summary>Hay que llamarlo al cerrar la ventana para dejar de animar.</summary>
+        /// <summary>Leihoa ixtean deitu behar da, animatzeari uzteko.</summary>
         public void Dispose()
         {
             CompositionTarget.Rendering -= OnFrame;
         }
 
         // ==================================================================
-        // ESTADO COMPLETO (FARM_STATE, cada segundo)
+        // EGOERA OSOA (FARM_STATE, segundoro)
         // ==================================================================
 
         public void UpdateState(FarmStateMessage state)
@@ -106,7 +106,7 @@ namespace AgroCore.ControlCenter.Scene
             string key = state.FarmId + "|" + state.FieldCount + "|" + state.ChargerCount + "|" + state.Machines.Count;
             if (key != layoutKey)
             {
-                // Otra explotación (o ha cambiado su tamaño): se construye todo de nuevo
+                // Beste ustiategi bat (edo bere tamaina aldatu da): dena berriro eraikitzen da
                 bool newFarm = state.FarmId != farmId;
                 layoutKey = key;
                 farmId = state.FarmId;
@@ -133,7 +133,7 @@ namespace AgroCore.ControlCenter.Scene
                     continue;
                 }
 
-                // ¿Hay alguna máquina trabajando en este campo? Su progreso dice qué parte está hecha
+                // Soro honetan makinaren bat lanean ari al da? Bere aurrerapenak zenbat dagoen eginda adierazten du
                 double progress = -1;
                 foreach (Machine machine in state.Machines)
                 {
@@ -156,8 +156,8 @@ namespace AgroCore.ControlCenter.Scene
                 if (charger.Index < chargerLights.Count)
                 {
                     chargerLights[charger.Index].Color = charger.OccupiedBy == null
-                        ? Color.FromRgb(80, 220, 110)    // libre: verde
-                        : Color.FromRgb(255, 170, 40);   // ocupado: naranja
+                        ? Color.FromRgb(80, 220, 110)    // librea: berdea
+                        : Color.FromRgb(255, 170, 40);   // okupatua: laranja
                 }
             }
         }
@@ -191,7 +191,7 @@ namespace AgroCore.ControlCenter.Scene
                 UpdateMachineLabel(machine.Id, machine.Name, machine.Battery, machine.Online);
             }
 
-            // Máquinas que ya no existen (p. ej. se ha cambiado de explotación)
+            // Jada existitzen ez diren makinak (adib. ustiategiz aldatu da)
             List<string> removed = new List<string>();
             foreach (string id in machines.Keys)
             {
@@ -235,7 +235,7 @@ namespace AgroCore.ControlCenter.Scene
         }
 
         // ==================================================================
-        // TELEMETRÍA (UDP, cada 200 ms)
+        // TELEMETRIA (UDP, 200 ms-ro)
         // ==================================================================
 
         public void ApplyTelemetry(Telemetry telemetry)
@@ -250,7 +250,7 @@ namespace AgroCore.ControlCenter.Scene
         }
 
         // ==================================================================
-        // SELECCIÓN
+        // HAUTAPENA
         // ==================================================================
 
         public void Select(string machineId)
@@ -278,7 +278,7 @@ namespace AgroCore.ControlCenter.Scene
         }
 
         // ==================================================================
-        // ESCENARIO FIJO
+        // AGERTOKI FINKOA
         // ==================================================================
 
         private void BuildWorld()
@@ -288,17 +288,17 @@ namespace AgroCore.ControlCenter.Scene
             double width = layout.Width;
             double depth = layout.Depth;
 
-            // Césped alrededor
+            // Belarra inguruan
             MeshBuilder grass = new MeshBuilder();
             grass.AddBlock(width / 2, -0.3, depth / 2 - 6, width + 400, 0.3, depth + 400);
             group.Children.Add(grass.ToModel(Materials.Rgb(104, 158, 70)));
 
-            // Explanada de la base (columnas 0 y 1)
+            // Basearen zelaigunea (0. eta 1. zutabeak)
             MeshBuilder pad = new MeshBuilder();
             pad.AddBlock(cs, 0, depth / 2, 2 * cs, 0.04, depth);
             group.Children.Add(pad.ToModel(Materials.Rgb(170, 166, 154)));
 
-            // Caminos
+            // Bideak
             MeshBuilder roads = new MeshBuilder();
             MeshBuilder lines = new MeshBuilder();
             for (int col = 0; col < layout.Cols; col++)
@@ -314,7 +314,7 @@ namespace AgroCore.ControlCenter.Scene
             }
             group.Children.Add(roads.ToModel(Materials.Rgb(84, 86, 90)));
 
-            // Plazas de aparcamiento (líneas blancas) y cargadores
+            // Aparkalekuak (lerro zuriak) eta kargagailuak
             for (int slot = 0; slot < layout.MachineSlotCount; slot++)
             {
                 Position p = layout.ParkingPosition(slot);
@@ -348,7 +348,7 @@ namespace AgroCore.ControlCenter.Scene
 
             world.Content = group;
 
-            // Campos
+            // Soroak
             foreach (FieldVisual field in fields)
             {
                 viewport.Children.Remove(field.Visual);
@@ -370,14 +370,14 @@ namespace AgroCore.ControlCenter.Scene
                 labels.Children.Add(label);
             }
 
-            // Zonas reservadas encima de todo lo demás
+            // Gune erreserbatuak gainerako guztiaren gainean
             viewport.Children.Remove(zonesVisual);
             viewport.Children.Add(zonesVisual);
         }
 
         private void AddFarmBuildings(Model3DGroup group)
         {
-            // Granero (detrás de la base)
+            // Ukuilua (basearen atzean)
             MeshBuilder barn = new MeshBuilder();
             barn.AddBlock(6, 0, -11, 8, 4, 7);
             group.Children.Add(barn.ToModel(Materials.Rgb(176, 52, 42)));
@@ -387,13 +387,13 @@ namespace AgroCore.ControlCenter.Scene
             group.Children.Add(roof.ToModel(Materials.Rgb(76, 66, 64)));
 
             MeshBuilder trim = new MeshBuilder();
-            trim.AddBlock(6, 0, -7.45, 3.0, 3.0, 0.1);   // puerta
+            trim.AddBlock(6, 0, -7.45, 3.0, 3.0, 0.1);   // atea
             group.Children.Add(trim.ToModel(Materials.Rgb(236, 232, 222)));
             MeshBuilder door = new MeshBuilder();
             door.AddBlock(6, 0.1, -7.38, 2.6, 2.7, 0.1);
             group.Children.Add(door.ToModel(Materials.Rgb(120, 36, 30)));
 
-            // Silo
+            // Siloa
             MeshBuilder silo = new MeshBuilder();
             silo.AddCylinder(new Point3D(16, 0, -11), new Point3D(16, 9, -11), 2.4, 14);
             group.Children.Add(silo.ToModel(Materials.Rgb(196, 198, 204)));
@@ -435,7 +435,7 @@ namespace AgroCore.ControlCenter.Scene
         }
 
         // ==================================================================
-        // ETIQUETAS 2D
+        // 2D ETIKETAK
         // ==================================================================
 
         private Border CreateLabel(string text, bool machine)
@@ -464,7 +464,7 @@ namespace AgroCore.ControlCenter.Scene
             Border label;
             if (machineLabels.TryGetValue(id, out label))
             {
-                ((TextBlock)label.Child).Text = online ? name + "  " + battery.ToString("0") + "%" : name + " (desconectada)";
+                ((TextBlock)label.Child).Text = online ? name + "  " + battery.ToString("0") + "%" : name + " (deskonektatuta)";
                 label.Opacity = online ? 1.0 : 0.55;
             }
         }
@@ -494,7 +494,7 @@ namespace AgroCore.ControlCenter.Scene
 
         private void PlaceLabel(Border label, Visual3D reference, Point3D worldPoint)
         {
-            // Convierte un punto 3D del mundo en un punto 2D de la pantalla
+            // Munduko 3D puntu bat pantailako 2D puntu bihurtzen du
             GeneralTransform3DTo2D transform = world.TransformToAncestor(viewport);
             Point screen;
             if (transform != null && transform.TryTransform(worldPoint, out screen) && IsInFront(worldPoint))
@@ -517,7 +517,7 @@ namespace AgroCore.ControlCenter.Scene
         }
 
         // ==================================================================
-        // ANIMACIÓN
+        // ANIMAZIOA
         // ==================================================================
 
         private void OnFrame(object sender, EventArgs e)
@@ -546,7 +546,7 @@ namespace AgroCore.ControlCenter.Scene
         }
 
         // ==================================================================
-        // CÁMARA
+        // KAMERA
         // ==================================================================
 
         public void ResetCamera()
@@ -639,7 +639,7 @@ namespace AgroCore.ControlCenter.Scene
             {
                 double yawRad = yaw * Math.PI / 180;
                 double scale = distance * 0.0018;
-                // derecha de la cámara y "hacia delante" en el plano del suelo
+                // kameraren eskuina eta "aurrerantz" lurraren planoan
                 Vector3D right = new Vector3D(Math.Cos(yawRad), 0, -Math.Sin(yawRad));
                 Vector3D forward = new Vector3D(-Math.Sin(yawRad), 0, -Math.Cos(yawRad));
                 target = target - right * (delta.X * scale) + forward * (delta.Y * scale);

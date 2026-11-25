@@ -1,32 +1,32 @@
 namespace AgroCore.Shared.Models
 {
     /// <summary>
-    /// Capacidades de una máquina (su "hardware"). La máquina las envía al servidor al conectarse
-    /// y el servidor las usa para elegir la máquina más adecuada para cada tarea.
+    /// Makina baten gaitasunak (bere "hardwarea"). Makinak zerbitzariari bidaltzen dizkio konektatzean
+    /// eta zerbitzariak zeregin bakoitzerako makinarik egokiena aukeratzeko erabiltzen ditu.
     /// </summary>
     public class MachineProfile
     {
         public string Model { get; set; } = "";
 
-        /// <summary>Velocidad al desplazarse (unidades por segundo).</summary>
+        /// <summary>Mugitzean duen abiadura (unitateak segundoko).</summary>
         public double Speed { get; set; } = 4;
 
-        /// <summary>Mientras trabaja va más despacio: velocidad = Speed x WorkSpeedFactor.</summary>
+        /// <summary>Lanean ari den bitartean motelago doa: abiadura = Speed x WorkSpeedFactor.</summary>
         public double WorkSpeedFactor { get; set; } = 0.5;
 
-        /// <summary>Consumo de batería al desplazarse (% por segundo).</summary>
+        /// <summary>Bateria-kontsumoa mugitzean (% segundoko).</summary>
         public double MoveConsumption { get; set; } = 0.25;
 
-        /// <summary>Consumo de batería al trabajar (% por segundo).</summary>
+        /// <summary>Bateria-kontsumoa lan egitean (% segundoko).</summary>
         public double WorkConsumption { get; set; } = 0.45;
 
-        /// <summary>Capacidad (kg de tolva, litros de depósito...).</summary>
+        /// <summary>Edukiera (tolvaren kg-ak, depositoaren litroak...).</summary>
         public double Capacity { get; set; } = 100;
 
-        /// <summary>Radio de trabajo. El ancho de cada pasada es 2 x WorkRadius.</summary>
+        /// <summary>Lan-erradioa. Pasada bakoitzaren zabalera 2 x WorkRadius da.</summary>
         public double WorkRadius { get; set; } = 1.5;
 
-        /// <summary>Eficiencia entre 0 y 1.</summary>
+        /// <summary>Eraginkortasuna 0 eta 1 artean.</summary>
         public double Efficiency { get; set; } = 0.9;
     }
 }

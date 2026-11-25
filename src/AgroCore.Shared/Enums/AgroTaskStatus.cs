@@ -1,14 +1,14 @@
 namespace AgroCore.Shared.Enums;
 
 /// <summary>
-/// Estado de una tarea agrícola. Se llama AgroTaskStatus (y no TaskStatus) para no chocar con
-/// System.Threading.Tasks.TaskStatus, que está importado implícitamente en todos los proyectos.
+/// Nekazaritza-zeregin baten egoera. AgroTaskStatus deitzen da (eta ez TaskStatus) talkarik ez izateko
+/// System.Threading.Tasks.TaskStatus-ekin, proiektu guztietan inplizituki inportatuta baitago.
 /// </summary>
 public enum AgroTaskStatus
 {
-    /// <summary>Dependencias cumplidas: lista para asignarse a una máquina.</summary>
+    /// <summary>Mendekotasunak beteta: makina bati esleitzeko prest.</summary>
     Pending,
-    /// <summary>Esperando dependencias (otra tarea, crecimiento, campo ocupado...).</summary>
+    /// <summary>Mendekotasunen zain (beste zeregin bat, hazkuntza, soro okupatua...).</summary>
     Waiting,
     Assigned,
     Running,

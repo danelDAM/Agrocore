@@ -12,13 +12,13 @@ using AgroCore.Shared.Networking;
 namespace AgroCore.MachineClient
 {
     /// <summary>
-    /// Programa de la MÁQUINA AUTÓNOMA. Dos modos:
+    /// MAKINA AUTONOMOAREN programa. Bi modu:
     ///
-    ///  1) Una máquina (un proceso = una máquina, como si estuviera instalada en otro equipo):
+    ///  1) Makina bakarra (prozesu bat = makina bat, beste ordenagailu batean instalatuta egongo balitz bezala):
     ///       AgroCore.MachineClient --id F1-Harvester-01 --key AGRO-DEMO-1 [--server 127.0.0.1] [--port 5000]
     ///
-    ///  2) Lanzador de flota: pide al servidor la lista de máquinas de una explotación y arranca
-    ///     UN PROCESO INDEPENDIENTE por cada máquina:
+    ///  2) Flota-abiarazlea: ustiategi bateko makinen zerrenda eskatzen dio zerbitzariari eta
+    ///     PROZESU INDEPENDENTE BAT abiarazten du makina bakoitzeko:
     ///       AgroCore.MachineClient --fleet --farm 1 --key AGRO-DEMO-1 [--windows]
     /// </summary>
     public class Program
@@ -40,7 +40,7 @@ namespace AgroCore.MachineClient
             string machineId = GetArg(args, "--id", "");
             if (machineId == "")
             {
-                Console.WriteLine("Uso:");
+                Console.WriteLine("Erabilera:");
                 Console.WriteLine("  AgroCore.MachineClient --id F1-Harvester-01 --key AGRO-DEMO-1");
                 Console.WriteLine("  AgroCore.MachineClient --fleet --farm 1 --key AGRO-DEMO-1 [--windows]");
                 return 1;
@@ -49,25 +49,25 @@ namespace AgroCore.MachineClient
         }
 
         // ==================================================================
-        // UNA MÁQUINA
+        // MAKINA BAKARRA
         // ==================================================================
 
         private static int RunMachine(string server, int port, string machineId, string key)
         {
             Console.Title = "AGROCORE - " + machineId;
 
-            // El tipo se deduce del nombre: F1-Harvester-01 -> Harvester
+            // Mota izenetik ateratzen da: F1-Harvester-01 -> Harvester
             string name = machineId.Substring(machineId.IndexOf('-') + 1);
             string typeText = name.Substring(0, name.IndexOf('-'));
             MachineType type;
             if (!Enum.TryParse(typeText, out type))
             {
-                Console.WriteLine("Tipo de máquina desconocido: " + typeText);
+                Console.WriteLine("Makina-mota ezezaguna: " + typeText);
                 return 1;
             }
 
             MachineProfile profile = ProfileLoader.Load(name, type);
-            double initialBattery = 55 + new Random().NextDouble() * 45; // la batería real con la que "arranca"
+            double initialBattery = 55 + new Random().NextDouble() * 45; // makinak "abiatzean" duen benetako bateria
 
             ServerLink link = new ServerLink(server, port);
             try
@@ -76,7 +76,7 @@ namespace AgroCore.MachineClient
             }
             catch (Exception ex)
             {
-                Console.WriteLine("No se pudo conectar con el servidor " + server + ":" + port + " - " + ex.Message);
+                Console.WriteLine("Ezin izan da " + server + ":" + port + " zerbitzariarekin konektatu - " + ex.Message);
                 return 2;
             }
 
@@ -90,28 +90,28 @@ namespace AgroCore.MachineClient
             MachineAuthResponse response = link.Authenticate(auth);
             if (!response.Success)
             {
-                Console.WriteLine("Autenticación rechazada: " + response.Message);
+                Console.WriteLine("Autentifikazioa ukatuta: " + response.Message);
                 link.Close();
                 return 3;
             }
-            Console.WriteLine(machineId + " autenticada: " + response.Message);
+            Console.WriteLine(machineId + " autentifikatuta: " + response.Message);
 
             link.Start(response.UdpPort);
             AutonomousMachine machine = new AutonomousMachine(response, type, profile, initialBattery, link);
-            machine.Run(); // bucle principal hasta que se cierre la conexión
+            machine.Run(); // begizta nagusia, konexioa itxi arte
             link.Close();
             return 0;
         }
 
         // ==================================================================
-        // LANZADOR DE FLOTA
+        // FLOTA-ABIARAZLEA
         // ==================================================================
 
         private static int RunFleet(string server, int port, int farmId, string key, bool ownWindows)
         {
-            Console.Title = "AGROCORE - Flota de la explotación " + farmId;
+            Console.Title = "AGROCORE - " + farmId + " ustiategiko flota";
 
-            // 1. Pedir la lista de máquinas al servidor
+            // 1. Makinen zerrenda zerbitzariari eskatu
             FleetQueryResponse fleet;
             try
             {
@@ -126,24 +126,24 @@ namespace AgroCore.MachineClient
             }
             catch (Exception ex)
             {
-                Console.WriteLine("No se pudo contactar con el servidor: " + ex.Message);
+                Console.WriteLine("Ezin izan da zerbitzariarekin harremanetan jarri: " + ex.Message);
                 return 2;
             }
 
             if (!fleet.Success)
             {
-                Console.WriteLine("Rechazado: " + fleet.Message);
+                Console.WriteLine("Ukatuta: " + fleet.Message);
                 return 3;
             }
 
-            Console.WriteLine("Explotación: " + fleet.Message + " - " + fleet.Machines.Count + " máquinas");
+            Console.WriteLine("Ustiategia: " + fleet.Message + " - " + fleet.Machines.Count + " makina");
 
-            // 2. Un proceso por máquina
+            // 2. Prozesu bat makina bakoitzeko
             string exe = Environment.ProcessPath;
             string prefix = "";
             if (Path.GetFileNameWithoutExtension(exe).ToLower() == "dotnet")
             {
-                prefix = "\"" + typeof(Program).Assembly.Location + "\" "; // ejecutado con "dotnet x.dll"
+                prefix = "\"" + typeof(Program).Assembly.Location + "\" "; // "dotnet x.dll" bidez exekutatuta
             }
 
             List<Process> processes = new List<Process>();
@@ -154,7 +154,7 @@ namespace AgroCore.MachineClient
                 info.Arguments = prefix + "--id " + machine.Id + " --key " + key + " --server " + server + " --port " + port;
                 if (ownWindows)
                 {
-                    info.UseShellExecute = true; // cada máquina en su propia ventana de consola
+                    info.UseShellExecute = true; // makina bakoitza bere kontsola-leihoan
                 }
                 else
                 {
@@ -163,12 +163,12 @@ namespace AgroCore.MachineClient
                 }
                 Process process = Process.Start(info);
                 processes.Add(process);
-                Console.WriteLine("  Arrancada " + machine.Id + " (proceso " + process.Id + ")");
+                Console.WriteLine("  Abiarazita: " + machine.Id + " (" + process.Id + " prozesua)");
                 System.Threading.Thread.Sleep(150);
             }
 
             Console.WriteLine();
-            Console.WriteLine("Flota en marcha. Pulse ENTER para apagar todas las máquinas.");
+            Console.WriteLine("Flota martxan. Sakatu ENTER makina guztiak itzaltzeko.");
             string input = null;
             try
             {
@@ -180,7 +180,7 @@ namespace AgroCore.MachineClient
             }
             if (input == null)
             {
-                // Sin consola interactiva (lanzado desde un script): seguir hasta que lo cierren
+                // Kontsola interaktiborik gabe (script batetik abiarazita): jarraitu itxi arte
                 System.Threading.Thread.Sleep(System.Threading.Timeout.Infinite);
             }
 
@@ -195,7 +195,7 @@ namespace AgroCore.MachineClient
                 }
                 catch (Exception)
                 {
-                    // ya terminado
+                    // dagoeneko amaituta
                 }
             }
             return 0;

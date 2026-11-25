@@ -10,30 +10,30 @@ using AgroCore.Shared.Models;
 
 namespace AgroCore.MachineClient.Machine
 {
-    /// <summary>La conexión con el servidor se ha perdido.</summary>
+    /// <summary>Zerbitzariarekiko konexioa galdu da.</summary>
     public class LinkLostException : Exception
     {
-        public LinkLostException() : base("Conexión con el servidor perdida")
+        public LinkLostException() : base("Zerbitzariarekiko konexioa galduta")
         {
         }
     }
 
     /// <summary>
-    /// Mueve la máquina por el mapa de forma VISIBLE (paso a paso, nunca teletransporta).
+    /// Makina mapan zehar mugitzen du modu IKUSGARRIAN (urratsez urrats, inoiz ez du teleportatzen).
     ///
-    /// Máquinas de tierra:
-    ///   - Solo circulan por los caminos y el carril de la base.
-    ///   - Antes de entrar en cada celda del camino piden la ZONA al servidor (ZONE_REQUEST)
-    ///     y no avanzan hasta que se la conceden. Al salir de una celda la liberan (ZONE_RELEASE).
-    ///   - Si el servidor deniega la zona para evitar un interbloqueo, la máquina se aparta
-    ///     al arcén, libera su celda y cede el paso.
+    /// Lurreko makinak:
+    ///   - Bideetatik eta basearen errailetik bakarrik ibiltzen dira.
+    ///   - Bideko gelaxka bakoitzean sartu aurretik, GUNEA eskatzen diote zerbitzariari (ZONE_REQUEST)
+    ///     eta ez dute aurrera egiten ematen ez dioten arte. Gelaxka batetik irtetean askatu egiten dute (ZONE_RELEASE).
+    ///   - Zerbitzariak gunea ukatzen badu elkarblokeo bat saihesteko, makina bazterbidera
+    ///     aldentzen da, bere gelaxka askatzen du eta bidea uzten du.
     ///
-    /// Drones (fumigadoras): vuelan en línea recta. Cada dron tiene su propia altitud de crucero
-    /// (corredores aéreos), así nunca coinciden dos drones a la misma altura.
+    /// Droneak (fumigazio-droneak): lerro zuzenean hegan egiten dute. Drone bakoitzak bere hegaldi-altitudea du
+    /// (aire-korridoreak); horrela, bi drone ez dira inoiz altuera berean egongo.
     /// </summary>
     public class Navigator
     {
-        private const double TickSeconds = 0.05; // 20 pasos de simulación por segundo
+        private const double TickSeconds = 0.05; // 20 simulazio-urrats segundoko
         private const double WorkAltitude = 2.5;
 
         private enum Place { Slot, Road, Field }
@@ -78,7 +78,7 @@ namespace AgroCore.MachineClient.Machine
             get { return IsDrone ? WorkAltitude : 0; }
         }
 
-        /// <summary>¿Está en una plaza de la base (aparcamiento o cargador)?</summary>
+        /// <summary>Basearen plaza batean dago (aparkalekua edo kargagailua)?</summary>
         public bool IsAtBase
         {
             get { return place == Place.Slot; }
@@ -91,12 +91,12 @@ namespace AgroCore.MachineClient.Machine
         }
 
         // ==================================================================
-        // DESTINOS
+        // HELMUGAK
         // ==================================================================
 
         /// <summary>
-        /// Lleva la máquina hasta dentro de un campo. shouldAbort se comprueba en cada celda:
-        /// si devuelve true, la máquina se queda donde está (en el camino) y devuelve false.
+        /// Makina soro baten barruraino eramaten du. shouldAbort gelaxka bakoitzean egiaztatzen da:
+        /// true itzultzen badu, makina dagoen tokian geratzen da (bidean) eta false itzultzen du.
         /// </summary>
         public bool GoToField(int index, Func<bool> shouldAbort)
         {
@@ -122,7 +122,7 @@ namespace AgroCore.MachineClient.Machine
                 return false;
             }
 
-            // Entrar en el campo y liberar la celda del camino
+            // Soroan sartu eta bideko gelaxka askatu
             Position inside = new Position(layout.FieldMinX(index) + 1.0, 0, layout.CellCenter(entranceCol, entranceRow).Z);
             MoveTo(inside, false);
             ReleaseZone(roadCol, roadRow);
@@ -131,7 +131,7 @@ namespace AgroCore.MachineClient.Machine
             return true;
         }
 
-        /// <summary>Lleva la máquina a una plaza de la base (su aparcamiento o un cargador).</summary>
+        /// <summary>Makina basearen plaza batera eramaten du (bere aparkalekura edo kargagailu batera).</summary>
         public void GoToSlot(Position slot)
         {
             Position current = state.GetPosition();
@@ -152,7 +152,7 @@ namespace AgroCore.MachineClient.Machine
             int laneRow = layout.RowOf(slot.Z);
             FollowPathTo(FarmLayout.BaseLaneCol, laneRow, null);
 
-            // Por el ramal hasta la plaza (cada plaza tiene una Z distinta: no se cruza con nadie)
+            // Adarretik plazaraino (plaza bakoitzak Z desberdina du: ez da inorekin gurutzatzen)
             MoveTo(new Position(layout.BaseLaneX, 0, slot.Z), false);
             MoveTo(slot, false);
             ReleaseZone(FarmLayout.BaseLaneCol, laneRow);
@@ -160,7 +160,7 @@ namespace AgroCore.MachineClient.Machine
             fieldIndex = -1;
         }
 
-        /// <summary>Sale de la plaza o del campo y se pone en una celda de camino (reservada).</summary>
+        /// <summary>Plazatik edo sorotik irten eta bideko gelaxka batean jartzen da (erreserbatuta).</summary>
         private void LeaveCurrentPlace()
         {
             Position position = state.GetPosition();
@@ -190,7 +190,7 @@ namespace AgroCore.MachineClient.Machine
             }
         }
 
-        /// <summary>Recorre el camino celda a celda reservando cada zona antes de entrar.</summary>
+        /// <summary>Bidea gelaxkaz gelaxka egiten du, gune bakoitza sartu aurretik erreserbatuz.</summary>
         private bool FollowPathTo(int targetCol, int targetRow, Func<bool> shouldAbort)
         {
             List<int[]> path = layout.FindPath(roadCol, roadRow, targetCol, targetRow);
@@ -204,9 +204,9 @@ namespace AgroCore.MachineClient.Machine
                 int nextCol = path[i][0];
                 int nextRow = path[i][1];
 
-                AcquireZone(nextCol, nextRow);                       // 1. reservar la siguiente celda
-                MoveTo(layout.CellCenter(nextCol, nextRow), false);  // 2. moverse hasta ella
-                ReleaseZone(roadCol, roadRow);                       // 3. liberar la anterior
+                AcquireZone(nextCol, nextRow);                       // 1. hurrengo gelaxka erreserbatu
+                MoveTo(layout.CellCenter(nextCol, nextRow), false);  // 2. bertaraino mugitu
+                ReleaseZone(roadCol, roadRow);                       // 3. aurrekoa askatu
                 roadCol = nextCol;
                 roadRow = nextRow;
             }
@@ -214,7 +214,7 @@ namespace AgroCore.MachineClient.Machine
         }
 
         // ==================================================================
-        // ZONAS (anticolisión)
+        // GUNEAK (talkaren aurkakoak)
         // ==================================================================
 
         private void AcquireZone(int col, int row)
@@ -231,7 +231,7 @@ namespace AgroCore.MachineClient.Machine
 
                 MachineStatus previous = state.Status;
                 string previousNote = state.Note;
-                state.Set(MachineStatus.WaitingForZone, "esperando zona " + zoneId);
+                state.Set(MachineStatus.WaitingForZone, zoneId + " gunearen zain");
                 state.SetSpeed(0);
 
                 ZoneRequest request = new ZoneRequest();
@@ -253,9 +253,9 @@ namespace AgroCore.MachineClient.Machine
                 if (response.Outcome == ZoneOutcome.DeniedDeadlock)
                 {
                     YieldWay();
-                    continue; // volver a pedirla
+                    continue; // berriro eskatu
                 }
-                // Cancelled: normalmente por STOP o emergencia. PauseIfHalted() esperará.
+                // Cancelled: normalean STOP edo larrialdiagatik. PauseIfHalted()-ek itxarongo du.
                 Thread.Sleep(200);
             }
         }
@@ -275,8 +275,8 @@ namespace AgroCore.MachineClient.Machine
         }
 
         /// <summary>
-        /// Ceder el paso para romper un interbloqueo: apartarse al arcén, liberar la celda
-        /// en la que está para que la otra máquina pueda pasar, y esperar un momento.
+        /// Bidea utzi elkarblokeo bat hausteko: bazterbidera aldendu, dagoen gelaxka
+        /// askatu beste makinak pasatu ahal izateko, eta une batez itxaron.
         /// </summary>
         private void YieldWay()
         {
@@ -288,9 +288,9 @@ namespace AgroCore.MachineClient.Machine
 
             MachineStatus previous = state.Status;
             string previousNote = state.Note;
-            state.Set(MachineStatus.Yielding, "cede el paso (interbloqueo evitado)");
+            state.Set(MachineStatus.Yielding, "bidea uzten (elkarblokeoa saihestuta)");
 
-            // Apartarse 2,2 unidades en perpendicular a la dirección de marcha
+            // 2,2 unitate aldendu, martxaren norabidearekiko perpendikularrean
             Position position = state.GetPosition();
             Position center = layout.CellCenter(roadCol, roadRow);
             bool verticalRoad = (roadCol - 3) % 4 == 0 || roadCol == FarmLayout.BaseLaneCol;
@@ -311,7 +311,7 @@ namespace AgroCore.MachineClient.Machine
         }
 
         // ==================================================================
-        // VUELO (drones)
+        // HEGALDIA (droneak)
         // ==================================================================
 
         private void FlyTo(Position target, double finalAltitude)
@@ -319,19 +319,19 @@ namespace AgroCore.MachineClient.Machine
             Position position = state.GetPosition();
             if (position.Y < cruiseAltitude - 0.05)
             {
-                MoveTo(new Position(position.X, cruiseAltitude, position.Z), false); // despegar
+                MoveTo(new Position(position.X, cruiseAltitude, position.Z), false); // aireratu
             }
-            MoveTo(new Position(target.X, cruiseAltitude, target.Z), false);         // volar
-            MoveTo(new Position(target.X, finalAltitude, target.Z), false);          // descender
+            MoveTo(new Position(target.X, cruiseAltitude, target.Z), false);         // hegan egin
+            MoveTo(new Position(target.X, finalAltitude, target.Z), false);          // jaitsi
         }
 
         // ==================================================================
-        // MOVIMIENTO BÁSICO
+        // OINARRIZKO MUGIMENDUA
         // ==================================================================
 
         /// <summary>
-        /// Avanza en línea recta hasta el destino, poco a poco (20 veces por segundo),
-        /// gastando batería. Si la máquina recibe STOP, se queda parada aquí hasta RESUME.
+        /// Lerro zuzenean aurrera egiten du helmugaraino, pixkanaka (segundoko 20 aldiz),
+        /// bateria gastatuz. Makinak STOP jasotzen badu, hemen geldituta geratzen da RESUME arte.
         /// </summary>
         public void MoveTo(Position target, bool working)
         {
@@ -368,7 +368,7 @@ namespace AgroCore.MachineClient.Machine
                         position.Z + (target.Z - position.Z) * t);
                 }
 
-                // Orientación: 0 grados = hacia +Z, 90 grados = hacia +X
+                // Orientazioa: 0 gradu = +Z aldera, 90 gradu = +X aldera
                 double dx = target.X - position.X;
                 double dz = target.Z - position.Z;
                 double heading = GetHeading(dx, dz);
@@ -394,13 +394,13 @@ namespace AgroCore.MachineClient.Machine
         {
             if (Math.Abs(dx) < 0.001 && Math.Abs(dz) < 0.001)
             {
-                return lastHeading; // movimiento vertical (dron): mantiene la orientación
+                return lastHeading; // mugimendu bertikala (dronea): orientazioa mantentzen du
             }
             lastHeading = Math.Atan2(dx, dz) * 180.0 / Math.PI;
             return lastHeading;
         }
 
-        /// <summary>Si hay un STOP o una emergencia, la máquina se detiene aquí hasta que llegue RESUME.</summary>
+        /// <summary>STOP edo larrialdi bat badago, makina hemen gelditzen da RESUME iritsi arte.</summary>
         public void PauseIfHalted()
         {
             if (!control.IsHalted)
@@ -411,15 +411,15 @@ namespace AgroCore.MachineClient.Machine
             string previousNote = state.Note;
             if (control.IsEmergency)
             {
-                state.Set(MachineStatus.Emergency, "PARADA DE EMERGENCIA");
+                state.Set(MachineStatus.Emergency, "LARRIALDIKO GELDIALDIA");
             }
             else
             {
-                state.Set(MachineStatus.Stopped, "detenida por el operador");
+                state.Set(MachineStatus.Stopped, "operadoreak geldituta");
             }
             state.SetSpeed(0);
 
-            control.WaitWhileHalted(); // Monitor.Wait hasta RESUME
+            control.WaitWhileHalted(); // Monitor.Wait RESUME arte
 
             state.Set(previous, previousNote);
         }

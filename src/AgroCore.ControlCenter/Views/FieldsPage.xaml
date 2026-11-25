@@ -37,7 +37,7 @@
                                 <TextBlock Text="{Binding PlanText}" Style="{StaticResource MutedText}" Margin="0,2,0,0" />
                                 <TextBlock Text="{Binding HarvestText}" Style="{StaticResource MutedText}" Margin="0,2,0,0" />
 
-                                <!-- Plan de cultivo -->
+                                <!-- Labore-plana -->
                                 <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0" Margin="0,12,0,0" Padding="0,10,0,0"
                                         Visibility="{Binding DataContext.PlanControlsVisibility, RelativeSource={RelativeSource AncestorType=ItemsControl}}">
                                     <StackPanel>
@@ -47,15 +47,15 @@
                                                 <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
                                             <ComboBox SelectedIndex="{Binding CropChoice, Mode=TwoWay}" Margin="0,0,8,0">
-                                                <ComboBoxItem Content="Zanahoria" />
-                                                <ComboBoxItem Content="Maíz" />
-                                                <ComboBoxItem Content="Tomate" />
+                                                <ComboBoxItem Content="Azenarioa" />
+                                                <ComboBoxItem Content="Artoa" />
+                                                <ComboBoxItem Content="Tomatea" />
                                             </ComboBox>
-                                            <Button Grid.Column="1" Content="PLANTAR" Margin="0" Click="Plant_Click" />
+                                            <Button Grid.Column="1" Content="LANDATU" Margin="0" Click="Plant_Click" />
                                         </Grid>
                                         <Grid Margin="0,8,0,0">
-                                            <CheckBox Content="Resiembra automática" IsChecked="{Binding AutoReplantChoice, Mode=TwoWay}" />
-                                            <Button Content="Cancelar plan" HorizontalAlignment="Right" Style="{StaticResource SmallButton}" Margin="0" Click="Cancel_Click" />
+                                            <CheckBox Content="Birlandaketa automatikoa" IsChecked="{Binding AutoReplantChoice, Mode=TwoWay}" />
+                                            <Button Content="Plana utzi" HorizontalAlignment="Right" Style="{StaticResource SmallButton}" Margin="0" Click="Cancel_Click" />
                                         </Grid>
                                     </StackPanel>
                                 </Border>

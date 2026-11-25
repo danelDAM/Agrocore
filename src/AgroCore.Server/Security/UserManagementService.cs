@@ -10,8 +10,8 @@ using AgroCore.Shared.Models;
 namespace AgroCore.Server.Security
 {
     /// <summary>
-    /// Gestión de usuarios y agricultores (solo la usa el administrador).
-    /// Al crear un agricultor se crean a la vez: User + Farm (con campos, máquinas y cargadores).
+    /// Erabiltzaileen eta nekazarien kudeaketa (administratzaileak bakarrik erabiltzen du).
+    /// Nekazari bat sortzean, aldi berean sortzen dira: User + Farm (soro, makina eta kargagailuekin).
     /// </summary>
     public class UserManagementService
     {
@@ -19,10 +19,10 @@ namespace AgroCore.Server.Security
         private readonly SessionManager sessions;
         private readonly EventLogger logger;
 
-        /// <summary>Se avisa cuando se crea una explotación (para ponerla en marcha en la simulación).</summary>
+        /// <summary>Ustiategi bat sortzen denean abisatzen da (simulazioan martxan jartzeko).</summary>
         public event Action<Farm> FarmCreated;
 
-        /// <summary>Se avisa cuando se borra una explotación.</summary>
+        /// <summary>Ustiategi bat ezabatzen denean abisatzen da.</summary>
         public event Action<int> FarmDeleted;
 
         public UserManagementService(DataStore store, SessionManager sessions, EventLogger logger)
@@ -83,12 +83,12 @@ namespace AgroCore.Server.Security
             string error = ValidateNewUser(request.Username, request.Password, request.FullName);
             if (error == null && string.IsNullOrWhiteSpace(request.FarmName))
             {
-                error = "Indique el nombre de la explotación";
+                error = "Adierazi ustiategiaren izena";
             }
             int machines = request.Seeders + request.Irrigators + request.Sprayers + request.Harvesters;
             if (error == null && (machines < 1 || machines > 16))
             {
-                error = "La flota debe tener entre 1 y 16 máquinas";
+                error = "Flotak 1 eta 16 makina artean izan behar ditu";
             }
             if (error != null)
             {
@@ -97,21 +97,21 @@ namespace AgroCore.Server.Security
                 return response;
             }
 
-            // 1. Usuario
+            // 1. Erabiltzailea
             User user = store.AddUser(request.Username.Trim(), request.Password, request.FullName.Trim(), UserRole.Farmer, 0);
 
-            // 2. Explotación con su flota. La clave de flota se genera aleatoria y solo se guarda su hash.
+            // 2. Ustiategia bere flotarekin. Flota-gakoa ausaz sortzen da eta haren hasha bakarrik gordetzen da.
             string fleetKey = PasswordHasher.GenerateKey();
             Farm farm = store.CreateFarm(request.FarmName.Trim(), user.Id, request.FieldCount,
                 Math.Max(0, request.Seeders), Math.Max(0, request.Irrigators), Math.Max(0, request.Sprayers),
                 Math.Max(0, request.Harvesters), request.Chargers, fleetKey);
 
-            // 3. Relación entre ambos (User.FarmId <-> Farm.OwnerId)
+            // 3. Bien arteko erlazioa (User.FarmId <-> Farm.OwnerId)
             store.SetUserFarm(user.Id, farm.Id);
             User saved = store.GetUser(user.Id);
 
             logger.Log(EventKind.UserManagement, LogSeverity.Info,
-                adminName + " creó el agricultor " + saved.FullName + " (" + saved.Username + ") con la explotación " + farm.Name,
+                adminName + " erabiltzaileak " + saved.FullName + " (" + saved.Username + ") nekazaria sortu du, " + farm.Name + " ustiategiarekin",
                 farm.Id, null, adminName, null, null);
 
             if (FarmCreated != null)
@@ -120,7 +120,7 @@ namespace AgroCore.Server.Security
             }
 
             response.Success = true;
-            response.Message = "Agricultor y explotación creados";
+            response.Message = "Nekazaria eta ustiategia sortuta";
             response.UserId = saved.Id;
             response.FarmId = farm.Id;
             response.FleetKey = fleetKey;
@@ -132,11 +132,11 @@ namespace AgroCore.Server.Security
             string error = ValidateNewUser(request.Username, request.Password, request.FullName);
             if (error == null && request.Role != UserRole.Admin && store.GetFarm(request.FarmId) == null)
             {
-                error = "La explotación indicada no existe";
+                error = "Adierazitako ustiategia ez da existitzen";
             }
             if (error == null && request.Role == UserRole.Farmer)
             {
-                error = "Para crear un agricultor use NUEVO AGRICULTOR (crea también su explotación)";
+                error = "Nekazari bat sortzeko, erabili NEKAZARI BERRIA (bere ustiategia ere sortzen du)";
             }
             if (error != null)
             {
@@ -146,8 +146,8 @@ namespace AgroCore.Server.Security
             int farmId = request.Role == UserRole.Admin ? 0 : request.FarmId;
             User user = store.AddUser(request.Username.Trim(), request.Password, request.FullName.Trim(), request.Role, farmId);
             logger.Log(EventKind.UserManagement, LogSeverity.Info,
-                adminName + " creó el usuario " + user.Username + " (" + request.Role + ")", farmId, null, adminName, null, null);
-            return OperationResult.Ok(request.Type, "Usuario creado");
+                adminName + " erabiltzaileak " + user.Username + " erabiltzailea sortu du (" + request.Role + ")", farmId, null, adminName, null, null);
+            return OperationResult.Ok(request.Type, "Erabiltzailea sortuta");
         }
 
         public OperationResult UpdateUser(UpdateUserRequest request, string adminName)
@@ -155,7 +155,7 @@ namespace AgroCore.Server.Security
             User user = store.GetUser(request.UserId);
             if (user == null)
             {
-                return OperationResult.Fail(request.Type, "Usuario no encontrado");
+                return OperationResult.Fail(request.Type, "Ez da erabiltzailea aurkitu");
             }
 
             if (!string.IsNullOrWhiteSpace(request.FullName))
@@ -177,8 +177,8 @@ namespace AgroCore.Server.Security
             }
 
             logger.Log(EventKind.UserManagement, LogSeverity.Info,
-                adminName + " modificó el usuario " + user.Username, user.FarmId, null, adminName, null, null);
-            return OperationResult.Ok(request.Type, "Usuario modificado");
+                adminName + " erabiltzaileak " + user.Username + " erabiltzailea aldatu du", user.FarmId, null, adminName, null, null);
+            return OperationResult.Ok(request.Type, "Erabiltzailea aldatuta");
         }
 
         public OperationResult SetActive(SetUserActiveRequest request, int adminId, string adminName)
@@ -186,23 +186,23 @@ namespace AgroCore.Server.Security
             User user = store.GetUser(request.UserId);
             if (user == null)
             {
-                return OperationResult.Fail(request.Type, "Usuario no encontrado");
+                return OperationResult.Fail(request.Type, "Ez da erabiltzailea aurkitu");
             }
             if (user.Id == adminId)
             {
-                return OperationResult.Fail(request.Type, "No puede desactivar su propio usuario");
+                return OperationResult.Fail(request.Type, "Ezin duzu zure erabiltzailea desaktibatu");
             }
 
             store.SetUserActive(user.Id, request.Active);
             if (!request.Active)
             {
-                ForceLogout(user.Id, "Su usuario ha sido desactivado por el administrador");
+                ForceLogout(user.Id, "Administratzaileak zure erabiltzailea desaktibatu du");
             }
 
-            string action = request.Active ? "activó" : "desactivó";
+            string action = request.Active ? "aktibatu" : "desaktibatu";
             logger.Log(EventKind.UserManagement, LogSeverity.Info,
-                adminName + " " + action + " el usuario " + user.Username, user.FarmId, null, adminName, null, null);
-            return OperationResult.Ok(request.Type, request.Active ? "Usuario activado" : "Usuario desactivado");
+                adminName + " erabiltzaileak " + user.Username + " erabiltzailea " + action + " du", user.FarmId, null, adminName, null, null);
+            return OperationResult.Ok(request.Type, request.Active ? "Erabiltzailea aktibatuta" : "Erabiltzailea desaktibatuta");
         }
 
         public OperationResult DeleteUser(DeleteUserRequest request, int adminId, string adminName)
@@ -210,23 +210,23 @@ namespace AgroCore.Server.Security
             User user = store.GetUser(request.UserId);
             if (user == null)
             {
-                return OperationResult.Fail(request.Type, "Usuario no encontrado");
+                return OperationResult.Fail(request.Type, "Ez da erabiltzailea aurkitu");
             }
             if (user.Id == adminId)
             {
-                return OperationResult.Fail(request.Type, "No puede eliminar su propio usuario");
+                return OperationResult.Fail(request.Type, "Ezin duzu zure erabiltzailea ezabatu");
             }
 
-            ForceLogout(user.Id, "Su usuario ha sido eliminado");
+            ForceLogout(user.Id, "Zure erabiltzailea ezabatu egin da");
 
             if (user.Role == UserRole.Farmer)
             {
-                // Eliminar un agricultor elimina también su explotación y sus usuarios asociados.
+                // Nekazari bat ezabatzean, bere ustiategia eta lotutako erabiltzaileak ere ezabatzen dira.
                 foreach (User other in store.GetUsers())
                 {
                     if (other.FarmId == user.FarmId && other.Role != UserRole.Admin)
                     {
-                        ForceLogout(other.Id, "La explotación ha sido eliminada");
+                        ForceLogout(other.Id, "Ustiategia ezabatu egin da");
                     }
                 }
                 int farmId = user.FarmId;
@@ -239,8 +239,8 @@ namespace AgroCore.Server.Security
             store.DeleteUser(user.Id);
 
             logger.Log(EventKind.UserManagement, LogSeverity.Warning,
-                adminName + " eliminó el usuario " + user.Username, user.FarmId, null, adminName, null, null);
-            return OperationResult.Ok(request.Type, "Usuario eliminado");
+                adminName + " erabiltzaileak " + user.Username + " erabiltzailea ezabatu du", user.FarmId, null, adminName, null, null);
+            return OperationResult.Ok(request.Type, "Erabiltzailea ezabatuta");
         }
 
         public CreateFarmerResponse RegenerateFleetKey(RegenerateFleetKeyRequest request, string adminName)
@@ -250,16 +250,16 @@ namespace AgroCore.Server.Security
             if (farm == null)
             {
                 response.Success = false;
-                response.Message = "La explotación no existe";
+                response.Message = "Ustiategia ez da existitzen";
                 return response;
             }
             string key = PasswordHasher.GenerateKey();
             store.SetFleetKey(farm.Id, key);
             logger.Log(EventKind.UserManagement, LogSeverity.Warning,
-                adminName + " regeneró la clave de flota de " + farm.Name, farm.Id, null, adminName, null, null);
+                adminName + " erabiltzaileak " + farm.Name + " ustiategiaren flota-gakoa berriro sortu du", farm.Id, null, adminName, null, null);
 
             response.Success = true;
-            response.Message = "Nueva clave de flota generada";
+            response.Message = "Flota-gako berria sortuta";
             response.FarmId = farm.Id;
             response.FleetKey = key;
             return response;
@@ -269,27 +269,27 @@ namespace AgroCore.Server.Security
         {
             if (string.IsNullOrWhiteSpace(username) || username.Trim().Length < 3)
             {
-                return "El usuario debe tener al menos 3 caracteres";
+                return "Erabiltzaileak gutxienez 3 karaktere izan behar ditu";
             }
             foreach (char c in username.Trim())
             {
                 if (!char.IsLetterOrDigit(c) && c != '.' && c != '_')
                 {
-                    return "El usuario solo puede tener letras, números, '.' y '_'";
+                    return "Erabiltzaileak letrak, zenbakiak, '.' eta '_' bakarrik izan ditzake";
                 }
             }
             if (store.FindUserByUsername(username.Trim()) != null)
             {
-                return "Ya existe un usuario con ese nombre";
+                return "Badago izen hori duen erabiltzaile bat";
             }
             if (string.IsNullOrWhiteSpace(fullName))
             {
-                return "Indique el nombre completo";
+                return "Adierazi izen osoa";
             }
             return AuthService.ValidatePassword(password);
         }
 
-        /// <summary>Cierra las sesiones abiertas de un usuario (desactivado o eliminado).</summary>
+        /// <summary>Erabiltzaile baten saio irekiak ixten ditu (desaktibatuta edo ezabatuta).</summary>
         private void ForceLogout(int userId, string reason)
         {
             foreach (UserSession session in sessions.FindByUser(userId))

@@ -8,12 +8,12 @@ using AgroCore.Shared.Models;
 namespace AgroCore.ControlCenter.Scene
 {
     /// <summary>
-    /// Un campo en 3D: la tierra con surcos y las plantas.
-    /// Las plantas cambian según el cultivo y el crecimiento (tamaño, color, frutos).
-    /// Mientras se siembra o se cosecha, solo se dibuja la parte ya trabajada.
+    /// Soro bat 3Dn: ildoak dituen lurra eta landareak.
+    /// Landareak laborearen eta hazkuntzaren arabera aldatzen dira (tamaina, kolorea, fruituak).
+    /// Ereiten edo uzta biltzen ari den bitartean, landutako zatia bakarrik marrazten da.
     ///
-    /// Para no recalcular la malla 60 veces por segundo, solo se reconstruye cuando cambia
-    /// algo visible (estado, cultivo, crecimiento en saltos de 5%, progreso en saltos de 10%).
+    /// Sarea segundoko 60 aldiz berriro ez kalkulatzeko, ikusten den zerbait aldatzen denean
+    /// bakarrik berreraikitzen da (egoera, laborea, hazkuntza %5eko jauzietan, aurrerapena %10eko jauzietan).
     /// </summary>
     public class FieldVisual
     {
@@ -32,7 +32,7 @@ namespace AgroCore.ControlCenter.Scene
             Visual = new ModelVisual3D();
         }
 
-        /// <summary>Actualiza el campo. workProgress = progreso (0-100) de la máquina que trabaja en él, o -1.</summary>
+        /// <summary>Soroa eguneratzen du. workProgress = bertan lanean ari den makinaren aurrerapena (0-100), edo -1.</summary>
         public void Update(Field field, double workProgress)
         {
             int growthStep = (int)(field.Growth / 5);
@@ -55,12 +55,12 @@ namespace AgroCore.ControlCenter.Scene
             double cx = minX + size / 2;
             double cz = minZ + size / 2;
 
-            // ---- Tierra y surcos ----
-            Color soil = Materials.Rgb(150, 112, 74);          // tierra seca (campo vacío)
+            // ---- Lurra eta ildoak ----
+            Color soil = Materials.Rgb(150, 112, 74);          // lur lehorra (soro hutsa)
             Color furrow = Materials.Rgb(124, 90, 58);
             if (field.Status != FieldStatus.Empty && field.Status != FieldStatus.Harvested)
             {
-                soil = Materials.Rgb(112, 78, 50);              // tierra trabajada
+                soil = Materials.Rgb(112, 78, 50);              // landutako lurra
                 furrow = Materials.Rgb(88, 60, 38);
             }
 
@@ -76,7 +76,7 @@ namespace AgroCore.ControlCenter.Scene
             }
             group.Children.Add(furrows.ToModel(furrow));
 
-            // ---- Plantas ----
+            // ---- Landareak ----
             if (field.Crop.HasValue && field.Status != FieldStatus.Empty)
             {
                 AddPlants(group, field, workProgress, minX, minZ, size);
@@ -92,7 +92,7 @@ namespace AgroCore.ControlCenter.Scene
             bool harvested = field.Status == FieldStatus.Harvested;
             double s = Math.Max(0.1, Math.Min(1.0, field.Growth / 100.0));
 
-            // Qué columnas de plantas hay que dibujar (siembra/cosecha en curso)
+            // Landareen zein zutabe marraztu behar diren (ereitea/uzta-bilketa martxan)
             int columnsDone = PlantsPerSide;
             if (workProgress >= 0 && (field.Status == FieldStatus.Sowing || field.Status == FieldStatus.Harvesting))
             {
@@ -107,7 +107,7 @@ namespace AgroCore.ControlCenter.Scene
             MeshBuilder stems = new MeshBuilder();
             MeshBuilder fruits = new MeshBuilder();
             MeshBuilder stubble = new MeshBuilder();
-            Random random = new Random(index * 100 + 7); // mismo "desorden" siempre
+            Random random = new Random(index * 100 + 7); // beti "nahaste" bera
 
             for (int i = 0; i < PlantsPerSide; i++)
             {
@@ -125,14 +125,14 @@ namespace AgroCore.ControlCenter.Scene
                     bool columnWorked = i < columnsDone;
                     if (field.Status == FieldStatus.Harvesting && columnWorked)
                     {
-                        stubble.AddBlock(px, 0.12, pz, 0.35, 0.12, 0.35); // ya cosechada
+                        stubble.AddBlock(px, 0.12, pz, 0.35, 0.12, 0.35); // uzta bilduta jada
                         continue;
                     }
                     if (field.Status == FieldStatus.Sowing)
                     {
                         if (columnWorked)
                         {
-                            leaves.AddBlock(px, 0.12, pz, 0.15, 0.12, 0.15); // brote recién sembrado
+                            leaves.AddBlock(px, 0.12, pz, 0.15, 0.12, 0.15); // erein berri den kimua
                         }
                         continue;
                     }
@@ -167,7 +167,7 @@ namespace AgroCore.ControlCenter.Scene
             if (!stubble.IsEmpty) group.Children.Add(stubble.ToModel(Materials.Rgb(196, 170, 104)));
         }
 
-        // ---------------- Plantas low-poly ----------------
+        // ---------------- Low-poly landareak ----------------
 
         private static void AddCarrot(MeshBuilder leaves, MeshBuilder fruits, double px, double pz, double s, bool ready)
         {
@@ -177,7 +177,7 @@ namespace AgroCore.ControlCenter.Scene
             leaves.AddCone(new Point3D(px - 0.12, 0.12, pz), new Point3D(px - 0.3, 0.12 + h * 0.75, pz - 0.15), 0.1, 5);
             if (ready)
             {
-                fruits.AddCone(new Point3D(px, 0.28, pz), new Point3D(px, 0.02, pz), 0.2, 6); // la zanahoria asoma
+                fruits.AddCone(new Point3D(px, 0.28, pz), new Point3D(px, 0.02, pz), 0.2, 6); // azenarioa agerian
             }
         }
 
@@ -190,7 +190,7 @@ namespace AgroCore.ControlCenter.Scene
             leaves.AddCone(new Point3D(px, 0.12 + h * 0.3, pz), new Point3D(px, 0.12 + h * 0.5, pz + 0.55 * s + 0.1), 0.07, 4);
             if (ready || s > 0.75)
             {
-                fruits.AddBox(px + 0.16, 0.12 + h * 0.55, pz, 0.15, 0.5, 0.15); // mazorca
+                fruits.AddBox(px + 0.16, 0.12 + h * 0.55, pz, 0.15, 0.5, 0.15); // artaburua
             }
         }
 

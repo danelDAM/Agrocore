@@ -7,13 +7,13 @@ public enum MachineStatus
     WaitingForTask,
     MovingToField,
     WaitingForZone,
-    /// <summary>Cede el paso (apartada en el arcén) tras evitarse un interbloqueo de zonas.</summary>
+    /// <summary>Bidea uzten du (bazterrean geldituta) guneen elkarblokeo bat saihestu ondoren.</summary>
     Yielding,
     Working,
     ReturningToBase,
     WaitingForCharger,
     Charging,
-    /// <summary>Aparcada en la base tras un RETURN_TO_BASE manual; espera START.</summary>
+    /// <summary>Basean aparkatuta eskuzko RETURN_TO_BASE baten ondoren; START-en zain.</summary>
     Parked,
     Stopped,
     Emergency

@@ -9,13 +9,13 @@ using QuestPDF.Infrastructure;
 namespace AgroCore.ControlCenter.Services
 {
     /// <summary>
-    /// Genera el informe PDF de un agricultor con la librería QuestPDF.
+    /// Nekazari baten PDF txostena sortzen du QuestPDF liburutegiarekin.
     ///
-    /// Los datos (ReportData) los calcula el SERVIDOR y solo incluyen la explotación pedida
-    /// (el servidor comprueba que el usuario tenga permiso para verla). Aquí solo se maquetan.
+    /// Datuak (ReportData) ZERBITZARIAK kalkulatzen ditu eta eskatutako ustiategia bakarrik dute
+    /// (zerbitzariak egiaztatzen du erabiltzaileak hura ikusteko baimena duela). Hemen maketatu bakarrik egiten dira.
     ///
-    /// QuestPDF se usa "describiendo" el documento: página -> cabecera, contenido y pie;
-    /// el contenido es una columna con bloques (títulos, tablas...).
+    /// QuestPDF dokumentua "deskribatuz" erabiltzen da: orria -> goiburua, edukia eta orri-oina;
+    /// edukia blokeak dituen zutabe bat da (izenburuak, taulak...).
     /// </summary>
     public static class PdfReportGenerator
     {
@@ -24,7 +24,7 @@ namespace AgroCore.ControlCenter.Services
 
         public static void Create(ReportData report, string path)
         {
-            QuestPDF.Settings.License = LicenseType.Community; // licencia gratuita (uso educativo)
+            QuestPDF.Settings.License = LicenseType.Community; // doako lizentzia (hezkuntza-erabilera)
 
             Document document = Document.Create(container =>
             {
@@ -39,9 +39,9 @@ namespace AgroCore.ControlCenter.Services
                     page.Footer().AlignCenter().Text(text =>
                     {
                         text.DefaultTextStyle(style => style.FontSize(8).FontColor(Colors.Grey.Darken1));
-                        text.Span("AGROCORE · " + report.FarmName + " · Página ");
+                        text.Span("AGROCORE · " + report.FarmName + " · Orria ");
                         text.CurrentPageNumber();
-                        text.Span(" de ");
+                        text.Span(" / ");
                         text.TotalPages();
                     });
                 });
@@ -51,7 +51,7 @@ namespace AgroCore.ControlCenter.Services
         }
 
         // ==================================================================
-        // CABECERA
+        // GOIBURUA
         // ==================================================================
 
         private static void ComposeHeader(IContainer container, ReportData report)
@@ -63,12 +63,12 @@ namespace AgroCore.ControlCenter.Services
                     row.RelativeItem().Column(title =>
                     {
                         title.Item().Text("AGROCORE").FontSize(24).Bold().FontColor(Green);
-                        title.Item().Text("INFORME DE OPERACIONES").FontSize(13).SemiBold().FontColor(Colors.Grey.Darken3);
+                        title.Item().Text("ERAGIKETA-TXOSTENA").FontSize(13).SemiBold().FontColor(Colors.Grey.Darken3);
                     });
                     row.ConstantItem(190).AlignRight().Column(info =>
                     {
-                        info.Item().AlignRight().Text("Generado: " + report.GeneratedAt.ToString("dd/MM/yyyy HH:mm")).FontSize(8);
-                        info.Item().AlignRight().Text("Por: " + report.GeneratedBy).FontSize(8);
+                        info.Item().AlignRight().Text("Sortua: " + report.GeneratedAt.ToString("dd/MM/yyyy HH:mm")).FontSize(8);
+                        info.Item().AlignRight().Text("Egilea: " + report.GeneratedBy).FontSize(8);
                     });
                 });
 
@@ -76,20 +76,20 @@ namespace AgroCore.ControlCenter.Services
                 {
                     row.RelativeItem().Column(c =>
                     {
-                        c.Item().Text(text => { text.Span("Agricultor: ").SemiBold(); text.Span(report.FarmerName); });
-                        c.Item().Text(text => { text.Span("Explotación: ").SemiBold(); text.Span(report.FarmName); });
+                        c.Item().Text(text => { text.Span("Nekazaria: ").SemiBold(); text.Span(report.FarmerName); });
+                        c.Item().Text(text => { text.Span("Ustiategia: ").SemiBold(); text.Span(report.FarmName); });
                     });
                     row.RelativeItem().Column(c =>
                     {
                         c.Item().Text(text =>
                         {
-                            text.Span("Periodo: ").SemiBold();
+                            text.Span("Aldia: ").SemiBold();
                             text.Span(report.From.ToString("dd/MM/yyyy HH:mm") + " - " + report.To.ToString("dd/MM/yyyy HH:mm"));
                         });
                         c.Item().Text(text =>
                         {
                             text.Span("Flota: ").SemiBold();
-                            text.Span(report.Machines.Count + " máquinas · " + report.Fields.Count + " campos");
+                            text.Span(report.Machines.Count + " makina · " + report.Fields.Count + " soro");
                         });
                     });
                 });
@@ -97,7 +97,7 @@ namespace AgroCore.ControlCenter.Services
         }
 
         // ==================================================================
-        // CONTENIDO
+        // EDUKIA
         // ==================================================================
 
         private static void ComposeContent(IContainer container, ReportData report)
@@ -108,34 +108,34 @@ namespace AgroCore.ControlCenter.Services
             {
                 column.Spacing(14);
 
-                // ---- 1. Resumen ----
-                column.Item().Element(c => SectionTitle(c, "1. Resumen del periodo"));
+                // ---- 1. Laburpena ----
+                column.Item().Element(c => SectionTitle(c, "1. Aldiaren laburpena"));
                 column.Item().Table(table =>
                 {
                     table.ColumnsDefinition(cols =>
                     {
                         cols.RelativeColumn(); cols.RelativeColumn(); cols.RelativeColumn(); cols.RelativeColumn();
                     });
-                    Kpi(table, "Tareas completadas", s.TasksCompleted.ToString());
-                    Kpi(table, "Tareas canceladas", s.TasksCancelled.ToString());
-                    Kpi(table, "Tareas interrumpidas", s.TasksAborted.ToString());
-                    Kpi(table, "Distancia recorrida", s.DistanceKm.ToString("0.00") + " km");
-                    Kpi(table, "Campos sembrados", s.FieldsSown.ToString());
-                    Kpi(table, "Campos regados", s.FieldsIrrigated.ToString());
-                    Kpi(table, "Campos fumigados", s.FieldsSprayed.ToString());
-                    Kpi(table, "Campos cosechados", s.FieldsHarvested.ToString());
-                    Kpi(table, "Tiempo de actividad", s.TotalRuntimeMinutes.ToString("0") + " min");
-                    Kpi(table, "Tiempo esperando", s.WaitingMinutes.ToString("0") + " min");
-                    Kpi(table, "Tiempo cargando", s.ChargingMinutes.ToString("0") + " min");
-                    Kpi(table, "Batería consumida", s.BatteryConsumed.ToString("0") + " %");
-                    Kpi(table, "Conflictos evitados", s.ConflictsAvoided.ToString());
-                    Kpi(table, "Interbloqueos evitados", s.DeadlocksAvoided.ToString());
-                    Kpi(table, "Cargas de batería", s.ChargeSessions.ToString());
-                    Kpi(table, "Paradas de emergencia", s.Emergencies.ToString());
+                    Kpi(table, "Osatutako zereginak", s.TasksCompleted.ToString());
+                    Kpi(table, "Bertan behera utzitako zereginak", s.TasksCancelled.ToString());
+                    Kpi(table, "Etendako zereginak", s.TasksAborted.ToString());
+                    Kpi(table, "Egindako distantzia", s.DistanceKm.ToString("0.00") + " km");
+                    Kpi(table, "Ereindako soroak", s.FieldsSown.ToString());
+                    Kpi(table, "Ureztatutako soroak", s.FieldsIrrigated.ToString());
+                    Kpi(table, "Fumigatutako soroak", s.FieldsSprayed.ToString());
+                    Kpi(table, "Uzta bildutako soroak", s.FieldsHarvested.ToString());
+                    Kpi(table, "Jarduera-denbora", s.TotalRuntimeMinutes.ToString("0") + " min");
+                    Kpi(table, "Zain emandako denbora", s.WaitingMinutes.ToString("0") + " min");
+                    Kpi(table, "Kargatzen emandako denbora", s.ChargingMinutes.ToString("0") + " min");
+                    Kpi(table, "Kontsumitutako bateria", s.BatteryConsumed.ToString("0") + " %");
+                    Kpi(table, "Saihestutako gatazkak", s.ConflictsAvoided.ToString());
+                    Kpi(table, "Saihestutako elkarblokeoak", s.DeadlocksAvoided.ToString());
+                    Kpi(table, "Bateria-kargak", s.ChargeSessions.ToString());
+                    Kpi(table, "Larrialdiko geldialdiak", s.Emergencies.ToString());
                 });
 
-                // ---- 2. Campos ----
-                column.Item().Element(c => SectionTitle(c, "2. Estado de los campos"));
+                // ---- 2. Soroak ----
+                column.Item().Element(c => SectionTitle(c, "2. Soroen egoera"));
                 column.Item().Table(table =>
                 {
                     table.ColumnsDefinition(cols =>
@@ -145,12 +145,12 @@ namespace AgroCore.ControlCenter.Services
                     });
                     table.Header(header =>
                     {
-                        HeaderCell(header.Cell(), "Campo");
-                        HeaderCell(header.Cell(), "Estado");
-                        HeaderCell(header.Cell(), "Cultivo");
-                        HeaderCell(header.Cell(), "Crecimiento");
-                        HeaderCell(header.Cell(), "Plan");
-                        HeaderCell(header.Cell(), "Cosechas");
+                        HeaderCell(header.Cell(), "Soroa");
+                        HeaderCell(header.Cell(), "Egoera");
+                        HeaderCell(header.Cell(), "Laborea");
+                        HeaderCell(header.Cell(), "Hazkuntza");
+                        HeaderCell(header.Cell(), "Plana");
+                        HeaderCell(header.Cell(), "Uzta-bilketak");
                     });
                     foreach (Field field in report.Fields)
                     {
@@ -163,8 +163,8 @@ namespace AgroCore.ControlCenter.Services
                     }
                 });
 
-                // ---- 3. Máquinas ----
-                column.Item().Element(c => SectionTitle(c, "3. Actividad por máquina"));
+                // ---- 3. Makinak ----
+                column.Item().Element(c => SectionTitle(c, "3. Jarduera makinaka"));
                 column.Item().Table(table =>
                 {
                     table.ColumnsDefinition(cols =>
@@ -175,15 +175,15 @@ namespace AgroCore.ControlCenter.Services
                     });
                     table.Header(header =>
                     {
-                        HeaderCell(header.Cell(), "Máquina");
-                        HeaderCell(header.Cell(), "Tipo");
-                        HeaderCell(header.Cell(), "Distancia");
-                        HeaderCell(header.Cell(), "Trabajando");
-                        HeaderCell(header.Cell(), "Esperando");
-                        HeaderCell(header.Cell(), "Cargando");
-                        HeaderCell(header.Cell(), "Tareas");
-                        HeaderCell(header.Cell(), "Cargas");
-                        HeaderCell(header.Cell(), "Eficiencia");
+                        HeaderCell(header.Cell(), "Makina");
+                        HeaderCell(header.Cell(), "Mota");
+                        HeaderCell(header.Cell(), "Distantzia");
+                        HeaderCell(header.Cell(), "Lanean");
+                        HeaderCell(header.Cell(), "Zain");
+                        HeaderCell(header.Cell(), "Kargatzen");
+                        HeaderCell(header.Cell(), "Zereginak");
+                        HeaderCell(header.Cell(), "Kargak");
+                        HeaderCell(header.Cell(), "Eraginkortasuna");
                     });
                     foreach (MachineStatistics m in s.Machines)
                     {
@@ -199,11 +199,11 @@ namespace AgroCore.ControlCenter.Services
                     }
                 });
 
-                // ---- 4. Tareas ----
-                column.Item().Element(c => SectionTitle(c, "4. Tareas del periodo"));
+                // ---- 4. Zereginak ----
+                column.Item().Element(c => SectionTitle(c, "4. Aldiko zereginak"));
                 if (report.Tasks.Count == 0)
                 {
-                    column.Item().Text("No hay tareas en el periodo seleccionado.").Italic().FontColor(Colors.Grey.Darken1);
+                    column.Item().Text("Ez dago zereginik hautatutako aldian.").Italic().FontColor(Colors.Grey.Darken1);
                 }
                 else
                 {
@@ -216,24 +216,24 @@ namespace AgroCore.ControlCenter.Services
                         });
                         table.Header(header =>
                         {
-                            HeaderCell(header.Cell(), "Tarea");
-                            HeaderCell(header.Cell(), "Campo");
-                            HeaderCell(header.Cell(), "Tipo");
-                            HeaderCell(header.Cell(), "Cultivo");
-                            HeaderCell(header.Cell(), "Estado");
-                            HeaderCell(header.Cell(), "Creada");
-                            HeaderCell(header.Cell(), "Terminada");
+                            HeaderCell(header.Cell(), "Zeregina");
+                            HeaderCell(header.Cell(), "Soroa");
+                            HeaderCell(header.Cell(), "Mota");
+                            HeaderCell(header.Cell(), "Laborea");
+                            HeaderCell(header.Cell(), "Egoera");
+                            HeaderCell(header.Cell(), "Sortua");
+                            HeaderCell(header.Cell(), "Amaitua");
                         });
                         int count = 0;
                         foreach (FarmTask task in report.Tasks)
                         {
                             if (count >= 80)
                             {
-                                break; // el informe no debe ser interminable
+                                break; // txostenak ez du amaigabea izan behar
                             }
                             count++;
                             Cell(table.Cell(), task.Id);
-                            Cell(table.Cell(), task.FieldId.Replace("FIELD-", "Campo "));
+                            Cell(table.Cell(), task.FieldId.Replace("FIELD-", "") + " soroa");
                             Cell(table.Cell(), Texts.TaskType(task.Type));
                             Cell(table.Cell(), Texts.Crop(task.Crop));
                             Cell(table.Cell(), Texts.TaskStatus(task.Status));
@@ -243,15 +243,15 @@ namespace AgroCore.ControlCenter.Services
                     });
                     if (report.Tasks.Count > 80)
                     {
-                        column.Item().Text("... y " + (report.Tasks.Count - 80) + " tareas más.").Italic().FontColor(Colors.Grey.Darken1);
+                        column.Item().Text("... eta beste " + (report.Tasks.Count - 80) + " zeregin.").Italic().FontColor(Colors.Grey.Darken1);
                     }
                 }
 
-                // ---- 5. Incidencias ----
-                column.Item().Element(c => SectionTitle(c, "5. Incidencias"));
+                // ---- 5. Gorabeherak ----
+                column.Item().Element(c => SectionTitle(c, "5. Gorabeherak"));
                 if (report.Incidents.Count == 0)
                 {
-                    column.Item().Text("Sin incidencias en el periodo.").Italic().FontColor(Colors.Grey.Darken1);
+                    column.Item().Text("Ez dago gorabeherarik aldian.").Italic().FontColor(Colors.Grey.Darken1);
                 }
                 else
                 {
@@ -263,9 +263,9 @@ namespace AgroCore.ControlCenter.Services
                         });
                         table.Header(header =>
                         {
-                            HeaderCell(header.Cell(), "Fecha");
-                            HeaderCell(header.Cell(), "Tipo");
-                            HeaderCell(header.Cell(), "Descripción");
+                            HeaderCell(header.Cell(), "Data");
+                            HeaderCell(header.Cell(), "Mota");
+                            HeaderCell(header.Cell(), "Deskribapena");
                         });
                         int count = 0;
                         foreach (LogEntry entry in report.Incidents)
@@ -285,7 +285,7 @@ namespace AgroCore.ControlCenter.Services
         }
 
         // ==================================================================
-        // ESTILOS
+        // ESTILOAK
         // ==================================================================
 
         private static void SectionTitle(IContainer container, string title)

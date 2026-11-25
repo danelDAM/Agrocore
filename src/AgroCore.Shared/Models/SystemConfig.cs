@@ -2,41 +2,41 @@ using System.Collections.Generic;
 
 namespace AgroCore.Shared.Models
 {
-    /// <summary>Valores de batería (los puede cambiar el administrador).</summary>
+    /// <summary>Bateria-balioak (administratzaileak alda ditzake).</summary>
     public class BatteryConfig
     {
-        /// <summary>Multiplica el consumo al desplazarse (1 = normal).</summary>
+        /// <summary>Mugitzean kontsumoa biderkatzen du (1 = normala).</summary>
         public double MoveMultiplier { get; set; } = 1.0;
 
-        /// <summary>Multiplica el consumo al trabajar (1 = normal).</summary>
+        /// <summary>Lan egitean kontsumoa biderkatzen du (1 = normala).</summary>
         public double WorkMultiplier { get; set; } = 1.0;
 
-        /// <summary>Cuánto se carga por segundo (%).</summary>
+        /// <summary>Segundoko zenbat kargatzen den (%).</summary>
         public double ChargeRatePerSecond { get; set; } = 2.5;
 
-        /// <summary>Por debajo de este % la batería se considera baja.</summary>
+        /// <summary>% honen azpitik bateria baxutzat jotzen da.</summary>
         public double LowBatteryThreshold { get; set; } = 25;
 
-        /// <summary>% que siempre tiene que sobrar al llegar a la base.</summary>
+        /// <summary>Basera iristean beti soberan geratu behar den %.</summary>
         public double ReturnReserve { get; set; } = 6;
     }
 
-    /// <summary>Configuración del sistema (fichero server-config.json).</summary>
+    /// <summary>Sistemaren konfigurazioa (server-config.json fitxategia).</summary>
     public class SystemConfig
     {
         public int TcpPort { get; set; } = 5000;
         public int UdpPort { get; set; } = 5001;
 
-        /// <summary>Cada cuántos milisegundos se envía telemetría UDP.</summary>
+        /// <summary>Zenbat milisegundotik behin bidaltzen den UDP telemetria.</summary>
         public int TelemetryIntervalMs { get; set; } = 200;
 
-        /// <summary>Cada cuántos milisegundos se envía el estado completo (FARM_STATE) por TCP.</summary>
+        /// <summary>Zenbat milisegundotik behin bidaltzen den egoera osoa (FARM_STATE) TCP bidez.</summary>
         public int StateBroadcastIntervalMs { get; set; } = 1000;
 
-        /// <summary>Segundos que un campo se queda RECOLECTADO antes de quedar libre.</summary>
+        /// <summary>Soro bat UZTA BILDUTA egoeran geratzen den segundoak libre geratu aurretik.</summary>
         public int HarvestedResetSeconds { get; set; } = 15;
 
-        /// <summary>Intentos de login fallidos antes de bloquear el usuario un rato.</summary>
+        /// <summary>Saio-hasierako huts egindako saiakerak erabiltzailea denbora batez blokeatu aurretik.</summary>
         public int MaxLoginAttempts { get; set; } = 5;
         public int LockoutSeconds { get; set; } = 30;
 
