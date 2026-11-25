@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="AGROCORE - Kontrol Zentroa" Width="1500" Height="900" MinWidth="1150" MinHeight="700"
         WindowStartupLocation="CenterScreen" WindowState="Maximized"
-        Background="{StaticResource BgBrush}" FontFamily="Segoe UI">
+        Background="{StaticResource BgBrush}" Foreground="{StaticResource TextBrush}" FontFamily="Segoe UI">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="230" />
@@ -85,7 +85,7 @@
             </Border>
 
             <!-- Larrialdi-abisua -->
-            <Border x:Name="EmergencyBanner" Grid.Row="1" Background="#FFB83A33" Padding="22,9" Visibility="Collapsed">
+            <Border x:Name="EmergencyBanner" Grid.Row="1" Background="{StaticResource DangerBrush}" Padding="22,9" Visibility="Collapsed">
                 <TextBlock Foreground="White" FontWeight="SemiBold"
                            Text="⚠  LARRIALDIKO GELDIALDIA AKTIBO — makina guztiak geldituta daude. Erabili GUZTIAK BERREKIN jarraitzeko." />
             </Border>

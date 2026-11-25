@@ -23,6 +23,7 @@ namespace AgroCore.ControlCenter.Views
             ResizeMode = ResizeMode.NoResize;
             WindowStartupLocation = WindowStartupLocation.CenterOwner;
             Background = (System.Windows.Media.Brush)Application.Current.FindResource("PanelBrush");
+            Foreground = (System.Windows.Media.Brush)Application.Current.FindResource("TextBrush");
 
             StackPanel panel = new StackPanel();
             panel.Margin = new Thickness(20);

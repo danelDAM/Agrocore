@@ -118,7 +118,7 @@ namespace AgroCore.ControlCenter.Views
                 case LogSeverity.Success: return (Brush)FindResource("AccentBrush");
                 case LogSeverity.Warning: return (Brush)FindResource("WarningBrush");
                 case LogSeverity.Error: return (Brush)FindResource("DangerBrush");
-                case LogSeverity.Security: return Brushes.Orchid;
+                case LogSeverity.Security: return new SolidColorBrush(Color.FromRgb(142, 68, 173));
             }
             return (Brush)FindResource("MutedBrush");
         }

@@ -32,7 +32,7 @@
                                                 <Button Content="Editatu" Style="{StaticResource SmallButton}" Click="Edit_Click" />
                                                 <Button Content="Pasahitza" Style="{StaticResource SmallButton}" Click="Password_Click" />
                                                 <Button Content="{Binding ToggleText}" Style="{StaticResource SmallButton}" Click="Toggle_Click" />
-                                                <Button Content="Ezabatu" Style="{StaticResource SmallButton}" Foreground="#FFFF8A80" Click="Delete_Click" />
+                                                <Button Content="Ezabatu" Style="{StaticResource SmallButton}" Foreground="{StaticResource DangerBrush}" Click="Delete_Click" />
                                             </StackPanel>
                                         </DataTemplate>
                                     </DataGridTemplateColumn.CellTemplate>

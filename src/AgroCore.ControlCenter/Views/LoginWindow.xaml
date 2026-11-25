@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="AGROCORE - Saioa hasi" Width="860" Height="560"
         WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
-        Background="{StaticResource BgBrush}" FontFamily="Segoe UI">
+        Background="{StaticResource BgBrush}" Foreground="{StaticResource TextBrush}" FontFamily="Segoe UI">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="400" />
@@ -14,23 +14,23 @@
         <Border>
             <Border.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                    <GradientStop Color="#FF1E3A26" Offset="0" />
-                    <GradientStop Color="#FF0F1A13" Offset="1" />
+                    <GradientStop Color="#FF3BAA5C" Offset="0" />
+                    <GradientStop Color="#FF1D6E37" Offset="1" />
                 </LinearGradientBrush>
             </Border.Background>
             <Grid Margin="40">
                 <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="&#xE909;" FontFamily="Segoe MDL2 Assets" FontSize="46" Foreground="{StaticResource AccentBrush}" />
-                    <TextBlock Text="AGROCORE" FontSize="38" FontWeight="Bold" Margin="0,14,0,0" />
+                    <TextBlock Text="&#xE909;" FontFamily="Segoe MDL2 Assets" FontSize="46" Foreground="White" />
+                    <TextBlock Text="AGROCORE" FontSize="38" FontWeight="Bold" Margin="0,14,0,0" Foreground="White" />
                     <TextBlock Text="Nekazaritza-makineria autonomoaren kontrol zentroa" FontSize="14"
-                               Foreground="{StaticResource MutedBrush}" TextWrapping="Wrap" Margin="0,6,0,0" />
+                               Foreground="#FFE3F4E6" TextWrapping="Wrap" Margin="0,6,0,0" />
                     <StackPanel Margin="0,34,0,0">
-                        <TextBlock Text="✓  Flotak denbora errealean koordinatzea" Foreground="{StaticResource MutedBrush}" Margin="0,4" />
-                        <TextBlock Text="✓  Ustiategiaren 3D ikuspegia" Foreground="{StaticResource MutedBrush}" Margin="0,4" />
-                        <TextBlock Text="✓  Txostenak nekazariz nekazari" Foreground="{StaticResource MutedBrush}" Margin="0,4" />
+                        <TextBlock Text="✓  Flotak denbora errealean koordinatzea" Foreground="#FFE3F4E6" Margin="0,4" />
+                        <TextBlock Text="✓  Ustiategiaren 3D ikuspegia" Foreground="#FFE3F4E6" Margin="0,4" />
+                        <TextBlock Text="✓  Txostenak nekazariz nekazari" Foreground="#FFE3F4E6" Margin="0,4" />
                     </StackPanel>
                 </StackPanel>
-                <TextBlock Text="DAM proiektua" VerticalAlignment="Bottom" Style="{StaticResource MutedText}" />
+                <TextBlock Text="DAM proiektua" VerticalAlignment="Bottom" FontSize="12" Foreground="#FFBFE3C8" />
             </Grid>
         </Border>
 
@@ -48,11 +48,11 @@
             <Label Content="Zerbitzaria" />
             <TextBox x:Name="HostBox" Margin="0,0,0,18" />
 
-            <Border x:Name="ErrorPanel" Background="#33E0524A" CornerRadius="6" Padding="10,8" Margin="0,0,0,14" Visibility="Collapsed">
-                <TextBlock x:Name="ErrorText" Foreground="#FFFF9C95" TextWrapping="Wrap" />
+            <Border x:Name="ErrorPanel" Background="#1FD3423A" CornerRadius="6" Padding="10,8" Margin="0,0,0,14" Visibility="Collapsed">
+                <TextBlock x:Name="ErrorText" Foreground="#FFB3261E" TextWrapping="Wrap" />
             </Border>
-            <Border x:Name="NoticePanel" Background="#334FA3E0" CornerRadius="6" Padding="10,8" Margin="0,0,0,14" Visibility="Collapsed">
-                <TextBlock x:Name="NoticeText" Foreground="#FFA9D4F5" TextWrapping="Wrap" />
+            <Border x:Name="NoticePanel" Background="#1F2F80C8" CornerRadius="6" Padding="10,8" Margin="0,0,0,14" Visibility="Collapsed">
+                <TextBlock x:Name="NoticeText" Foreground="#FF1F5F99" TextWrapping="Wrap" />
             </Border>
 
             <Button x:Name="LoginButton" Content="SAIOA HASI" Height="40" Margin="0" Click="LoginButton_Click" IsDefault="True" />

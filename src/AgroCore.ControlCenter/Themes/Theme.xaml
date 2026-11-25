@@ -2,19 +2,23 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <!-- ============ KOLOREAK ============ -->
-    <Color x:Key="BgColor">#FF111714</Color>
-    <Color x:Key="PanelColor">#FF18201C</Color>
-    <Color x:Key="CardColor">#FF1F2924</Color>
-    <Color x:Key="CardHoverColor">#FF26322C</Color>
-    <Color x:Key="BorderColor">#FF2E3B34</Color>
-    <Color x:Key="TextColor">#FFE7EEEA</Color>
-    <Color x:Key="MutedColor">#FF8FA096</Color>
-    <Color x:Key="AccentColor">#FF5DBB63</Color>
-    <Color x:Key="AccentDarkColor">#FF3E8E45</Color>
-    <Color x:Key="WarningColor">#FFE3A63B</Color>
-    <Color x:Key="DangerColor">#FFE0524A</Color>
-    <Color x:Key="InfoColor">#FF4FA3E0</Color>
+    <Color x:Key="BgColor">#FFF3F7F1</Color>
+    <Color x:Key="PanelColor">#FFFFFFFF</Color>
+    <Color x:Key="CardColor">#FFFFFFFF</Color>
+    <Color x:Key="CardHoverColor">#FFEAF4E6</Color>
+    <Color x:Key="BorderColor">#FFDDE7D9</Color>
+    <Color x:Key="TextColor">#FF1E2B22</Color>
+    <Color x:Key="MutedColor">#FF6B7D70</Color>
+    <Color x:Key="AccentColor">#FF2E9E4F</Color>
+    <Color x:Key="AccentDarkColor">#FF258A43</Color>
+    <Color x:Key="WarningColor">#FFD68A0C</Color>
+    <Color x:Key="DangerColor">#FFD3423A</Color>
+    <Color x:Key="InfoColor">#FF2F80C8</Color>
 
+    <Color x:Key="InputColor">#FFF7FAF6</Color>
+    <Color x:Key="SoftGreenColor">#FFE3F2DE</Color>
+    <SolidColorBrush x:Key="InputBrush" Color="{StaticResource InputColor}" />
+    <SolidColorBrush x:Key="SoftGreenBrush" Color="{StaticResource SoftGreenColor}" />
     <SolidColorBrush x:Key="BgBrush" Color="{StaticResource BgColor}" />
     <SolidColorBrush x:Key="PanelBrush" Color="{StaticResource PanelColor}" />
     <SolidColorBrush x:Key="CardBrush" Color="{StaticResource CardColor}" />
@@ -31,8 +35,8 @@
     <FontFamily x:Key="MainFont">Segoe UI</FontFamily>
 
     <!-- ============ TESTUAK ============ -->
+    <!-- Testuaren kolorea leihoetatik heredatzen da (Window.Foreground); horrela botoi berdeetan testua zuria izan daiteke -->
     <Style TargetType="TextBlock">
-        <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
         <Setter Property="FontFamily" Value="{StaticResource MainFont}" />
     </Style>
 
@@ -59,8 +63,13 @@
         <Setter Property="Background" Value="{StaticResource CardBrush}" />
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="CornerRadius" Value="10" />
         <Setter Property="Padding" Value="14" />
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect Color="#FF2E5E3A" Opacity="0.06" BlurRadius="14" ShadowDepth="2" Direction="270" />
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <!-- ============ BOTOIAK ============ -->
@@ -100,21 +109,21 @@
 
     <Style x:Key="GhostButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
         <Setter Property="Background" Value="{StaticResource CardHoverBrush}" />
-        <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
-        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource AccentDarkBrush}" />
+        <Setter Property="BorderBrush" Value="#FFCFE3C8" />
         <Setter Property="BorderThickness" Value="1" />
     </Style>
 
     <Style x:Key="WarningButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-        <Setter Property="Background" Value="#FFB37B1F" />
+        <Setter Property="Background" Value="#FFD68A0C" />
     </Style>
 
     <Style x:Key="InfoButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-        <Setter Property="Background" Value="#FF2F77B0" />
+        <Setter Property="Background" Value="#FF2F80C8" />
     </Style>
 
     <Style x:Key="DangerButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-        <Setter Property="Background" Value="#FFB83A33" />
+        <Setter Property="Background" Value="#FFD3423A" />
     </Style>
 
     <Style x:Key="SmallButton" TargetType="Button" BasedOn="{StaticResource GhostButton}">
@@ -145,10 +154,11 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource CardBrush}" />
+                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource BgBrush}" />
                         </Trigger>
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource CardHoverBrush}" />
+                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource SoftGreenBrush}" />
+                            <Setter Property="FontWeight" Value="SemiBold" />
                             <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
@@ -159,7 +169,7 @@
 
     <!-- ============ TESTU-KOADROAK ============ -->
     <Style TargetType="TextBox">
-        <Setter Property="Background" Value="{StaticResource PanelBrush}" />
+        <Setter Property="Background" Value="{StaticResource InputBrush}" />
         <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
         <Setter Property="CaretBrush" Value="{StaticResource TextBrush}" />
@@ -186,7 +196,7 @@
     </Style>
 
     <Style TargetType="PasswordBox">
-        <Setter Property="Background" Value="{StaticResource PanelBrush}" />
+        <Setter Property="Background" Value="{StaticResource InputBrush}" />
         <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
         <Setter Property="CaretBrush" Value="{StaticResource TextBrush}" />
@@ -223,7 +233,7 @@
 
     <!-- ============ COMBOBOX ============ -->
     <ControlTemplate x:Key="ComboToggle" TargetType="ToggleButton">
-        <Border x:Name="Bd" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrush}"
+        <Border x:Name="Bd" Background="{StaticResource InputBrush}" BorderBrush="{StaticResource BorderBrush}"
                 BorderThickness="1" CornerRadius="6">
             <TextBlock Text="&#xE70D;" FontFamily="Segoe MDL2 Assets" FontSize="10" Foreground="{StaticResource MutedBrush}"
                        HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,10,0" />
@@ -285,7 +295,7 @@
     <!-- ============ AURRERAPEN-BARRA ============ -->
     <Style TargetType="ProgressBar">
         <Setter Property="Height" Value="8" />
-        <Setter Property="Background" Value="{StaticResource PanelBrush}" />
+        <Setter Property="Background" Value="#FFE4ECE1" />
         <Setter Property="Foreground" Value="{StaticResource AccentBrush}" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="Template">
@@ -308,7 +318,7 @@
         <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="RowBackground" Value="{StaticResource CardBrush}" />
-        <Setter Property="AlternatingRowBackground" Value="#FF1C2621" />
+        <Setter Property="AlternatingRowBackground" Value="#FFF8FBF7" />
         <Setter Property="GridLinesVisibility" Value="None" />
         <Setter Property="HeadersVisibility" Value="Column" />
         <Setter Property="AutoGenerateColumns" Value="False" />
@@ -321,7 +331,7 @@
     </Style>
 
     <Style TargetType="DataGridColumnHeader">
-        <Setter Property="Background" Value="{StaticResource PanelBrush}" />
+        <Setter Property="Background" Value="{StaticResource InputBrush}" />
         <Setter Property="Foreground" Value="{StaticResource MutedBrush}" />
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="FontSize" Value="11" />
@@ -344,7 +354,7 @@
         </Setter>
         <Style.Triggers>
             <Trigger Property="IsSelected" Value="True">
-                <Setter Property="Background" Value="#FF2D4434" />
+                <Setter Property="Background" Value="{StaticResource SoftGreenBrush}" />
                 <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
             </Trigger>
         </Style.Triggers>

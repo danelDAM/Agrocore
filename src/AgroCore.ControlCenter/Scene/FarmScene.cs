@@ -262,7 +262,7 @@ namespace AgroCore.ControlCenter.Scene
             }
             foreach (KeyValuePair<string, Border> pair in machineLabels)
             {
-                pair.Value.BorderBrush = pair.Key == machineId ? Brushes.Gold : Brushes.Transparent;
+                pair.Value.BorderBrush = pair.Key == machineId ? new SolidColorBrush(Color.FromRgb(46, 158, 79)) : Brushes.Transparent;
             }
         }
 
@@ -444,7 +444,8 @@ namespace AgroCore.ControlCenter.Scene
             block.Text = text;
             block.FontSize = machine ? 11 : 12;
             block.FontWeight = machine ? FontWeights.SemiBold : FontWeights.Bold;
-            block.Foreground = Brushes.White;
+            // Etiketa garbiak: makinak zuriz (testu berde iluna), soroak berde ilunez (testu zuria)
+            block.Foreground = machine ? new SolidColorBrush(Color.FromRgb(30, 70, 42)) : Brushes.White;
 
             Border border = new Border();
             border.Child = block;
@@ -453,8 +454,8 @@ namespace AgroCore.ControlCenter.Scene
             border.BorderThickness = new Thickness(1);
             border.BorderBrush = Brushes.Transparent;
             border.Background = machine
-                ? new SolidColorBrush(Color.FromArgb(190, 20, 28, 24))
-                : new SolidColorBrush(Color.FromArgb(150, 70, 45, 25));
+                ? new SolidColorBrush(Color.FromArgb(235, 255, 255, 255))
+                : new SolidColorBrush(Color.FromArgb(215, 37, 120, 62));
             border.IsHitTestVisible = false;
             return border;
         }
