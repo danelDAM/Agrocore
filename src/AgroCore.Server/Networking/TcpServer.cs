@@ -95,6 +95,15 @@ namespace AgroCore.Server.Networking
                         controlCenter.Run(firstLine);
                         break;
 
+                    case MessageTypes.MachineAuth:
+                        MachineClientHandler machine = new MachineClientHandler(context, connection);
+                        machine.Run(firstLine);
+                        break;
+
+                    case MessageTypes.FleetQuery:
+                        MachineClientHandler.HandleFleetQuery(context, connection, firstLine);
+                        break;
+
                     default:
                         connection.TrySend(OperationResult.Fail(type, "El primer mensaje debe ser LOGIN_REQUEST, MACHINE_AUTH o FLEET_QUERY"));
                         context.Logger.Log(EventKind.AccessDenied, LogSeverity.Security,

@@ -22,7 +22,12 @@ namespace AgroCore.Shared.Models
 
         public override string ToString()
         {
-            return "[" + Timestamp.ToString("HH:mm:ss") + "] " + Message;
+            string farm = "";
+            if (FarmId.HasValue)
+            {
+                farm = "[F" + FarmId.Value + "] ";
+            }
+            return "[" + Timestamp.ToString("HH:mm:ss") + "] " + farm + Message;
         }
     }
 }

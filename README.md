@@ -14,7 +14,7 @@ AgroCore.sln
 src/
   AgroCore.Shared/      Modelos, enums, mensajes del protocolo, plano de la explotación
   AgroCore.Server/      Servidor TCP/UDP, seguridad, coordinación, logs
-  AgroCore.MachineClient/  (Sprint 2) Máquina autónoma
+  AgroCore.MachineClient/  Máquina autónoma (un proceso por máquina)
   AgroCore.ControlCenter/  (Sprint 3) Centro de control WPF
 tests/
   AgroCore.Tests/       Pruebas automáticas (xUnit)
@@ -33,4 +33,11 @@ dotnet test AgroCore.sln
 dotnet run --project src/AgroCore.Server
 ```
 
+Flota de ejemplo (otra terminal):
+
+```
+dotnet run --project src/AgroCore.MachineClient -- --fleet --farm 1 --key AGRO-DEMO-1 --windows
+```
+
 Usuarios de ejemplo: ver [Documentation/Sprint1.md](Documentation/Sprint1.md).
+- [Sprint 2](Documentation/Sprint2.md): coordinación y máquinas autónomas

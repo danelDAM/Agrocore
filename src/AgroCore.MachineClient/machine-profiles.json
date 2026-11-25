@@ -1,0 +1,13 @@
+{
+  "Seeder-01":    { "model": "AgroSeed S400",     "speed": 4.4, "workSpeedFactor": 0.55, "moveConsumption": 0.22, "workConsumption": 0.40, "capacity": 80,  "workRadius": 1.8, "efficiency": 0.92 },
+  "Seeder-02":    { "model": "AgroSeed S300",     "speed": 4.0, "workSpeedFactor": 0.50, "moveConsumption": 0.20, "workConsumption": 0.36, "capacity": 60,  "workRadius": 1.5, "efficiency": 0.88 },
+  "Irrigator-01": { "model": "HydroRun 2000",     "speed": 3.6, "workSpeedFactor": 0.60, "moveConsumption": 0.28, "workConsumption": 0.45, "capacity": 2000, "workRadius": 2.2, "efficiency": 0.90 },
+  "Irrigator-02": { "model": "HydroRun 1500",     "speed": 3.9, "workSpeedFactor": 0.55, "moveConsumption": 0.25, "workConsumption": 0.42, "capacity": 1500, "workRadius": 1.8, "efficiency": 0.86 },
+  "Sprayer-01":   { "model": "SkySpray D6",       "speed": 6.5, "workSpeedFactor": 0.45, "moveConsumption": 0.35, "workConsumption": 0.55, "capacity": 40,  "workRadius": 1.6, "efficiency": 0.94 },
+  "Sprayer-02":   { "model": "SkySpray D6",       "speed": 6.2, "workSpeedFactor": 0.45, "moveConsumption": 0.34, "workConsumption": 0.52, "capacity": 40,  "workRadius": 1.6, "efficiency": 0.91 },
+  "Sprayer-03":   { "model": "SkySpray D4 Lite",  "speed": 5.6, "workSpeedFactor": 0.50, "moveConsumption": 0.30, "workConsumption": 0.48, "capacity": 25,  "workRadius": 1.3, "efficiency": 0.87 },
+  "Harvester-01": { "model": "GrainMaster H5",    "speed": 5.0, "workSpeedFactor": 0.50, "moveConsumption": 0.30, "workConsumption": 0.50, "capacity": 100, "workRadius": 1.5, "efficiency": 0.90 },
+  "Harvester-02": { "model": "GrainMaster H7",    "speed": 4.0, "workSpeedFactor": 0.50, "moveConsumption": 0.24, "workConsumption": 0.42, "capacity": 150, "workRadius": 1.8, "efficiency": 0.88 },
+  "Harvester-03": { "model": "GrainMaster H5",    "speed": 4.6, "workSpeedFactor": 0.50, "moveConsumption": 0.28, "workConsumption": 0.48, "capacity": 120, "workRadius": 1.5, "efficiency": 0.86 },
+  "Harvester-04": { "model": "GrainMaster H6",    "speed": 4.3, "workSpeedFactor": 0.52, "moveConsumption": 0.26, "workConsumption": 0.46, "capacity": 140, "workRadius": 1.7, "efficiency": 0.89 }
+}

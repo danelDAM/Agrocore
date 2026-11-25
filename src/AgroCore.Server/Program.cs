@@ -2,6 +2,10 @@ using System;
 using System.IO;
 using AgroCore.Server.Configuration;
 using AgroCore.Server.Data;
+using AgroCore.Server.Fields;
+using AgroCore.Server.Machines;
+using AgroCore.Server.Statistics;
+using AgroCore.Server.Synchronization;
 using AgroCore.Server.Logging;
 using AgroCore.Server.Networking;
 using AgroCore.Server.Security;
@@ -40,11 +44,31 @@ namespace AgroCore.Server
             context.Auth = new AuthService(context.Store, context.Config, context.Logger);
             context.Users = new UserManagementService(context.Store, context.Sessions, context.Logger);
 
-            context.Logger.Log(EventKind.ServerStarted, LogSeverity.Success, "Servidor AGROCORE iniciado");
+            context.Farms = new FarmManager(context.Store, context.Config, context.Logger);
+            context.Farms.LoadAll();
+            context.Commands = new MachineCommandService(context.Logger);
+            context.Statistics = new StatisticsService(context.Logger, context.Farms);
+            context.StateBuilder = new FarmStateBuilder(context.Logger, () => context.Config.Current);
 
-            // 2. Arrancar el servidor TCP
+            // Si el administrador crea o borra una explotación, se pone en marcha o se detiene
+            context.Users.FarmCreated += farm => context.Farms.AddFarm(farm);
+            context.Users.FarmDeleted += farmId => context.Farms.RemoveFarm(farmId);
+
+            context.Logger.Log(EventKind.ServerStarted, LogSeverity.Success,
+                "Servidor AGROCORE iniciado con " + context.Farms.GetAll().Count + " explotaciones");
+
+            // 2. Arrancar los hilos del servidor
             TcpServer tcpServer = new TcpServer(context, context.Config.Current.TcpPort);
             tcpServer.Start();
+
+            UdpTelemetryServer udpServer = new UdpTelemetryServer(context, context.Config.Current.UdpPort);
+            udpServer.Start();
+
+            GrowthService growth = new GrowthService(context.Farms);
+            growth.Start();
+
+            StateBroadcaster broadcaster = new StateBroadcaster(context);
+            broadcaster.Start();
 
             // 3. Consola: comandos sencillos para el administrador del servidor
             Console.WriteLine("Comandos: 'status' = ver estado, 'debug' = ver/ocultar reservas de zonas, 'exit' = salir");
@@ -75,7 +99,11 @@ namespace AgroCore.Server
 
             // 4. Apagado ordenado
             context.Logger.Log(EventKind.ServerStopped, LogSeverity.Info, "Servidor detenido");
+            broadcaster.Stop();
+            growth.Stop();
+            udpServer.Stop();
             tcpServer.Stop();
+            context.Farms.SaveAll();
             context.Store.Save();
             context.Logger.Stop();
         }

@@ -1,7 +1,10 @@
 using AgroCore.Server.Configuration;
 using AgroCore.Server.Data;
 using AgroCore.Server.Logging;
+using AgroCore.Server.Machines;
 using AgroCore.Server.Security;
+using AgroCore.Server.Statistics;
+using AgroCore.Server.Synchronization;
 
 namespace AgroCore.Server
 {
@@ -17,5 +20,11 @@ namespace AgroCore.Server
         public AuthService Auth { get; set; }
         public SessionManager Sessions { get; set; }
         public UserManagementService Users { get; set; }
+
+        // Sprint 2: simulación y coordinación
+        public FarmManager Farms { get; set; }
+        public MachineCommandService Commands { get; set; }
+        public StatisticsService Statistics { get; set; }
+        public FarmStateBuilder StateBuilder { get; set; }
     }
 }
